@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tres x Seis Activo - Quiniela Hípica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { orange: '#f97316', amber: '#f59e0b', dark: '#0f172a' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* FONDO CON MÚLTIPLES OPCIONES - ELIGE LA QUE FUNCIONE */
+        .bg-hipodromo {
+            /* OPCIÓN 1: Imagen local (descomenta si descargaste la imagen) */
+            /* background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('hipodromo.jpg'); */
+            
+            /* OPCIÓN 2: Picsum (servidor confiable) */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('https://picsum.photos/seed/horse123/1920/1080');
+            
+            /* OPCIÓN 3: Otra URL de Unsplash */
+            /* background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?w=1920&h=1080&fit=crop'); */
+            
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+        
+        /* Si la imagen falla, mostrar color de respaldo */
+        body {
+            background-color: #0f172a;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(249, 115, 22, 0.2); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white;
+        }
+        .glass-input:focus { border-color: #f97316; outline: none; background: rgba(255, 255, 255, 0.1); }
+        
+        .horse-btn { transition: all 0.2s; }
+        .horse-btn.selected {
+            background: linear-gradient(135deg, #f97316, #f59e0b);
+            color: white; font-weight: 900; border-color: transparent;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.6); transform: scale(1.05);
+        }
+        .horse-btn.scratched { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
+
+    <!-- HEADER GLOBAL - VISIBLE EN TODAS LAS PANTALLAS -->
+    <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-brand-orange/30">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-horse-head text-2xl text-brand-orange"></i>
+                <div>
+                    <h1 class="text-lg font-black tracking-tight text-white leading-none">3 x 6</h1>
+                    <span class="text-[10px] font-black text-brand-amber tracking-[0.2em] uppercase">Activo</span>
+                </div>
+            </div>
+            <!-- LINK RANKING -->
+            <button onclick="showRankingFromHeader()" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold text-sm transition-all">
+                <i class="fa-solid fa-trophy"></i>
+                <span>RANKING</span>
+            </button>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <!-- Botón Ranking para móvil -->
+            <button onclick="showRankingFromHeader()" class="md:hidden p-2 rounded-lg bg-brand-orange/20 text-brand-orange">
+                <i class="fa-solid fa-trophy"></i>
+            </button>
+            <button onclick="openAdmin()" class="text-xs font-bold text-gray-500 hover:text-brand-orange transition-colors flex items-center gap-1 border border-white/10 px-2 py-1 rounded">
+                <i class="fa-solid fa-lock"></i> <span class="hidden sm:inline">ADMIN</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- VISTA 1: REGISTRO -->
+    <!-- ========================================== -->
+    <div id="view-register" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
+        <div class="glass-panel rounded-3xl p-6 w-full max-w-md text-center">
+            <div class="mb-6">
+                <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
+                <p class="text-sm text-gray-400 mb-4">Bienvenido a la nueva experiencia hípica</p>
+                <div class="text-left bg-brand-orange/10 p-4 rounded-xl text-xs text-gray-300 space-y-2 border border-brand-orange/20">
+                    <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Elige <b>3 caballos</b> por cada una de las 6 carreras.</p>
+                    <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Los ejemplares "Retirados" no aparecerán.</p>
+                    <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Debes completar las 18 selecciones para enviar.</p>
+                </div>
+            </div>
+            <input type="text" id="reg-nickname" placeholder="TU APODO ÚNICO" 
+                class="w-full glass-input rounded-xl px-4 py-4 text-lg font-black text-center placeholder-gray-600 mb-4 uppercase tracking-wider">
+            <button onclick="registerUser()" class="w-full bg-gradient-to-r from-brand-orange to-brand-amber text-white font-black text-lg py-4 rounded-xl shadow-lg shadow-orange-500/40 active:scale-95 transition-transform">
+                ACTIVAR MI JUGADA
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VISTA 2: SELECCIÓN DE JUGADA (USUARIO) -->
+    <!-- ========================================== -->
+    <div id="view-play" class="hidden flex-1 p-4 pb-28 fade-in max-w-3xl mx-auto w-full">
+        <div class="glass-panel rounded-2xl p-4 mb-4 flex justify-between items-center border-l-4 border-l-brand-orange">
+            <div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Jugador Activo</p>
+                <p class="text-xl font-black text-white" id="display-nickname">---</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Progreso</p>
+                <p class="text-3xl font-black text-brand-amber"><span id="picks-count">0</span><span class="text-gray-500 text-lg">/18</span></p>
+            </div>
+        </div>
+
+        <div id="races-container" class="space-y-5">
+            <!-- Las carreras se generan dinámicamente con JS -->
+        </div>
+
+        <!-- Botón Flotante de Envío -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 glass-panel border-t border-brand-orange/30 bg-brand-dark/95 backdrop-blur-xl">
+            <button id="btn-submit" onclick="submitBet()" disabled 
+                class="w-full bg-gray-800 text-gray-500 font-black text-lg py-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
+                <i class="fa-solid fa-paper-plane"></i> ENVIAR TU JUGADA
+            </button>
+            <p id="submit-hint" class="text-center text-xs text-gray-500 mt-2 font-medium">Selecciona 3 caballos en cada carrera para habilitar</p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VISTA 3: RANKING / RESULTADOS -->
+    <!-- ========================================== -->
+    <div id="view-ranking" class="hidden flex-1 p-4 fade-in max-w-3xl mx-auto w-full pb-10">
+        <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-amber/40 bg-brand-amber/5">
+            <i class="fa-solid fa-trophy text-4xl text-brand-amber mb-2 drop-shadow-lg"></i>
+            <h2 class="text-2xl font-black text-white">Tabla de Posiciones</h2>
+            <p class="text-xs text-gray-400 mt-1">Ordenado por aciertos y alfabéticamente</p>
+        </div>
+
+        <div id="ranking-list" class="space-y-4">
+            <!-- Se llena dinámicamente con JS -->
+        </div>
+        
+        <button onclick="location.reload()" class="w-full mt-6 glass-input text-brand-orange font-bold py-3 rounded-xl active:scale-95 transition-transform">
+            <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar Vista
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: PANEL DE ADMINISTRADOR -->
+    <!-- ========================================== -->
+    <div id="modal-admin" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
+                <h2 class="text-lg font-black text-brand-orange"><i class="fa-solid fa-shield-halved mr-2"></i>ADMIN: Tres x Seis</h2>
+                <button onclick="closeAdmin()" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            
+            <!-- Tabs Admin -->
+            <div class="flex border-b border-white/10 overflow-x-auto no-scrollbar">
+                <button onclick="switchAdminTab('adm-config')" class="adm-tab flex-1 py-3 text-xs font-black text-brand-orange border-b-2 border-brand-orange bg-white/5 whitespace-nowrap px-2">1. Carreras</button>
+                <button onclick="switchAdminTab('adm-retirados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">2. Retirados</button>
+                <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
+                <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
+            </div>
+
+            <div class="p-5 space-y-6">
+                <!-- TAB 1: Configurar Carreras -->
+                <div id="adm-config" class="adm-content block">
+                    <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Cantidad de Ejemplares por Válida</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="admin-race-inputs">
+                        <!-- Inputs generados por JS -->
+                    </div>
+                    <button onclick="saveRaceConfig()" class="w-full mt-6 bg-brand-amber text-black font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        <i class="fa-solid fa-save mr-2"></i>GUARDAR CONFIGURACIÓN
+                    </button>
+                </div>
+
+                <!-- TAB 2: Retirados -->
+                <div id="adm-retirados" class="adm-content hidden">
+                    <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">Marcar Ejemplares Retirados</h3>
+                    <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo. Desaparecerá automáticamente para los usuarios.</p>
+                    <div id="admin-scratch-container" class="space-y-4">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: Resultados -->
+                <div id="adm-resultados" class="adm-content hidden">
+                    <h3 class="text-sm font-black text-brand-amber mb-4 uppercase tracking-wider">Cargar Ganadores Oficiales</h3>
+                    <div class="space-y-3" id="admin-results-container">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                    <button onclick="publishResults()" class="w-full mt-6 bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform">
+                        <i class="fa-solid fa-check-double mr-2"></i>PUBLICAR RESULTADOS
+                    </button>
+                </div>
+
+                <!-- TAB 4: Cobranza -->
+                <div id="adm-cobranza" class="adm-content hidden">
+                    <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Control de Pagos (Bs.)</h3>
+                    <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        <!-- Lista de usuarios para marcar pago -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- LÓGICA JAVASCRIPT + FIREBASE REAL -->
+    <!-- ========================================== -->
+    <script type="module">
+        // ---------------------------------------------------------
+        // 1. CONFIGURACIÓN DE FIREBASE (PROYECTO: Tres x Seis Activo)
+        // ---------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqxEkSUcSTx1iYFdfCC4WhCjAl_3d4dBY",
+            authDomain: "tres-x-seis-activo.firebaseapp.com",
+            projectId: "tres-x-seis-activo",
+            storageBucket: "tres-x-seis-activo.firebasestorage.app",
+            messagingSenderId: "993946546247",
+            appId: "1:993946546247:web:3f2b7269f5435cc6144162"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        console.log("✅ Firebase 'Tres x Seis Activo' conectado exitosamente");
+
+        // ---------------------------------------------------------
+        // 2. ESTADO GLOBAL DE LA APP
+        // ---------------------------------------------------------
+        const appState = {
+            currentUser: null,
+            raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
+            scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+            results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
+            users: []
+        };
+
+        // Función de persistencia híbrida (Firebase + LocalStorage como respaldo)
+        async function saveState() {
+            try {
+                // Guardar en Firestore (colección "global_config")
+                const configDoc = doc(db, "global_config", "main");
+                await updateDoc(configDoc, {
+                    raceConfig: appState.raceConfig,
+                    scratched: appState.scratched,
+                    results: appState.results
+                }).catch(async () => {
+                    // Si no existe, crearlo
+                    const { setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                    await setDoc(configDoc, {
+                        raceConfig: appState.raceConfig,
+                        scratched: appState.scratched,
+                        results: appState.results
+                    });
+                });
+            } catch (error) {
+                console.warn("⚠️ Error guardando en Firebase, usando respaldo local:", error);
+            }
+            localStorage.setItem('tresXSeisActivo_State', JSON.stringify(appState));
+        }
+
+        async function init() {
+            renderAdminConfigInputs();
+            
+            // Intentar cargar desde Firebase primero
+            try {
+                const { getDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
+                const configDoc = doc(db, "global_config", "main");
+                const docSnap = await getDoc(configDoc);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    appState.raceConfig = data.raceConfig || appState.raceConfig;
+                    appState.scratched = data.scratched || appState.scratched;
+                    appState.results = data.results || appState.results;
+                    console.log("✅ Datos cargados desde Firebase");
+                } else {
+                    console.log("ℹ️ Creando documento de configuración inicial en Firebase...");
+                    await saveState();
+                }
+                
+                // Cargar usuarios desde Firestore
+                const usersSnapshot = await getDocs(collection(db, "usuarios"));
+                appState.users = usersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.warn("⚠️ Modo offline (LocalStorage):", error);
+                const saved = localStorage.getItem('tresXSeisActivo_State');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    appState.raceConfig = parsed.raceConfig || appState.raceConfig;
+                    appState.scratched = parsed.scratched || appState.scratched;
+                    appState.results = parsed.results || appState.results;
+                    appState.users = parsed.users || appState.users;
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 3. LÓGICA DE USUARIO Y REGISTRO
+        // ---------------------------------------------------------
+        window.registerUser = async function() {
+            const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
+            if (!nick) return alert("⚠️ Ingresa un apodo.");
+            if (appState.users.find(u => u.name === nick)) return alert("⚠️ Ese apodo ya existe. Elige otro.");
+
+            const newUser = {
+                name: nick,
+                picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+                paid: false,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // Guardar en Firebase
+                const docRef = await addDoc(collection(db, "usuarios"), newUser);
+                appState.currentUser = { id: docRef.id, ...newUser };
+                appState.users.push(appState.currentUser);
+                console.log("✅ Usuario registrado en Firebase con ID:", docRef.id);
+            } catch (error) {
+                console.error("❌ Error registrando en Firebase:", error);
+                alert("⚠️ Error de conexión. Intenta de nuevo.");
+                return;
+            }
+
+            document.getElementById('display-nickname').textContent = nick;
+            document.getElementById('view-register').classList.add('hidden');
+            document.getElementById('view-play').classList.remove('hidden');
+            renderUserBoard();
+        }
+
+        window.renderUserBoard = function() {
+            const container = document.getElementById('races-container');
+            container.innerHTML = '';
+            let totalPicks = 0;
+
+            for (let race = 1; race <= 6; race++) {
+                const totalHorses = appState.raceConfig[race];
+                const scratched = appState.scratched[race];
+                const userPicks = appState.currentUser.picks[race];
+                totalPicks += userPicks.length;
+
+                let horsesHtml = '';
+                for (let i = 1; i <= totalHorses; i++) {
+                    if (scratched.includes(i)) continue; 
+
+                    const isSelected = userPicks.includes(i);
+                    const isDisabled = !isSelected && userPicks.length >= 3; 
+
+                    horsesHtml += `
+                        <button onclick="window.togglePick(${race}, ${i})" 
+                            class="horse-btn w-11 h-11 rounded-xl font-black text-sm border border-white/20 flex items-center justify-center
+                            ${isSelected ? 'selected' : 'bg-white/5 text-gray-300'} 
+                            ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}">
+                            ${i}
+                        </button>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="glass-panel rounded-xl p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-black text-brand-amber text-lg"><i class="fa-solid fa-flag-checkered mr-2"></i>${race}ª VÁLIDA</h3>
+                            <span class="text-xs font-bold ${userPicks.length === 3 ? 'text-green-400' : 'text-gray-500'} bg-white/5 px-2 py-1 rounded">
+                                ${userPicks.length}/3
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            ${horsesHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('picks-count').textContent = totalPicks;
+            const btnSubmit = document.getElementById('btn-submit');
+            const hint = document.getElementById('submit-hint');
+
+            if (totalPicks === 18) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('bg-gray-800', 'text-gray-500', 'border-white/5');
+                btnSubmit.classList.add('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg', 'shadow-orange-500/30');
+                hint.textContent = "¡Jugada completa! Puedes enviar.";
+                hint.classList.add('text-green-400');
+            } else {
+                btnSubmit.disabled = true;
+                btnSubmit.classList.add('bg-gray-800', 'text-gray-500', 'border-white/5');
+                btnSubmit.classList.remove('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg', 'shadow-orange-500/30');
+                hint.textContent = `Te faltan ${18 - totalPicks} selecciones.`;
+                hint.classList.remove('text-green-400');
+            }
+        }
+
+        window.togglePick = function(race, horse) {
+            const picks = appState.currentUser.picks[race];
+            const index = picks.indexOf(horse);
+
+            if (index > -1) {
+                picks.splice(index, 1); 
+            } else {
+                if (picks.length < 3) {
+                    picks.push(horse); 
+                }
+            }
+            renderUserBoard();
+        }
+
+        window.submitBet = async function() {
+            if (confirm("¿Estás seguro de enviar esta jugada? No podrás modificarla después.")) {
+                try {
+                    // Actualizar jugada en Firebase
+                    const userDoc = doc(db, "usuarios", appState.currentUser.id);
+                    await updateDoc(userDoc, { picks: appState.currentUser.picks });
+                    console.log("✅ Jugada guardada en Firebase");
+                    
+                    alert("✅ ¡Jugada enviada con éxito! Serás redirigido al Ranking.");
+                    document.getElementById('view-play').classList.add('hidden');
+                    document.getElementById('view-ranking').classList.remove('hidden');
+                    renderRanking();
+                } catch (error) {
+                    console.error("❌ Error guardando jugada:", error);
+                    alert("⚠️ Error al guardar. Intenta de nuevo.");
+                }
+            }
+        }
+
+        // ---------------------------------------------------------
+        // 4. RANKING Y LÓGICA DE PUNTAJE
+        // ---------------------------------------------------------
+        window.renderRanking = function() {
+            const list = document.getElementById('ranking-list');
+            list.innerHTML = '';
+
+            const sortedUsers = [...appState.users].map(user => {
+                let score = 0;
+                let details = {};
+                for (let r = 1; r <= 6; r++) {
+                    const winner = appState.results[r];
+                    const isHit = winner && user.picks[r].includes(winner);
+                    if (isHit) score++;
+                    details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                }
+                return { ...user, score, details };
+            }).sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.name.localeCompare(b.name);
+            });
+
+            sortedUsers.forEach(u => {
+                let racesHtml = '';
+                for (let r = 1; r <= 6; r++) {
+                    const d = u.details[r];
+                    
+                    const picksFormatted = d.picks.map(p => {
+                        if (d.winner && p === d.winner) {
+                            return `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>`;
+                        } else if (d.winner) {
+                            return `<span class="text-red-400/50 line-through decoration-red-500/50">${p}</span>`;
+                        } else {
+                            return `<span class="text-gray-300 font-bold">${p}</span>`;
+                        }
+                    }).join(' ');
+
+                    const rowClass = d.winner ? (d.isHit ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/5 border-red-500/20') : 'bg-white/5 border-white/10';
+
+                    racesHtml += `
+                        <div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 ${rowClass} px-2 rounded">
+                            <span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span>
+                            <div class="flex-1 text-right tracking-widest">${picksFormatted}</div>
+                        </div>
+                    `;
+                }
+
+                const paidBadge = u.paid ? '<i class="fa-solid fa-circle-check text-green-400 text-lg" title="Pagado"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400 text-lg" title="Pendiente"></i>';
+
+                list.innerHTML += `
+                    <div class="glass-panel rounded-xl p-4 border ${u.name === (appState.currentUser ? appState.currentUser.name : '') ? 'border-brand-orange shadow-lg shadow-orange-500/10' : 'border-white/5'}">
+                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl font-black text-brand-amber w-8 text-center">#${sortedUsers.indexOf(u) + 1}</span>
+                                <div>
+                                    <span class="font-black text-lg text-white block leading-none">${u.name}</span>
+                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider">Participante</span>
+                                </div>
+                                ${paidBadge}
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] text-gray-400 uppercase tracking-widest block">Aciertos</span>
+                                <div class="text-3xl font-black ${u.score > 0 ? 'text-green-400' : 'text-gray-600'} leading-none">${u.score}<span class="text-lg text-gray-500">/6</span></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            ${racesHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ---------------------------------------------------------
+        // 5. PANEL DE ADMINISTRADOR
+        // ---------------------------------------------------------
+        window.openAdmin = function() {
+            const pass = prompt("🔒 Ingrese clave de administrador:");
+            if (pass === "111180") {
+                document.getElementById('modal-admin').classList.remove('hidden');
+                renderAdminScratch();
+                renderAdminResults();
+                renderAdminPayments();
+            } else if (pass !== null) {
+                alert("❌ Clave incorrecta.");
+            }
+        }
+
+        window.closeAdmin = function() {
+            document.getElementById('modal-admin').classList.add('hidden');
+        }
+
+        window.switchAdminTab = function(tabId) {
+            document.querySelectorAll('.adm-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.adm-tab').forEach(btn => {
+                btn.classList.remove('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5');
+                btn.classList.add('text-gray-500');
+            });
+            event.target.classList.remove('text-gray-500');
+            event.target.classList.add('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5');
+        }
+
+        window.renderAdminConfigInputs = function() {
+            const container = document.getElementById('admin-race-inputs');
+            container.innerHTML = '';
+            for (let i = 1; i <= 6; i++) {
+                container.innerHTML += `
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 mb-1 uppercase tracking-wider">${i}ª Válida</label>
+                        <input type="number" id="cfg-race-${i}" value="${appState.raceConfig[i]}" min="4" max="14"
+                            class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg">
+                    </div>
+                `;
+            }
+        }
+
+        window.saveRaceConfig = async function() {
+            for (let i = 1; i <= 6; i++) {
+                const val = parseInt(document.getElementById(`cfg-race-${i}`).value);
+                appState.raceConfig[i] = val;
+                appState.scratched[i] = appState.scratched[i].filter(s => s <= val);
+            }
+            await saveState();
+            alert("✅ Configuración de carreras guardada en Firebase.");
+            renderAdminScratch();
+            renderAdminResults();
+            if (appState.currentUser) renderUserBoard();
+        }
+
+        window.renderAdminScratch = function() {
+            const container = document.getElementById('admin-scratch-container');
+            container.innerHTML = '';
+            for (let r = 1; r <= 6; r++) {
+                let buttons = '';
+                for (let i = 1; i <= appState.raceConfig[r]; i++) {
+                    const isScratched = appState.scratched[r].includes(i);
+                    buttons += `
+                        <button onclick="window.toggleScratch(${r}, ${i})" 
+                            class="w-10 h-10 rounded-lg font-black text-sm border transition-all
+                            ${isScratched ? 'bg-red-600 border-red-500 text-white line-through' : 'bg-white/5 border-white/20 text-gray-300 hover:bg-white/10'}">
+                            ${i}
+                        </button>
+                    `;
+                }
+                container.innerHTML += `
+                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                        <p class="text-[10px] font-black text-brand-amber mb-2 uppercase tracking-wider">${r}ª VÁLIDA - Retirados:</p>
+                        <div class="flex flex-wrap gap-2">${buttons}</div>
+                    </div>
+                `;
+            }
+        }
+
+        window.toggleScratch = async function(race, horse) {
+            const arr = appState.scratched[race];
+            const idx = arr.indexOf(horse);
+            if (idx > -1) arr.splice(idx, 1);
+            else arr.push(horse);
+            
+            if (appState.currentUser) {
+                const uPicks = appState.currentUser.picks[race];
+                const uIdx = uPicks.indexOf(horse);
+                if (uIdx > -1) uPicks.splice(uIdx, 1);
+            }
+            
+            await saveState();
+            renderAdminScratch();
+            if (appState.currentUser) renderUserBoard();
+        }
+
+        window.renderAdminResults = function() {
+            const container = document.getElementById('admin-results-container');
+            container.innerHTML = '';
+            for (let r = 1; r <= 6; r++) {
+                container.innerHTML += `
+                    <div class="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
+                        <span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span>
+                        <input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" 
+                            placeholder="#" min="1" max="${appState.raceConfig[r]}"
+                            class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg">
+                    </div>
+                `;
+            }
+        }
+
+        window.publishResults = async function() {
+            let allFilled = true;
+            for (let r = 1; r <= 6; r++) {
+                const val = document.getElementById(`res-race-${r}`).value;
+                if (!val) allFilled = false;
+                appState.results[r] = val ? parseInt(val) : null;
+            }
+            
+            if (!allFilled) return alert("⚠️ Debes ingresar el ganador de las 6 carreras.");
+            
+            await saveState();
+            alert("🏆 ¡Resultados publicados en Firebase! El ranking se ha actualizado.");
+            closeAdmin();
+            if (!document.getElementById('view-ranking').classList.contains('hidden')) {
+                renderRanking();
+            } else {
+                document.getElementById('view-play').classList.add('hidden');
+                document.getElementById('view-ranking').classList.remove('hidden');
+                renderRanking();
+            }
+        }
+
+        window.renderAdminPayments = async function() {
+            const container = document.getElementById('admin-payment-list');
+            container.innerHTML = '';
+            
+            // Recargar usuarios desde Firebase para tener el estado actualizado
+            try {
+                const usersSnapshot = await getDocs(collection(db, "usuarios"));
+                appState.users = usersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } catch (error) {
+                console.warn("⚠️ Usando usuarios en caché");
+            }
+            
+            appState.users.forEach(u => {
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/5">
+                        <span class="font-black text-sm">${u.name}</span>
+                        <button onclick="window.togglePayment('${u.id}', '${u.name}')" 
+                            class="px-3 py-1.5 rounded text-[10px] font-black transition-all uppercase tracking-wider
+                            ${u.paid ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
+                            ${u.paid ? 'PAGADO ✅' : 'PENDIENTE'}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        window.togglePayment = async function(userId, name) {
+            try {
+                const userDoc = doc(db, "usuarios", userId);
+                const user = appState.users.find(u => u.id === userId);
+                if (user) {
+                    const newStatus = !user.paid;
+                    await updateDoc(userDoc, { paid: newStatus });
+                    user.paid = newStatus;
+                    console.log(`✅ Estado de pago de ${name} actualizado a: ${newStatus ? 'PAGADO' : 'PENDIENTE'}`);
+                }
+                renderAdminPayments();
+                if (!document.getElementById('view-ranking').classList.contains('hidden')) renderRanking();
+            } catch (error) {
+                console.error("❌ Error actualizando pago:", error);
+                alert("⚠️ Error al actualizar el estado de pago.");
+            }
+        }
+
+        // NUEVA FUNCIÓN: Mostrar ranking desde el header
+        window.showRankingFromHeader = function() {
+            // Ocultar todas las vistas
+            document.getElementById('view-register').classList.add('hidden');
+            document.getElementById('view-play').classList.add('hidden');
+            document.getElementById('view-ranking').classList.remove('hidden');
+            
+            // Renderizar ranking
+            renderRanking();
+            
+            // Scroll al top
+            window.scrollTo(0, 0);
+        }
+
+        // Arrancar la aplicación
+        init();
+    </script>
+</body>
+</html>
