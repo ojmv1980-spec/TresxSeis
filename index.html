@@ -52,8 +52,9 @@
 </head>
 <body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
 
+    <!-- HEADER GLOBAL - VISIBLE EN TODAS LAS PANTALLAS -->
     <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-brand-orange/30">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-horse-head text-2xl text-brand-orange"></i>
                 <div>
@@ -61,6 +62,11 @@
                     <span class="text-[10px] font-black text-brand-amber tracking-[0.2em] uppercase">Activo</span>
                 </div>
             </div>
+            <!-- BOTÓN INICIO (🏠) - A LA IZQUIERDA DE RANKING -->
+            <button onclick="goHome()" class="p-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold transition-all" title="Inicio">
+                <i class="fa-solid fa-house text-sm"></i>
+            </button>
+            <!-- BOTÓN RANKING -->
             <button onclick="showView('view-ranking')" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold text-sm transition-all">
                 <i class="fa-solid fa-trophy"></i><span>RANKING</span>
             </button>
@@ -75,6 +81,7 @@
         </div>
     </header>
 
+    <!-- VISTA 1: REGISTRO (INICIO) -->
     <div id="view-register" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
         <div class="glass-panel rounded-3xl p-6 w-full max-w-md text-center">
             <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
@@ -92,6 +99,7 @@
         </div>
     </div>
 
+    <!-- VISTA 2: JUGADA -->
     <div id="view-play" class="hidden flex-1 p-4 pb-28 fade-in max-w-3xl mx-auto w-full">
         <div class="glass-panel rounded-2xl p-4 mb-4 flex justify-between items-center border-l-4 border-l-brand-orange">
             <div>
@@ -113,6 +121,7 @@
         </div>
     </div>
 
+    <!-- VISTA 3: RANKING -->
     <div id="view-ranking" class="hidden flex-1 p-4 fade-in max-w-3xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-amber/40 bg-brand-amber/5">
             <i class="fa-solid fa-trophy text-4xl text-brand-amber mb-2 drop-shadow-lg"></i>
@@ -125,6 +134,7 @@
         </button>
     </div>
 
+    <!-- VISTA 4: ADMIN -->
     <div id="view-admin" class="hidden flex-1 p-4 fade-in max-w-4xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-orange/40 bg-brand-orange/5">
             <i class="fa-solid fa-shield-halved text-4xl text-brand-orange mb-2 drop-shadow-lg"></i>
@@ -161,7 +171,7 @@
                     <p class="text-xs text-gray-400 mb-3">Genera el reporte completo de todas las jugadas para compartir en el grupo ANTES de cargar el primer resultado.</p>
                     <button onclick="generateInitialReport()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span> GENERAR REPORTE DE JUGADAS</span>
+                        <span>📋 GENERAR REPORTE DE JUGADAS</span>
                     </button>
                     <div id="initial-report-preview-container" class="hidden mt-4">
                         <div class="flex justify-between items-center mb-2">
@@ -237,8 +247,7 @@
                 });
                 console.log("✅ Configuración guardada en Firebase");
             } catch (error) {
-                console.error("❌ Error guardando configuración:", error);
-                alert("️ Error guardando en Firebase. Los datos se guardaron localmente.");
+                console.error("❌ Error guardando configuración en Firebase:", error);
             }
             localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
                 raceConfig: appState.raceConfig,
@@ -260,7 +269,7 @@
                     return true;
                 }
             } catch (error) {
-                console.warn("⚠️ Error cargando de Firebase:", error);
+                console.warn("⚠️ Error cargando configuración de Firebase:", error);
             }
             return false;
         }
@@ -268,32 +277,69 @@
         async function loadUsersFromFirebase() {
             try {
                 const usersSnapshot = await getDocs(collection(db, "usuarios"));
-                appState.users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log(`✅ ${appState.users.length} usuarios cargados desde Firebase`);
-                return true;
+                const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (users.length > 0) {
+                    appState.users = users;
+                    console.log(`✅ ${users.length} usuarios cargados desde Firebase`);
+                    return true;
+                }
             } catch (error) {
-                console.warn("⚠️ Error cargando usuarios:", error);
-                return false;
+                console.warn("⚠️ Error cargando usuarios de Firebase:", error);
             }
+            return false;
+        }
+
+        async function saveUserToFirebase(user) {
+            try {
+                const docRef = await addDoc(collection(db, "usuarios"), user);
+                console.log(`✅ Usuario ${user.name} guardado en Firebase con ID: ${docRef.id}`);
+                return docRef.id;
+            } catch (error) {
+                console.error("❌ Error guardando usuario en Firebase:", error);
+                return null;
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const configSaved = localStorage.getItem('tresXSeisActivo_Config');
+            if (configSaved) {
+                const parsed = JSON.parse(configSaved);
+                appState.raceConfig = parsed.raceConfig || appState.raceConfig;
+                appState.scratched = parsed.scratched || appState.scratched;
+                appState.results = parsed.results || appState.results;
+            }
+            const usersSaved = localStorage.getItem('tresXSeisActivo_Users');
+            if (usersSaved) {
+                appState.users = JSON.parse(usersSaved);
+            }
+        }
+
+        function saveUsersToLocalStorage() {
+            localStorage.setItem('tresXSeisActivo_Users', JSON.stringify(appState.users));
         }
 
         async function init() {
             const configLoaded = await loadConfigFromFirebase();
-            if (!configLoaded) {
-                const saved = localStorage.getItem('tresXSeisActivo_Config');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    appState.raceConfig = parsed.raceConfig || appState.raceConfig;
-                    appState.scratched = parsed.scratched || appState.scratched;
-                    appState.results = parsed.results || appState.results;
-                }
-            }
+            if (!configLoaded) loadFromLocalStorage();
             const usersLoaded = await loadUsersFromFirebase();
-            if (!usersLoaded) {
-                console.warn("⚠️ No se pudieron cargar usuarios desde Firebase");
-            }
+            if (!usersLoaded) loadFromLocalStorage();
             renderAdminConfigInputs();
             renderAdminResults();
+            saveUsersToLocalStorage();
+            saveConfigToFirebase();
+        }
+
+        // ============================================
+        // NAVEGACIÓN - BOTÓN INICIO
+        // ============================================
+        window.goHome = function() {
+            // Limpiar el campo de nickname para nuevo registro
+            document.getElementById('reg-nickname').value = '';
+            document.getElementById('view-register').classList.remove('hidden');
+            document.getElementById('view-play').classList.add('hidden');
+            document.getElementById('view-ranking').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            window.scrollTo(0, 0);
         }
 
         window.showView = function(viewId) {
@@ -302,6 +348,7 @@
             document.getElementById('view-ranking').classList.add('hidden');
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById(viewId).classList.remove('hidden');
+            
             if (viewId === 'view-ranking') renderRanking();
             if (viewId === 'view-admin') {
                 renderAdminScratch();
@@ -330,17 +377,24 @@
                 return;
             }
 
-            const newUser = { name: nick, picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }, paid: false, createdAt: new Date().toISOString() };
-            try {
-                const docRef = await addDoc(collection(db, "usuarios"), newUser);
-                appState.currentUser = { id: docRef.id, ...newUser };
-                appState.users.push(appState.currentUser);
-                console.log("✅ Usuario registrado:", nick);
-            } catch (error) {
-                console.error("❌ Error registrando:", error);
+            const newUser = { 
+                name: nick, 
+                picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }, 
+                paid: false, 
+                createdAt: new Date().toISOString() 
+            };
+            
+            const userId = await saveUserToFirebase(newUser);
+            if (!userId) {
                 alert("⚠️ Error de conexión. Intenta de nuevo.");
                 return;
             }
+            
+            const userWithId = { id: userId, ...newUser };
+            appState.currentUser = userWithId;
+            appState.users.push(userWithId);
+            saveUsersToLocalStorage();
+            
             document.getElementById('display-nickname').textContent = nick;
             showView('view-play');
             renderUserBoard();
@@ -395,6 +449,7 @@
                 try {
                     const userDoc = doc(db, "usuarios", appState.currentUser.id);
                     await updateDoc(userDoc, { picks: appState.currentUser.picks });
+                    saveUsersToLocalStorage();
                     alert("✅ ¡Jugada enviada!");
                     showView('view-ranking');
                 } catch (error) {
@@ -561,7 +616,7 @@
                 return;
             }
             let msg = '';
-            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += ' *3 x 6 ACTIVO* \n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
@@ -578,7 +633,7 @@
                 msg += '\n';
             });
             msg += '━━━━━━━━━━━━━━━━━━━\n';
-            msg += '⚠️ *¡IMPORTANTE!*\n';
+            msg += '️ *¡IMPORTANTE!*\n';
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
@@ -591,7 +646,7 @@
         }
 
         window.copyInitialReport = async function() {
-            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
                 alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -612,7 +667,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
             const usersWithStatus = appState.users.map(user => {
                 let status = { alive: true, eliminatedAt: null, details: {} };
                 for (let r = 1; r <= currentRace; r++) {
@@ -626,10 +681,10 @@
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
             let msg = '';
-            msg += ' *3 x 6 ACTIVO* \n';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
-            msg += ` Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
+            msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
             msg += '📊 *ESTADO ACTUAL*\n';
             msg += `✅ Vivos: ${aliveUsers.length}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
@@ -637,7 +692,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['', '🥈', '🥉'];
+                const medals = ['🥇', '🥈', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     const paidIcon = u.paid ? '✅' : '⏳';
@@ -653,14 +708,14 @@
             }
             if (eliminatedUsers.length > 0) {
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
+                msg += ' *Y ALLÁ RRROOODARON* \n\n';
                 eliminatedUsers.forEach(u => {
                     const paidIcon = u.paid ? '✅' : '⏳';
                     msg += `*${u.name}* ${paidIcon} _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= currentRace; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        let icon = '⏸️';
+                        let icon = '️';
                         if (r === u.eliminatedAt) icon = '❌';
                         else if (d.isHit) icon = '✔️';
                         msg += `${r}ª: ${picksStr} ${icon}\n`;
@@ -671,13 +726,13 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
-                    msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += aliveUsers.map(u => ` *${u.name}*`).join('\n');
                 } else {
                     msg += '😱 *¡No hubo ganadores esta jornada!*\n';
                 }
             } else {
-                msg += ` *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
+                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
             }
             const preview = document.getElementById('whatsapp-preview');
             preview.textContent = msg;
@@ -719,9 +774,10 @@
                     const newStatus = !user.paid;
                     await updateDoc(userDoc, { paid: newStatus });
                     user.paid = newStatus;
+                    saveUsersToLocalStorage();
                 }
                 renderAdminPayments();
-            } catch (error) { alert("️ Error actualizando pago."); }
+            } catch (error) { alert("⚠️ Error actualizando pago."); }
         }
 
         init();
