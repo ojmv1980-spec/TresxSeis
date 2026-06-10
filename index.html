@@ -171,7 +171,7 @@
                     <p class="text-xs text-gray-400 mb-3">Genera el reporte completo de todas las jugadas para compartir en el grupo ANTES de cargar el primer resultado.</p>
                     <button onclick="generateInitialReport()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span>📋 GENERAR REPORTE DE JUGADAS</span>
+                        <span> GENERAR REPORTE DE JUGADAS</span>
                     </button>
                     <div id="initial-report-preview-container" class="hidden mt-4">
                         <div class="flex justify-between items-center mb-2">
@@ -329,11 +329,7 @@
             saveConfigToFirebase();
         }
 
-        // ============================================
-        // NAVEGACIÓN - BOTÓN INICIO
-        // ============================================
         window.goHome = function() {
-            // Limpiar el campo de nickname para nuevo registro
             document.getElementById('reg-nickname').value = '';
             document.getElementById('view-register').classList.remove('hidden');
             document.getElementById('view-play').classList.add('hidden');
@@ -444,13 +440,25 @@
             renderUserBoard();
         }
 
+        // ============================================
+        // ENVIAR JUGADA CON RESUMEN PREVIO
+        // ============================================
         window.submitBet = async function() {
-            if (confirm("¿Estás seguro de enviar esta jugada?")) {
+            // Construir el resumen de jugadas
+            let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
+            for (let r = 1; r <= 6; r++) {
+                const picks = appState.currentUser.picks[r];
+                const picksStr = picks.map(p => `[${p}]`).join(' ');
+                resumen += `${r}ª V.: ${picksStr}\n`;
+            }
+            resumen += '\n¿Confirmas el envío de estas selecciones?';
+            
+            if (confirm(resumen)) {
                 try {
                     const userDoc = doc(db, "usuarios", appState.currentUser.id);
                     await updateDoc(userDoc, { picks: appState.currentUser.picks });
                     saveUsersToLocalStorage();
-                    alert("✅ ¡Jugada enviada!");
+                    alert("✅ ¡Jugada enviada con éxito!");
                     showView('view-ranking');
                 } catch (error) {
                     alert("⚠️ Error al guardar.");
@@ -507,7 +515,7 @@
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
             const paidBadge = u.paid ? '<i class="fa-solid fa-circle-check text-green-400 text-lg"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400 text-lg"></i>';
-            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+            const positionDisplay = isWinner ? '<span class="text-3xl"></span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
             const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
             return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div>${paidBadge}</div></div><div class="space-y-1">${racesHtml}</div></div>`;
         }
@@ -593,7 +601,7 @@
             await saveConfigToFirebase();
             let aciertos = 0, fallos = 0;
             appState.users.forEach(u => { if (u.picks[race].includes(winner)) aciertos++; else fallos++; });
-            alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
+            alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n Eliminados: ${fallos}`);
             renderAdminResults();
             renderRanking();
         }
@@ -616,7 +624,7 @@
                 return;
             }
             let msg = '';
-            msg += ' *3 x 6 ACTIVO* \n';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
@@ -633,7 +641,7 @@
                 msg += '\n';
             });
             msg += '━━━━━━━━━━━━━━━━━━━\n';
-            msg += '️ *¡IMPORTANTE!*\n';
+            msg += '⚠️ *¡IMPORTANTE!*\n';
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
@@ -646,7 +654,7 @@
         }
 
         window.copyInitialReport = async function() {
-            if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
+            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
                 alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -692,7 +700,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '🥈', '🥉'];
+                const medals = ['🥇', '', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     const paidIcon = u.paid ? '✅' : '⏳';
@@ -708,14 +716,14 @@
             }
             if (eliminatedUsers.length > 0) {
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-                msg += ' *Y ALLÁ RRROOODARON* \n\n';
+                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
                 eliminatedUsers.forEach(u => {
                     const paidIcon = u.paid ? '✅' : '⏳';
                     msg += `*${u.name}* ${paidIcon} _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= currentRace; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        let icon = '️';
+                        let icon = '⏸️';
                         if (r === u.eliminatedAt) icon = '❌';
                         else if (d.isHit) icon = '✔️';
                         msg += `${r}ª: ${picksStr} ${icon}\n`;
@@ -727,12 +735,12 @@
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
                     msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
-                    msg += aliveUsers.map(u => ` *${u.name}*`).join('\n');
+                    msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                 } else {
-                    msg += '😱 *¡No hubo ganadores esta jornada!*\n';
+                    msg += ' *¡No hubo ganadores esta jornada!*\n';
                 }
             } else {
-                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
+                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* `;
             }
             const preview = document.getElementById('whatsapp-preview');
             preview.textContent = msg;
@@ -742,7 +750,7 @@
         }
 
         window.copyWhatsAppReport = async function() {
-            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastWhatsAppReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
                 alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
