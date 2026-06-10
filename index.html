@@ -18,28 +18,13 @@
         }
     </script>
     <style>
-        /* FONDO CON MÚLTIPLES OPCIONES - ELIGE LA QUE FUNCIONE */
         .bg-hipodromo {
-            /* OPCIÓN 1: Imagen local (descomenta si descargaste la imagen) */
-            /* background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('hipodromo.jpg'); */
-            
-            /* OPCIÓN 2: Picsum (servidor confiable) */
-            background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('https://picsum.photos/seed/horse123/1920/1080');
-            
-            /* OPCIÓN 3: Otra URL de Unsplash */
-            /* background-image: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95)), url('https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?w=1920&h=1080&fit=crop'); */
-            
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), 
+                              url('https://cdn-images.bloodhorse.com/i/bloodhorse-images/2024/04/d27c631ac73647fe962e797170fb56db.jpg');
+            background-size: cover; background-position: center center; 
+            background-attachment: fixed; background-repeat: no-repeat; min-height: 100vh;
         }
-        
-        /* Si la imagen falla, mostrar color de respaldo */
-        body {
-            background-color: #0f172a;
-        }
-        
+        body { background-color: #0f172a; }
         .glass-panel {
             background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(249, 115, 22, 0.2); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
@@ -48,7 +33,6 @@
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white;
         }
         .glass-input:focus { border-color: #f97316; outline: none; background: rgba(255, 255, 255, 0.1); }
-        
         .horse-btn { transition: all 0.2s; }
         .horse-btn.selected {
             background: linear-gradient(135deg, #f97316, #f59e0b);
@@ -58,11 +42,14 @@
         .horse-btn.scratched { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+        .whatsapp-preview {
+            background: #0b141a; border-radius: 12px; padding: 16px;
+            font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5;
+            color: #e9edef; white-space: pre-wrap; word-wrap: break-word;
+            max-height: 400px; overflow-y: auto;
+        }    </style>
 </head>
 <body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
-
-    <!-- HEADER GLOBAL - VISIBLE EN TODAS LAS PANTALLAS -->
     <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-brand-orange/30">
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
@@ -72,15 +59,11 @@
                     <span class="text-[10px] font-black text-brand-amber tracking-[0.2em] uppercase">Activo</span>
                 </div>
             </div>
-            <!-- LINK RANKING -->
             <button onclick="showRankingFromHeader()" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold text-sm transition-all">
-                <i class="fa-solid fa-trophy"></i>
-                <span>RANKING</span>
+                <i class="fa-solid fa-trophy"></i><span>RANKING</span>
             </button>
         </div>
-        
         <div class="flex items-center gap-2">
-            <!-- Botón Ranking para móvil -->
             <button onclick="showRankingFromHeader()" class="md:hidden p-2 rounded-lg bg-brand-orange/20 text-brand-orange">
                 <i class="fa-solid fa-trophy"></i>
             </button>
@@ -89,20 +72,14 @@
             </button>
         </div>
     </header>
-
-    <!-- ========================================== -->
-    <!-- VISTA 1: REGISTRO -->
-    <!-- ========================================== -->
     <div id="view-register" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
         <div class="glass-panel rounded-3xl p-6 w-full max-w-md text-center">
-            <div class="mb-6">
-                <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
-                <p class="text-sm text-gray-400 mb-4">Bienvenido a la nueva experiencia hípica</p>
-                <div class="text-left bg-brand-orange/10 p-4 rounded-xl text-xs text-gray-300 space-y-2 border border-brand-orange/20">
-                    <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Elige <b>3 caballos</b> por cada una de las 6 carreras.</p>
-                    <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Los ejemplares "Retirados" no aparecerán.</p>
-                    <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Debes completar las 18 selecciones para enviar.</p>
-                </div>
+            <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
+            <p class="text-sm text-gray-400 mb-4">Bienvenido a la nueva experiencia hípica</p>
+            <div class="text-left bg-brand-orange/10 p-4 rounded-xl text-xs text-gray-300 space-y-2 border border-brand-orange/20 mb-4">
+                <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Elige <b>3 caballos</b> por cada una de las 6 carreras.</p>
+                <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Los ejemplares "Retirados" no aparecerán.</p>
+                <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Debes completar las 18 selecciones para enviar.</p>
             </div>
             <input type="text" id="reg-nickname" placeholder="TU APODO ÚNICO" 
                 class="w-full glass-input rounded-xl px-4 py-4 text-lg font-black text-center placeholder-gray-600 mb-4 uppercase tracking-wider">
@@ -111,10 +88,6 @@
             </button>
         </div>
     </div>
-
-    <!-- ========================================== -->
-    <!-- VISTA 2: SELECCIÓN DE JUGADA (USUARIO) -->
-    <!-- ========================================== -->
     <div id="view-play" class="hidden flex-1 p-4 pb-28 fade-in max-w-3xl mx-auto w-full">
         <div class="glass-panel rounded-2xl p-4 mb-4 flex justify-between items-center border-l-4 border-l-brand-orange">
             <div>
@@ -123,15 +96,9 @@
             </div>
             <div class="text-right">
                 <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Progreso</p>
-                <p class="text-3xl font-black text-brand-amber"><span id="picks-count">0</span><span class="text-gray-500 text-lg">/18</span></p>
-            </div>
+                <p class="text-3xl font-black text-brand-amber"><span id="picks-count">0</span><span class="text-gray-500 text-lg">/18</span></p>            </div>
         </div>
-
-        <div id="races-container" class="space-y-5">
-            <!-- Las carreras se generan dinámicamente con JS -->
-        </div>
-
-        <!-- Botón Flotante de Envío -->
+        <div id="races-container" class="space-y-5"></div>
         <div class="fixed bottom-0 left-0 right-0 p-4 glass-panel border-t border-brand-orange/30 bg-brand-dark/95 backdrop-blur-xl">
             <button id="btn-submit" onclick="submitBet()" disabled 
                 class="w-full bg-gray-800 text-gray-500 font-black text-lg py-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
@@ -140,97 +107,94 @@
             <p id="submit-hint" class="text-center text-xs text-gray-500 mt-2 font-medium">Selecciona 3 caballos en cada carrera para habilitar</p>
         </div>
     </div>
-
-    <!-- ========================================== -->
-    <!-- VISTA 3: RANKING / RESULTADOS -->
-    <!-- ========================================== -->
     <div id="view-ranking" class="hidden flex-1 p-4 fade-in max-w-3xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-amber/40 bg-brand-amber/5">
             <i class="fa-solid fa-trophy text-4xl text-brand-amber mb-2 drop-shadow-lg"></i>
             <h2 class="text-2xl font-black text-white">Tabla de Posiciones</h2>
-            <p class="text-xs text-gray-400 mt-1">Ordenado por aciertos y alfabéticamente</p>
+            <p class="text-xs text-gray-400 mt-1">Sistema de supervivencia progresiva</p>
         </div>
-
-        <div id="ranking-list" class="space-y-4">
-            <!-- Se llena dinámicamente con JS -->
-        </div>
-        
+        <div id="ranking-list" class="space-y-4"></div>
         <button onclick="location.reload()" class="w-full mt-6 glass-input text-brand-orange font-bold py-3 rounded-xl active:scale-95 transition-transform">
             <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar Vista
         </button>
     </div>
-
-    <!-- ========================================== -->
-    <!-- MODAL: PANEL DE ADMINISTRADOR -->
-    <!-- ========================================== -->
     <div id="modal-admin" class="hidden fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
         <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
             <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
                 <h2 class="text-lg font-black text-brand-orange"><i class="fa-solid fa-shield-halved mr-2"></i>ADMIN: Tres x Seis</h2>
                 <button onclick="closeAdmin()" class="text-gray-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-            
-            <!-- Tabs Admin -->
             <div class="flex border-b border-white/10 overflow-x-auto no-scrollbar">
                 <button onclick="switchAdminTab('adm-config')" class="adm-tab flex-1 py-3 text-xs font-black text-brand-orange border-b-2 border-brand-orange bg-white/5 whitespace-nowrap px-2">1. Carreras</button>
                 <button onclick="switchAdminTab('adm-retirados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">2. Retirados</button>
                 <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
                 <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
             </div>
-
             <div class="p-5 space-y-6">
-                <!-- TAB 1: Configurar Carreras -->
                 <div id="adm-config" class="adm-content block">
                     <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Cantidad de Ejemplares por Válida</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="admin-race-inputs">
-                        <!-- Inputs generados por JS -->
-                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="admin-race-inputs"></div>
                     <button onclick="saveRaceConfig()" class="w-full mt-6 bg-brand-amber text-black font-black py-3 rounded-xl active:scale-95 transition-transform">
                         <i class="fa-solid fa-save mr-2"></i>GUARDAR CONFIGURACIÓN
                     </button>
                 </div>
-
-                <!-- TAB 2: Retirados -->
                 <div id="adm-retirados" class="adm-content hidden">
                     <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">Marcar Ejemplares Retirados</h3>
-                    <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo. Desaparecerá automáticamente para los usuarios.</p>
-                    <div id="admin-scratch-container" class="space-y-4">
-                        <!-- Se llena dinámicamente -->
-                    </div>
+                    <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo.</p>
+                    <div id="admin-scratch-container" class="space-y-4"></div>
                 </div>
-
-                <!-- TAB 3: Resultados -->
                 <div id="adm-resultados" class="adm-content hidden">
-                    <h3 class="text-sm font-black text-brand-amber mb-4 uppercase tracking-wider">Cargar Ganadores Oficiales</h3>
-                    <div class="space-y-3" id="admin-results-container">
-                        <!-- Se llena dinámicamente -->
+                    <h3 class="text-sm font-black text-brand-amber mb-4 uppercase tracking-wider">Cargar Resultados Carrera por Carrera</h3>
+                    <div id="initial-report-section" class="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                        <h4 class="text-sm font-black text-blue-400 uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-clipboard-list mr-2"></i>REPORTE OBLIGATORIO ANTES DE INICIAR
+                        </h4>
+                        <p class="text-xs text-gray-400 mb-3">Genera el reporte completo de todas las jugadas para compartir en el grupo ANTES de cargar el primer resultado.</p>
+                        <button onclick="generateInitialReport()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i>
+                            <span>📋 GENERAR REPORTE DE JUGADAS</span>
+                        </button>
+                        <div id="initial-report-preview-container" class="hidden mt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h5 class="text-xs font-black text-blue-400 uppercase tracking-wider">
+                                    <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                                </h5>
+                                <button onclick="copyInitialReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                                </button>
+                            </div>
+                            <div id="initial-report-preview" class="whatsapp-preview border border-blue-500/30"></div>
+                        </div>
                     </div>
-                    <button onclick="publishResults()" class="w-full mt-6 bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform">
-                        <i class="fa-solid fa-check-double mr-2"></i>PUBLICAR RESULTADOS
-                    </button>
+                    <div id="admin-results-container" class="space-y-3"></div>
+                    <div id="whatsapp-section" class="hidden mt-6 space-y-3">
+                        <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i>
+                            <span> GENERAR REPORTE DE RESULTADOS</span>
+                        </button>
+                        <div id="whatsapp-preview-container" class="hidden">
+                            <div class="flex justify-between items-center mb-2">                                <h4 class="text-xs font-black text-green-400 uppercase tracking-wider">
+                                    <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                                </h4>
+                                <button onclick="copyWhatsAppReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                    <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                                </button>
+                            </div>
+                            <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
+                            <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- TAB 4: Cobranza -->
                 <div id="adm-cobranza" class="adm-content hidden">
                     <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Control de Pagos (Bs.)</h3>
-                    <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2">
-                        <!-- Lista de usuarios para marcar pago -->
-                    </div>
+                    <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- ========================================== -->
-    <!-- LÓGICA JAVASCRIPT + FIREBASE REAL -->
-    <!-- ========================================== -->
     <script type="module">
-        // ---------------------------------------------------------
-        // 1. CONFIGURACIÓN DE FIREBASE (PROYECTO: Tres x Seis Activo)
-        // ---------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCqxEkSUcSTx1iYFdfCC4WhCjAl_3d4dBY",
             authDomain: "tres-x-seis-activo.firebaseapp.com",
@@ -239,16 +203,8 @@
             messagingSenderId: "993946546247",
             appId: "1:993946546247:web:3f2b7269f5435cc6144162"
         };
-
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
-        console.log("✅ Firebase 'Tres x Seis Activo' conectado exitosamente");
-
-        // ---------------------------------------------------------
-        // 2. ESTADO GLOBAL DE LA APP
-        // ---------------------------------------------------------
         const appState = {
             currentUser: null,
             raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
@@ -256,60 +212,44 @@
             results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
             users: []
         };
-
-        // Función de persistencia híbrida (Firebase + LocalStorage como respaldo)
         async function saveState() {
             try {
-                // Guardar en Firestore (colección "global_config")
                 const configDoc = doc(db, "global_config", "main");
                 await updateDoc(configDoc, {
                     raceConfig: appState.raceConfig,
                     scratched: appState.scratched,
                     results: appState.results
                 }).catch(async () => {
-                    // Si no existe, crearlo
                     const { setDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
                     await setDoc(configDoc, {
-                        raceConfig: appState.raceConfig,
-                        scratched: appState.scratched,
+                        raceConfig: appState.raceConfig,                        scratched: appState.scratched,
                         results: appState.results
                     });
                 });
             } catch (error) {
-                console.warn("⚠️ Error guardando en Firebase, usando respaldo local:", error);
+                console.warn("⚠️ Error guardando en Firebase:", error);
             }
             localStorage.setItem('tresXSeisActivo_State', JSON.stringify(appState));
         }
-
         async function init() {
             renderAdminConfigInputs();
-            
-            // Intentar cargar desde Firebase primero
+            renderAdminResults();
             try {
                 const { getDoc } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js");
                 const configDoc = doc(db, "global_config", "main");
                 const docSnap = await getDoc(configDoc);
-                
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     appState.raceConfig = data.raceConfig || appState.raceConfig;
                     appState.scratched = data.scratched || appState.scratched;
                     appState.results = data.results || appState.results;
-                    console.log("✅ Datos cargados desde Firebase");
                 } else {
-                    console.log("ℹ️ Creando documento de configuración inicial en Firebase...");
                     await saveState();
                 }
-                
-                // Cargar usuarios desde Firestore
                 const usersSnapshot = await getDocs(collection(db, "usuarios"));
-                appState.users = usersSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
+                appState.users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.warn("⚠️ Modo offline (LocalStorage):", error);
+                console.warn("⚠️ Modo offline:", error);
                 const saved = localStorage.getItem('tresXSeisActivo_State');
                 if (saved) {
                     const parsed = JSON.parse(saved);
@@ -320,211 +260,130 @@
                 }
             }
         }
-
-        // ---------------------------------------------------------
-        // 3. LÓGICA DE USUARIO Y REGISTRO
-        // ---------------------------------------------------------
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
             if (!nick) return alert("⚠️ Ingresa un apodo.");
-            if (appState.users.find(u => u.name === nick)) return alert("⚠️ Ese apodo ya existe. Elige otro.");
-
-            const newUser = {
-                name: nick,
-                picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
-                paid: false,
-                createdAt: new Date().toISOString()
-            };
-
+            if (appState.users.find(u => u.name === nick)) return alert("⚠️ Ese apodo ya existe.");
+            const newUser = { name: nick, picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }, paid: false, createdAt: new Date().toISOString() };
             try {
-                // Guardar en Firebase
                 const docRef = await addDoc(collection(db, "usuarios"), newUser);
                 appState.currentUser = { id: docRef.id, ...newUser };
                 appState.users.push(appState.currentUser);
-                console.log("✅ Usuario registrado en Firebase con ID:", docRef.id);
             } catch (error) {
-                console.error("❌ Error registrando en Firebase:", error);
-                alert("⚠️ Error de conexión. Intenta de nuevo.");
+                alert("⚠️ Error de conexión.");
                 return;
             }
-
             document.getElementById('display-nickname').textContent = nick;
             document.getElementById('view-register').classList.add('hidden');
             document.getElementById('view-play').classList.remove('hidden');
             renderUserBoard();
         }
-
         window.renderUserBoard = function() {
             const container = document.getElementById('races-container');
-            container.innerHTML = '';
-            let totalPicks = 0;
-
+            container.innerHTML = '';            let totalPicks = 0;
             for (let race = 1; race <= 6; race++) {
                 const totalHorses = appState.raceConfig[race];
                 const scratched = appState.scratched[race];
                 const userPicks = appState.currentUser.picks[race];
                 totalPicks += userPicks.length;
-
                 let horsesHtml = '';
                 for (let i = 1; i <= totalHorses; i++) {
-                    if (scratched.includes(i)) continue; 
-
+                    if (scratched.includes(i)) continue;
                     const isSelected = userPicks.includes(i);
-                    const isDisabled = !isSelected && userPicks.length >= 3; 
-
-                    horsesHtml += `
-                        <button onclick="window.togglePick(${race}, ${i})" 
-                            class="horse-btn w-11 h-11 rounded-xl font-black text-sm border border-white/20 flex items-center justify-center
-                            ${isSelected ? 'selected' : 'bg-white/5 text-gray-300'} 
-                            ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}">
-                            ${i}
-                        </button>
-                    `;
+                    const isDisabled = !isSelected && userPicks.length >= 3;
+                    horsesHtml += `<button onclick="window.togglePick(${race}, ${i})" class="horse-btn w-11 h-11 rounded-xl font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300'} ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}">${i}</button>`;
                 }
-
-                container.innerHTML += `
-                    <div class="glass-panel rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-black text-brand-amber text-lg"><i class="fa-solid fa-flag-checkered mr-2"></i>${race}ª VÁLIDA</h3>
-                            <span class="text-xs font-bold ${userPicks.length === 3 ? 'text-green-400' : 'text-gray-500'} bg-white/5 px-2 py-1 rounded">
-                                ${userPicks.length}/3
-                            </span>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            ${horsesHtml}
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="glass-panel rounded-xl p-4"><div class="flex justify-between items-center mb-3"><h3 class="font-black text-brand-amber text-lg"><i class="fa-solid fa-flag-checkered mr-2"></i>${race}ª VÁLIDA</h3><span class="text-xs font-bold ${userPicks.length === 3 ? 'text-green-400' : 'text-gray-500'} bg-white/5 px-2 py-1 rounded">${userPicks.length}/3</span></div><div class="flex flex-wrap gap-2">${horsesHtml}</div></div>`;
             }
-
             document.getElementById('picks-count').textContent = totalPicks;
             const btnSubmit = document.getElementById('btn-submit');
             const hint = document.getElementById('submit-hint');
-
             if (totalPicks === 18) {
                 btnSubmit.disabled = false;
                 btnSubmit.classList.remove('bg-gray-800', 'text-gray-500', 'border-white/5');
-                btnSubmit.classList.add('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg', 'shadow-orange-500/30');
+                btnSubmit.classList.add('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg');
                 hint.textContent = "¡Jugada completa! Puedes enviar.";
                 hint.classList.add('text-green-400');
             } else {
                 btnSubmit.disabled = true;
                 btnSubmit.classList.add('bg-gray-800', 'text-gray-500', 'border-white/5');
-                btnSubmit.classList.remove('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg', 'shadow-orange-500/30');
+                btnSubmit.classList.remove('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg');
                 hint.textContent = `Te faltan ${18 - totalPicks} selecciones.`;
                 hint.classList.remove('text-green-400');
             }
         }
-
         window.togglePick = function(race, horse) {
             const picks = appState.currentUser.picks[race];
             const index = picks.indexOf(horse);
-
-            if (index > -1) {
-                picks.splice(index, 1); 
-            } else {
-                if (picks.length < 3) {
-                    picks.push(horse); 
-                }
-            }
+            if (index > -1) picks.splice(index, 1);
+            else if (picks.length < 3) picks.push(horse);
             renderUserBoard();
         }
-
         window.submitBet = async function() {
-            if (confirm("¿Estás seguro de enviar esta jugada? No podrás modificarla después.")) {
+            if (confirm("¿Estás seguro de enviar esta jugada?")) {
                 try {
-                    // Actualizar jugada en Firebase
                     const userDoc = doc(db, "usuarios", appState.currentUser.id);
                     await updateDoc(userDoc, { picks: appState.currentUser.picks });
-                    console.log("✅ Jugada guardada en Firebase");
-                    
-                    alert("✅ ¡Jugada enviada con éxito! Serás redirigido al Ranking.");
+                    alert("✅ ¡Jugada enviada!");
                     document.getElementById('view-play').classList.add('hidden');
                     document.getElementById('view-ranking').classList.remove('hidden');
                     renderRanking();
                 } catch (error) {
-                    console.error("❌ Error guardando jugada:", error);
-                    alert("⚠️ Error al guardar. Intenta de nuevo.");
-                }
+                    alert("️ Error al guardar.");                }
             }
         }
-
-        // ---------------------------------------------------------
-        // 4. RANKING Y LÓGICA DE PUNTAJE
-        // ---------------------------------------------------------
         window.renderRanking = function() {
             const list = document.getElementById('ranking-list');
             list.innerHTML = '';
-
-            const sortedUsers = [...appState.users].map(user => {
-                let score = 0;
-                let details = {};
-                for (let r = 1; r <= 6; r++) {
+            let currentRace = 0;
+            for (let r = 1; r <= 6; r++) {
+                if (appState.results[r] !== null) currentRace = r;
+                else break;
+            }
+            const usersWithStatus = appState.users.map(user => {
+                let status = { alive: true, eliminatedAt: null, details: {} };
+                for (let r = 1; r <= currentRace; r++) {
                     const winner = appState.results[r];
                     const isHit = winner && user.picks[r].includes(winner);
-                    if (isHit) score++;
-                    details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                    status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                    if (!isHit && status.alive) { status.alive = false; status.eliminatedAt = r; }
                 }
-                return { ...user, score, details };
-            }).sort((a, b) => {
-                if (b.score !== a.score) return b.score - a.score;
-                return a.name.localeCompare(b.name);
+                return { ...user, ...status };
             });
-
-            sortedUsers.forEach(u => {
-                let racesHtml = '';
-                for (let r = 1; r <= 6; r++) {
-                    const d = u.details[r];
-                    
-                    const picksFormatted = d.picks.map(p => {
-                        if (d.winner && p === d.winner) {
-                            return `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>`;
-                        } else if (d.winner) {
-                            return `<span class="text-red-400/50 line-through decoration-red-500/50">${p}</span>`;
-                        } else {
-                            return `<span class="text-gray-300 font-bold">${p}</span>`;
-                        }
-                    }).join(' ');
-
-                    const rowClass = d.winner ? (d.isHit ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/5 border-red-500/20') : 'bg-white/5 border-white/10';
-
-                    racesHtml += `
-                        <div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 ${rowClass} px-2 rounded">
-                            <span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span>
-                            <div class="flex-1 text-right tracking-widest">${picksFormatted}</div>
-                        </div>
-                    `;
-                }
-
-                const paidBadge = u.paid ? '<i class="fa-solid fa-circle-check text-green-400 text-lg" title="Pagado"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400 text-lg" title="Pendiente"></i>';
-
-                list.innerHTML += `
-                    <div class="glass-panel rounded-xl p-4 border ${u.name === (appState.currentUser ? appState.currentUser.name : '') ? 'border-brand-orange shadow-lg shadow-orange-500/10' : 'border-white/5'}">
-                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl font-black text-brand-amber w-8 text-center">#${sortedUsers.indexOf(u) + 1}</span>
-                                <div>
-                                    <span class="font-black text-lg text-white block leading-none">${u.name}</span>
-                                    <span class="text-[10px] text-gray-500 uppercase tracking-wider">Participante</span>
-                                </div>
-                                ${paidBadge}
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] text-gray-400 uppercase tracking-widest block">Aciertos</span>
-                                <div class="text-3xl font-black ${u.score > 0 ? 'text-green-400' : 'text-gray-600'} leading-none">${u.score}<span class="text-lg text-gray-500">/6</span></div>
-                            </div>
-                        </div>
-                        <div class="space-y-1">
-                            ${racesHtml}
-                        </div>
-                    </div>
-                `;
-            });
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            if (currentRace > 0) {
+                list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4"><p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p><p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p><p class="text-xs text-gray-500 mt-1">Vivos: ${aliveUsers.length} | Eliminados: ${eliminatedUsers.length}</p></div>`;
+            }
+            if (aliveUsers.length > 0) {
+                list.innerHTML += `<div class="text-center mb-3"><h3 class="text-lg font-black text-green-400 uppercase tracking-wider"><i class="fa-solid fa-heart mr-2"></i>VIVOS</h3></div>`;
+                aliveUsers.forEach((u, index) => {
+                    const isWinner = currentRace === 6 && u.alive;
+                    list.innerHTML += renderUserCard(u, index + 1, currentRace, isWinner);
+                });
+            }
+            if (eliminatedUsers.length > 0) {
+                list.innerHTML += `<div class="text-center mt-8 mb-3"><h3 class="text-lg font-black text-red-400 uppercase tracking-wider"><i class="fa-solid fa-skull mr-2"></i>Y ALLÁ RRROOODARON</h3></div>`;
+                eliminatedUsers.forEach(u => { list.innerHTML += renderUserCard(u, null, currentRace, false); });
+            }
+            if (currentRace === 0) {
+                list.innerHTML += `<div class="glass-panel rounded-xl p-6 text-center border border-white/10"><i class="fa-solid fa-hourglass-start text-4xl text-gray-500 mb-3"></i><p class="text-gray-400">Aún no se han cargado resultados</p></div>`;
+            }
         }
-
-        // ---------------------------------------------------------
-        // 5. PANEL DE ADMINISTRADOR
-        // ---------------------------------------------------------
+        function renderUserCard(u, position, currentRace, isWinner) {
+            let racesHtml = '';
+            for (let r = 1; r <= currentRace; r++) {
+                const d = u.details[r];
+                if (!d) continue;
+                const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
+                const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
+                racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
+            }
+            const paidBadge = u.paid ? '<i class="fa-solid fa-circle-check text-green-400 text-lg"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400 text-lg"></i>';
+            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+            const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
+            return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div>${paidBadge}</div></div><div class="space-y-1">${racesHtml}</div></div>`;
+        }
         window.openAdmin = function() {
             const pass = prompt("🔒 Ingrese clave de administrador:");
             if (pass === "111180") {
@@ -532,41 +391,21 @@
                 renderAdminScratch();
                 renderAdminResults();
                 renderAdminPayments();
-            } else if (pass !== null) {
-                alert("❌ Clave incorrecta.");
-            }
+            } else if (pass !== null) alert("❌ Clave incorrecta.");
         }
-
-        window.closeAdmin = function() {
-            document.getElementById('modal-admin').classList.add('hidden');
-        }
-
+        window.closeAdmin = function() { document.getElementById('modal-admin').classList.add('hidden'); }
         window.switchAdminTab = function(tabId) {
             document.querySelectorAll('.adm-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
-            
-            document.querySelectorAll('.adm-tab').forEach(btn => {
-                btn.classList.remove('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5');
-                btn.classList.add('text-gray-500');
-            });
+            document.querySelectorAll('.adm-tab').forEach(btn => { btn.classList.remove('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5'); btn.classList.add('text-gray-500'); });
             event.target.classList.remove('text-gray-500');
             event.target.classList.add('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5');
         }
-
         window.renderAdminConfigInputs = function() {
             const container = document.getElementById('admin-race-inputs');
             container.innerHTML = '';
-            for (let i = 1; i <= 6; i++) {
-                container.innerHTML += `
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 mb-1 uppercase tracking-wider">${i}ª Válida</label>
-                        <input type="number" id="cfg-race-${i}" value="${appState.raceConfig[i]}" min="4" max="14"
-                            class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg">
-                    </div>
-                `;
-            }
+            for (let i = 1; i <= 6; i++) container.innerHTML += `<div><label class="block text-[10px] font-black text-gray-400 mb-1 uppercase tracking-wider">${i}ª Válida</label><input type="number" id="cfg-race-${i}" value="${appState.raceConfig[i]}" min="4" max="14" class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg"></div>`;
         }
-
         window.saveRaceConfig = async function() {
             for (let i = 1; i <= 6; i++) {
                 const val = parseInt(document.getElementById(`cfg-race-${i}`).value);
@@ -574,12 +413,11 @@
                 appState.scratched[i] = appState.scratched[i].filter(s => s <= val);
             }
             await saveState();
-            alert("✅ Configuración de carreras guardada en Firebase.");
+            alert("✅ Configuración guardada.");
             renderAdminScratch();
             renderAdminResults();
             if (appState.currentUser) renderUserBoard();
         }
-
         window.renderAdminScratch = function() {
             const container = document.getElementById('admin-scratch-container');
             container.innerHTML = '';
@@ -587,106 +425,216 @@
                 let buttons = '';
                 for (let i = 1; i <= appState.raceConfig[r]; i++) {
                     const isScratched = appState.scratched[r].includes(i);
-                    buttons += `
-                        <button onclick="window.toggleScratch(${r}, ${i})" 
-                            class="w-10 h-10 rounded-lg font-black text-sm border transition-all
-                            ${isScratched ? 'bg-red-600 border-red-500 text-white line-through' : 'bg-white/5 border-white/20 text-gray-300 hover:bg-white/10'}">
-                            ${i}
-                        </button>
-                    `;
+                    buttons += `<button onclick="window.toggleScratch(${r}, ${i})" class="w-10 h-10 rounded-lg font-black text-sm border transition-all ${isScratched ? 'bg-red-600 border-red-500 text-white line-through' : 'bg-white/5 border-white/20 text-gray-300 hover:bg-white/10'}">${i}</button>`;
                 }
-                container.innerHTML += `
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p class="text-[10px] font-black text-brand-amber mb-2 uppercase tracking-wider">${r}ª VÁLIDA - Retirados:</p>
-                        <div class="flex flex-wrap gap-2">${buttons}</div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="bg-white/5 p-3 rounded-xl border border-white/5"><p class="text-[10px] font-black text-brand-amber mb-2 uppercase tracking-wider">${r}ª VÁLIDA - Retirados:</p><div class="flex flex-wrap gap-2">${buttons}</div></div>`;
             }
         }
-
         window.toggleScratch = async function(race, horse) {
             const arr = appState.scratched[race];
             const idx = arr.indexOf(horse);
-            if (idx > -1) arr.splice(idx, 1);
-            else arr.push(horse);
-            
+            if (idx > -1) arr.splice(idx, 1); else arr.push(horse);
             if (appState.currentUser) {
                 const uPicks = appState.currentUser.picks[race];
                 const uIdx = uPicks.indexOf(horse);
                 if (uIdx > -1) uPicks.splice(uIdx, 1);
             }
-            
             await saveState();
             renderAdminScratch();
             if (appState.currentUser) renderUserBoard();
         }
-
         window.renderAdminResults = function() {
             const container = document.getElementById('admin-results-container');
             container.innerHTML = '';
             for (let r = 1; r <= 6; r++) {
-                container.innerHTML += `
-                    <div class="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
-                        <span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span>
-                        <input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" 
-                            placeholder="#" min="1" max="${appState.raceConfig[r]}"
-                            class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg">
-                    </div>
-                `;
+                const hasResult = appState.results[r] !== null;
+                const isNext = !hasResult && (r === 1 || appState.results[r-1] !== null);
+                container.innerHTML += `<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5 ${!isNext && !hasResult ? 'opacity-50' : ''}"><span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span><input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" placeholder="#" min="1" max="${appState.raceConfig[r]}" class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg" ${!isNext && !hasResult ? 'disabled' : ''}><button onclick="window.saveRaceResult(${r})" class="px-4 py-2 rounded-lg font-black text-sm transition-all ${hasResult ? 'bg-green-500/20 text-green-400 border border-green-500/30' : isNext ? 'bg-brand-orange text-white hover:bg-orange-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}" ${!isNext && !hasResult ? 'disabled' : ''}>${hasResult ? '✅ Guardado' : 'GUARDAR'}</button></div>`;
             }
-        }
-
-        window.publishResults = async function() {
-            let allFilled = true;
-            for (let r = 1; r <= 6; r++) {
-                const val = document.getElementById(`res-race-${r}`).value;
-                if (!val) allFilled = false;
-                appState.results[r] = val ? parseInt(val) : null;
-            }
-            
-            if (!allFilled) return alert("⚠️ Debes ingresar el ganador de las 6 carreras.");
-            
-            await saveState();
-            alert("🏆 ¡Resultados publicados en Firebase! El ranking se ha actualizado.");
-            closeAdmin();
-            if (!document.getElementById('view-ranking').classList.contains('hidden')) {
-                renderRanking();
+            const hasAnyResult = appState.results.some(r => r !== null);
+            const whatsappSection = document.getElementById('whatsapp-section');
+            if (hasAnyResult) {
+                whatsappSection.classList.remove('hidden');
             } else {
-                document.getElementById('view-play').classList.add('hidden');
-                document.getElementById('view-ranking').classList.remove('hidden');
-                renderRanking();
+                whatsappSection.classList.add('hidden');
             }
         }
-
+        window.saveRaceResult = async function(race) {
+            const input = document.getElementById(`res-race-${race}`);
+            const val = input.value;
+            if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
+            const winner = parseInt(val);
+            if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
+            appState.results[race] = winner;
+            await saveState();
+            let aciertos = 0, fallos = 0;            appState.users.forEach(u => { if (u.picks[race].includes(winner)) aciertos++; else fallos++; });
+            alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
+            renderAdminResults();
+            if (!document.getElementById('view-ranking').classList.contains('hidden')) renderRanking();
+        }
+        window.generateInitialReport = function() {
+            const completeUsers = appState.users.filter(u => {
+                let totalPicks = 0;
+                for (let r = 1; r <= 6; r++) totalPicks += u.picks[r].length;
+                return totalPicks === 18;
+            });
+            if (completeUsers.length === 0) {
+                return alert("⚠️ Aún no hay participantes con jugada completa (18 selecciones).");
+            }
+            const incompleteCount = appState.users.length - completeUsers.length;
+            let confirmMsg = `✅ Se incluirán ${completeUsers.length} participante(s) con jugada completa.`;
+            if (incompleteCount > 0) {
+                confirmMsg += `\n\n⚠️ ${incompleteCount} participante(s) aún no han completado su jugada y NO aparecerán en este reporte.`;
+            }
+            if (!confirm(confirmMsg + '\n\n¿Deseas generar el reporte?')) {
+                return;
+            }
+            let msg = '';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
+            msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
+            sortedUsers.forEach((u, index) => {
+                msg += `*${index + 1}. ${u.name}*\n`;
+                for (let r = 1; r <= 6; r++) {
+                    const picks = u.picks[r];
+                    const picksStr = picks.map(p => `[${p}]`).join(' ');
+                    msg += `${r}ª V.: ${picksStr}\n`;
+                }
+                msg += '\n';
+            });
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            msg += '️ *¡IMPORTANTE!*\n';
+            msg += '• Revisa tus selecciones cuidadosamente\n';
+            msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
+            msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
+            msg += '🐎 *¡Que comience la emoción!* 🐎';
+            const preview = document.getElementById('initial-report-preview');
+            preview.textContent = msg;
+            document.getElementById('initial-report-preview-container').classList.remove('hidden');
+            window.lastInitialReport = msg;
+            document.getElementById('initial-report-preview-container').scrollIntoView({ behavior: 'smooth' });        }
+        window.copyInitialReport = async function() {
+            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastInitialReport);
+                alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastInitialReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+            }
+        }
+        window.generateWhatsAppReport = function() {
+            let currentRace = 0;
+            for (let r = 1; r <= 6; r++) {
+                if (appState.results[r] !== null) currentRace = r;
+                else break;
+            }
+            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
+            const usersWithStatus = appState.users.map(user => {
+                let status = { alive: true, eliminatedAt: null, details: {} };
+                for (let r = 1; r <= currentRace; r++) {
+                    const winner = appState.results[r];
+                    const isHit = winner && user.picks[r].includes(winner);
+                    status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                    if (!isHit && status.alive) { status.alive = false; status.eliminatedAt = r; }
+                }
+                return { ...user, ...status };
+            });
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            let msg = '';
+            msg += ' *3 x 6 ACTIVO* 🏇\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
+            msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
+            msg += '📊 *ESTADO ACTUAL*\n';
+            msg += `✅ Vivos: ${aliveUsers.length}\n`;
+            msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
+            msg += ` Restan: ${6 - currentRace} válidas\n\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            if (aliveUsers.length > 0) {
+                msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
+                const medals = ['🥇', '🥈', '🥉'];
+                aliveUsers.forEach((u, i) => {
+                    const medal = i < 3 ? medals[i] : '•';
+                    const paidIcon = u.paid ? '✅' : '⏳';                    msg += `${medal} *${u.name}* ${paidIcon}\n`;
+                    for (let r = 1; r <= currentRace; r++) {
+                        const d = u.details[r];
+                        const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
+                        const icon = d.isHit ? '✔️' : '';
+                        msg += `${r}ª: ${picksStr} ${icon}\n`;
+                    }
+                    msg += '\n';
+                });
+            }
+            if (eliminatedUsers.length > 0) {
+                msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
+                eliminatedUsers.forEach(u => {
+                    const paidIcon = u.paid ? '✅' : '';
+                    msg += `*${u.name}* ${paidIcon} _(Cayó en ${u.eliminatedAt}ª)_\n`;
+                    for (let r = 1; r <= currentRace; r++) {
+                        const d = u.details[r];
+                        const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
+                        let icon = '⏸️';
+                        if (r === u.eliminatedAt) icon = '❌';
+                        else if (d.isHit) icon = '✔️';
+                        msg += `${r}ª: ${picksStr} ${icon}\n`;
+                    }
+                    msg += '\n';
+                });
+            }
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            if (currentRace === 6) {
+                if (aliveUsers.length > 0) {
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
+                } else {
+                    msg += '😱 *¡No hubo ganadores esta jornada!*\n';
+                }
+            } else {
+                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
+            }
+            const preview = document.getElementById('whatsapp-preview');
+            preview.textContent = msg;
+            document.getElementById('whatsapp-preview-container').classList.remove('hidden');
+            window.lastWhatsAppReport = msg;
+            document.getElementById('whatsapp-preview-container').scrollIntoView({ behavior: 'smooth' });
+        }
+        window.copyWhatsAppReport = async function() {
+            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastWhatsAppReport);
+                alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {                const textarea = document.createElement('textarea');
+                textarea.value = window.lastWhatsAppReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+            }
+        }
         window.renderAdminPayments = async function() {
             const container = document.getElementById('admin-payment-list');
             container.innerHTML = '';
-            
-            // Recargar usuarios desde Firebase para tener el estado actualizado
             try {
                 const usersSnapshot = await getDocs(collection(db, "usuarios"));
-                appState.users = usersSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-            } catch (error) {
-                console.warn("⚠️ Usando usuarios en caché");
-            }
-            
+                appState.users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) { console.warn("⚠️ Usando caché"); }
             appState.users.forEach(u => {
-                container.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/5">
-                        <span class="font-black text-sm">${u.name}</span>
-                        <button onclick="window.togglePayment('${u.id}', '${u.name}')" 
-                            class="px-3 py-1.5 rounded text-[10px] font-black transition-all uppercase tracking-wider
-                            ${u.paid ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">
-                            ${u.paid ? 'PAGADO ✅' : 'PENDIENTE'}
-                        </button>
-                    </div>
-                `;
+                container.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/5"><span class="font-black text-sm">${u.name}</span><button onclick="window.togglePayment('${u.id}', '${u.name}')" class="px-3 py-1.5 rounded text-[10px] font-black transition-all uppercase tracking-wider ${u.paid ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">${u.paid ? 'PAGADO ✅' : 'PENDIENTE'}</button></div>`;
             });
         }
-
         window.togglePayment = async function(userId, name) {
             try {
                 const userDoc = doc(db, "usuarios", userId);
@@ -695,32 +643,19 @@
                     const newStatus = !user.paid;
                     await updateDoc(userDoc, { paid: newStatus });
                     user.paid = newStatus;
-                    console.log(`✅ Estado de pago de ${name} actualizado a: ${newStatus ? 'PAGADO' : 'PENDIENTE'}`);
                 }
                 renderAdminPayments();
-                if (!document.getElementById('view-ranking').classList.contains('hidden')) renderRanking();
-            } catch (error) {
-                console.error("❌ Error actualizando pago:", error);
-                alert("⚠️ Error al actualizar el estado de pago.");
-            }
+            } catch (error) { alert("⚠️ Error actualizando pago."); }
         }
-
-        // NUEVA FUNCIÓN: Mostrar ranking desde el header
         window.showRankingFromHeader = function() {
-            // Ocultar todas las vistas
             document.getElementById('view-register').classList.add('hidden');
             document.getElementById('view-play').classList.add('hidden');
             document.getElementById('view-ranking').classList.remove('hidden');
-            
-            // Renderizar ranking
             renderRanking();
-            
-            // Scroll al top
             window.scrollTo(0, 0);
         }
-
-        // Arrancar la aplicación
         init();
     </script>
 </body>
 </html>
+        
