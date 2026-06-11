@@ -47,12 +47,9 @@
             font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5;
             color: #e9edef; white-space: pre-wrap; word-wrap: break-word;
             max-height: 400px; overflow-y: auto;
-        }
-    </style>
+        }    </style>
 </head>
 <body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
-
-    <!-- HEADER GLOBAL - VISIBLE EN TODAS LAS PANTALLAS -->
     <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-brand-orange/30">
         <div class="flex items-center gap-2">
             <div class="flex items-center gap-2">
@@ -62,11 +59,9 @@
                     <span class="text-[10px] font-black text-brand-amber tracking-[0.2em] uppercase">Activo</span>
                 </div>
             </div>
-            <!-- BOTÓN INICIO (🏠) - A LA IZQUIERDA DE RANKING -->
             <button onclick="goHome()" class="p-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold transition-all" title="Inicio">
                 <i class="fa-solid fa-house text-sm"></i>
             </button>
-            <!-- BOTÓN RANKING -->
             <button onclick="showView('view-ranking')" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold text-sm transition-all">
                 <i class="fa-solid fa-trophy"></i><span>RANKING</span>
             </button>
@@ -80,8 +75,6 @@
             </button>
         </div>
     </header>
-
-    <!-- VISTA 1: REGISTRO (INICIO) -->
     <div id="view-register" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
         <div class="glass-panel rounded-3xl p-6 w-full max-w-md text-center">
             <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
@@ -98,21 +91,18 @@
             </button>
         </div>
     </div>
-
-    <!-- VISTA 2: JUGADA -->
     <div id="view-play" class="hidden flex-1 p-4 pb-28 fade-in max-w-3xl mx-auto w-full">
-        <div class="glass-panel rounded-2xl p-4 mb-4 flex justify-between items-center border-l-4 border-l-brand-orange">
+        <div class="glass-panel rounded-2xl p-4 mb-4 flex justify-between items-center border-l-4 border-l-brand-orange sticky top-20 z-30">
             <div>
                 <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Jugador Activo</p>
                 <p class="text-xl font-black text-white" id="display-nickname">---</p>
-            </div>
-            <div class="text-right">
+            </div>            <div class="text-right">
                 <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Progreso</p>
                 <p class="text-3xl font-black text-brand-amber"><span id="picks-count">0</span><span class="text-gray-500 text-lg">/18</span></p>
             </div>
         </div>
         <div id="races-container" class="space-y-5"></div>
-        <div class="fixed bottom-0 left-0 right-0 p-4 glass-panel border-t border-brand-orange/30 bg-brand-dark/95 backdrop-blur-xl">
+        <div class="fixed bottom-0 left-0 right-0 p-4 glass-panel border-t border-brand-orange/30 bg-brand-dark/95 backdrop-blur-xl z-40">
             <button id="btn-submit" onclick="submitBet()" disabled 
                 class="w-full bg-gray-800 text-gray-500 font-black text-lg py-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
                 <i class="fa-solid fa-paper-plane"></i> ENVIAR TU JUGADA
@@ -120,8 +110,6 @@
             <p id="submit-hint" class="text-center text-xs text-gray-500 mt-2 font-medium">Selecciona 3 caballos en cada carrera para habilitar</p>
         </div>
     </div>
-
-    <!-- VISTA 3: RANKING -->
     <div id="view-ranking" class="hidden flex-1 p-4 fade-in max-w-3xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-amber/40 bg-brand-amber/5">
             <i class="fa-solid fa-trophy text-4xl text-brand-amber mb-2 drop-shadow-lg"></i>
@@ -133,22 +121,19 @@
             <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar Vista
         </button>
     </div>
-
-    <!-- VISTA 4: ADMIN -->
     <div id="view-admin" class="hidden flex-1 p-4 fade-in max-w-4xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-orange/40 bg-brand-orange/5">
             <i class="fa-solid fa-shield-halved text-4xl text-brand-orange mb-2 drop-shadow-lg"></i>
             <h2 class="text-2xl font-black text-white">Panel de Administración</h2>
             <p class="text-xs text-gray-400 mt-1">Gestión completa del sistema</p>
         </div>
-        
         <div class="flex border-b border-white/10 mb-6 overflow-x-auto no-scrollbar sticky top-20 z-40 glass-panel rounded-t-xl">
             <button onclick="switchAdminTab('adm-config')" class="adm-tab flex-1 py-3 text-xs font-black text-brand-orange border-b-2 border-brand-orange bg-white/5 whitespace-nowrap px-2">1. Carreras</button>
             <button onclick="switchAdminTab('adm-retirados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">2. Retirados</button>
             <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
             <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
+            <button onclick="switchAdminTab('adm-edicion')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">5. Edición</button>
         </div>
-
         <div class="glass-panel rounded-2xl rounded-tl-none p-6 min-h-[400px]">
             <div id="adm-config" class="adm-content block">
                 <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Cantidad de Ejemplares por Válida</h3>
@@ -185,8 +170,7 @@
                         <div id="initial-report-preview" class="whatsapp-preview border border-blue-500/30"></div>
                     </div>
                 </div>
-                <div id="admin-results-container" class="space-y-3"></div>
-                <div id="whatsapp-section" class="hidden mt-6 space-y-3">
+                <div id="admin-results-container" class="space-y-3"></div>                <div id="whatsapp-section" class="hidden mt-6 space-y-3">
                     <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
                         <span>📋 GENERAR REPORTE DE RESULTADOS</span>
@@ -209,13 +193,46 @@
                 <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Control de Pagos (Bs.)</h3>
                 <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
             </div>
+            <div id="adm-edicion" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">️ Edición de Jugadas</h3>
+                <p class="text-xs text-gray-400 mb-4">Modifica o elimina las jugadas de los participantes.</p>
+                <div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p class="text-xs text-yellow-400 font-bold">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                        ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
+                    </p>
+                </div>
+                <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+            </div>
         </div>
     </div>
-
+    <div id="modal-edit-bet" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
+                <h2 class="text-lg font-black text-brand-orange">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i>
+                    Editar Jugada: <span id="edit-user-name" class="text-white"></span>
+                </h2>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <p class="text-xs text-gray-400 mb-4">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>
+                <div id="edit-races-container" class="space-y-4"></div>                <div class="mt-6 flex gap-3">
+                    <button onclick="saveEditedBet()" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        <i class="fa-solid fa-save mr-2"></i>GUARDAR CAMBIOS
+                    </button>
+                    <button onclick="closeEditModal()" class="px-6 bg-gray-700 hover:bg-gray-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        CANCELAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCqxEkSUcSTx1iYFdfCC4WhCjAl_3d4dBY",
             authDomain: "tres-x-seis-activo.firebaseapp.com",
@@ -224,18 +241,19 @@
             messagingSenderId: "993946546247",
             appId: "1:993946546247:web:3f2b7269f5435cc6144162"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+        const PRECIO_JUGADA = 800;
+        const PORCENTAJE_PREMIO = 0.75;
         const appState = {
             currentUser: null,
             raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
             scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
             results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
-            users: []
+            users: [],
+            editingUser: null,
+            editingPicks: null
         };
-
         async function saveConfigToFirebase() {
             try {
                 const configDoc = doc(db, "global_config", "main");
@@ -245,9 +263,8 @@
                     results: appState.results,
                     updatedAt: new Date().toISOString()
                 });
-                console.log("✅ Configuración guardada en Firebase");
             } catch (error) {
-                console.error("❌ Error guardando configuración en Firebase:", error);
+                console.error("❌ Error guardando configuración:", error);
             }
             localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
                 raceConfig: appState.raceConfig,
@@ -255,7 +272,6 @@
                 results: appState.results
             }));
         }
-
         async function loadConfigFromFirebase() {
             try {
                 const configDoc = doc(db, "global_config", "main");
@@ -265,41 +281,34 @@
                     appState.raceConfig = data.raceConfig || appState.raceConfig;
                     appState.scratched = data.scratched || appState.scratched;
                     appState.results = data.results || appState.results;
-                    console.log("✅ Configuración cargada desde Firebase");
                     return true;
                 }
             } catch (error) {
-                console.warn("⚠️ Error cargando configuración de Firebase:", error);
+                console.warn("⚠️ Error cargando configuración:", error);
             }
             return false;
         }
-
         async function loadUsersFromFirebase() {
             try {
                 const usersSnapshot = await getDocs(collection(db, "usuarios"));
                 const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (users.length > 0) {
                     appState.users = users;
-                    console.log(`✅ ${users.length} usuarios cargados desde Firebase`);
                     return true;
                 }
             } catch (error) {
-                console.warn("⚠️ Error cargando usuarios de Firebase:", error);
+                console.warn("️ Error cargando usuarios:", error);
             }
             return false;
         }
-
         async function saveUserToFirebase(user) {
             try {
-                const docRef = await addDoc(collection(db, "usuarios"), user);
-                console.log(`✅ Usuario ${user.name} guardado en Firebase con ID: ${docRef.id}`);
-                return docRef.id;
+                const docRef = await addDoc(collection(db, "usuarios"), user);                return docRef.id;
             } catch (error) {
-                console.error("❌ Error guardando usuario en Firebase:", error);
+                console.error("❌ Error guardando usuario:", error);
                 return null;
             }
         }
-
         function loadFromLocalStorage() {
             const configSaved = localStorage.getItem('tresXSeisActivo_Config');
             if (configSaved) {
@@ -313,11 +322,9 @@
                 appState.users = JSON.parse(usersSaved);
             }
         }
-
         function saveUsersToLocalStorage() {
             localStorage.setItem('tresXSeisActivo_Users', JSON.stringify(appState.users));
         }
-
         async function init() {
             const configLoaded = await loadConfigFromFirebase();
             if (!configLoaded) loadFromLocalStorage();
@@ -328,35 +335,27 @@
             saveUsersToLocalStorage();
             saveConfigToFirebase();
         }
-
         window.goHome = function() {
             document.getElementById('reg-nickname').value = '';
-            document.getElementById('view-register').classList.remove('hidden');
-            document.getElementById('view-play').classList.add('hidden');
-            document.getElementById('view-ranking').classList.add('hidden');
-            document.getElementById('view-admin').classList.add('hidden');
-            window.scrollTo(0, 0);
+            showView('view-register');
         }
-
         window.showView = function(viewId) {
             document.getElementById('view-register').classList.add('hidden');
             document.getElementById('view-play').classList.add('hidden');
             document.getElementById('view-ranking').classList.add('hidden');
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById(viewId).classList.remove('hidden');
-            
             if (viewId === 'view-ranking') renderRanking();
             if (viewId === 'view-admin') {
                 renderAdminScratch();
                 renderAdminResults();
                 renderAdminPayments();
+                renderAdminEditList();
             }
-        }
-
+            window.scrollTo(0, 0);        }
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
             if (!nick) return alert("⚠️ Ingresa un apodo.");
-            
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
                 let suggestedName = nick;
@@ -365,37 +364,32 @@
                     suggestedName = `${nick} ${String(counter).padStart(2, '0')}`;
                     counter++;
                 }
-                const useSuggested = confirm(`️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
+                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
                 if (useSuggested) {
                     document.getElementById('reg-nickname').value = suggestedName;
                     return;
                 }
                 return;
             }
-
             const newUser = { 
                 name: nick, 
                 picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }, 
                 paid: false, 
                 createdAt: new Date().toISOString() 
             };
-            
             const userId = await saveUserToFirebase(newUser);
             if (!userId) {
                 alert("⚠️ Error de conexión. Intenta de nuevo.");
                 return;
             }
-            
             const userWithId = { id: userId, ...newUser };
             appState.currentUser = userWithId;
             appState.users.push(userWithId);
             saveUsersToLocalStorage();
-            
             document.getElementById('display-nickname').textContent = nick;
             showView('view-play');
             renderUserBoard();
         }
-
         window.renderUserBoard = function() {
             const container = document.getElementById('races-container');
             container.innerHTML = '';
@@ -431,7 +425,6 @@
                 hint.classList.remove('text-green-400');
             }
         }
-
         window.togglePick = function(race, horse) {
             const picks = appState.currentUser.picks[race];
             const index = picks.indexOf(horse);
@@ -439,21 +432,14 @@
             else if (picks.length < 3) picks.push(horse);
             renderUserBoard();
         }
-
-        // ============================================
-        // ENVIAR JUGADA CON RESUMEN PREVIO
-        // ============================================
         window.submitBet = async function() {
-            // Construir el resumen de jugadas
             let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
                 const picks = appState.currentUser.picks[r];
                 const picksStr = picks.map(p => `[${p}]`).join(' ');
                 resumen += `${r}ª V.: ${picksStr}\n`;
             }
-            resumen += '\n¿Confirmas el envío de estas selecciones?';
-            
-            if (confirm(resumen)) {
+            resumen += '\n¿Confirmas el envío de estas selecciones?';            if (confirm(resumen)) {
                 try {
                     const userDoc = doc(db, "usuarios", appState.currentUser.id);
                     await updateDoc(userDoc, { picks: appState.currentUser.picks });
@@ -465,7 +451,6 @@
                 }
             }
         }
-
         window.renderRanking = function() {
             const list = document.getElementById('ranking-list');
             list.innerHTML = '';
@@ -486,8 +471,25 @@
             });
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            const { jugadoresActivos, premio } = calcularPremio();
             if (currentRace > 0) {
-                list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4"><p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p><p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p><p class="text-xs text-gray-500 mt-1">Vivos: ${aliveUsers.length} | Eliminados: ${eliminatedUsers.length}</p></div>`;
+                list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
+                    <p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p>
+                    <p class="text-xs text-gray-500 mt-1">Vivos: ${aliveUsers.length} | Eliminados: ${eliminatedUsers.length}</p>
+                    <p class="text-xs text-green-400 mt-1 font-bold">💰 Premio: ${formatearBs(premio)}</p>
+                </div>`;
+            }
+            if (currentRace === 6 && aliveUsers.length === 0) {
+                list.innerHTML += `
+                    <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
+                        <div class="text-center">
+                            <span class="text-4xl block mb-2">💰</span>
+                            <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
+                            <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
+                            <p class="text-lg font-black text-green-400 mt-2">Premio para la próxima: ${formatearBs(premio)}</p>
+                        </div>                    </div>
+                `;
             }
             if (aliveUsers.length > 0) {
                 list.innerHTML += `<div class="text-center mb-3"><h3 class="text-lg font-black text-green-400 uppercase tracking-wider"><i class="fa-solid fa-heart mr-2"></i>VIVOS</h3></div>`;
@@ -503,8 +505,7 @@
             if (currentRace === 0) {
                 list.innerHTML += `<div class="glass-panel rounded-xl p-6 text-center border border-white/10"><i class="fa-solid fa-hourglass-start text-4xl text-gray-500 mb-3"></i><p class="text-gray-400">Aún no se han cargado resultados</p></div>`;
             }
-        }
-
+                }
         function renderUserCard(u, position, currentRace, isWinner) {
             let racesHtml = '';
             for (let r = 1; r <= currentRace; r++) {
@@ -514,12 +515,10 @@
                 const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
-            const paidBadge = u.paid ? '<i class="fa-solid fa-circle-check text-green-400 text-lg"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400 text-lg"></i>';
-            const positionDisplay = isWinner ? '<span class="text-3xl"></span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
             const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
-            return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div>${paidBadge}</div></div><div class="space-y-1">${racesHtml}</div></div>`;
+            return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
         }
-
         window.switchAdminTab = function(tabId) {
             document.querySelectorAll('.adm-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
@@ -527,13 +526,11 @@
             event.target.classList.remove('text-gray-500');
             event.target.classList.add('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5');
         }
-
         window.renderAdminConfigInputs = function() {
             const container = document.getElementById('admin-race-inputs');
             container.innerHTML = '';
             for (let i = 1; i <= 6; i++) container.innerHTML += `<div><label class="block text-[10px] font-black text-gray-400 mb-1 uppercase tracking-wider">${i}ª Válida</label><input type="number" id="cfg-race-${i}" value="${appState.raceConfig[i]}" min="4" max="14" class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg"></div>`;
         }
-
         window.saveRaceConfig = async function() {
             for (let i = 1; i <= 6; i++) {
                 const val = parseInt(document.getElementById(`cfg-race-${i}`).value);
@@ -546,7 +543,6 @@
             renderAdminResults();
             if (appState.currentUser) renderUserBoard();
         }
-
         window.renderAdminScratch = function() {
             const container = document.getElementById('admin-scratch-container');
             container.innerHTML = '';
@@ -559,7 +555,6 @@
                 container.innerHTML += `<div class="bg-white/5 p-3 rounded-xl border border-white/5"><p class="text-[10px] font-black text-brand-amber mb-2 uppercase tracking-wider">${r}ª VÁLIDA - Retirados:</p><div class="flex flex-wrap gap-2">${buttons}</div></div>`;
             }
         }
-
         window.toggleScratch = async function(race, horse) {
             const arr = appState.scratched[race];
             const idx = arr.indexOf(horse);
@@ -573,7 +568,6 @@
             renderAdminScratch();
             if (appState.currentUser) renderUserBoard();
         }
-
         window.renderAdminResults = function() {
             const container = document.getElementById('admin-results-container');
             container.innerHTML = '';
@@ -590,7 +584,6 @@
                 whatsappSection.classList.add('hidden');
             }
         }
-
         window.saveRaceResult = async function(race) {
             const input = document.getElementById(`res-race-${race}`);
             const val = input.value;
@@ -601,11 +594,160 @@
             await saveConfigToFirebase();
             let aciertos = 0, fallos = 0;
             appState.users.forEach(u => { if (u.picks[race].includes(winner)) aciertos++; else fallos++; });
-            alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n Eliminados: ${fallos}`);
+            alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
             renderAdminResults();
             renderRanking();
         }
-
+        window.renderAdminEditList = function() {
+            const container = document.getElementById('admin-edit-list');
+            container.innerHTML = '';
+            if (appState.users.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">No hay participantes registrados.</p>';
+                return;
+            }
+            const sortedUsers = [...appState.users].sort((a, b) => a.name.localeCompare(b.name));
+            sortedUsers.forEach(u => {
+                let totalPicks = 0;
+                for (let r = 1; r <= 6; r++) totalPicks += (u.picks[r] || []).length;
+                const isComplete = totalPicks === 18;
+                let picksSummary = '';
+                for (let r = 1; r <= 6; r++) {
+                    const picks = u.picks[r] || [];
+                    picksSummary += `<div class="text-xs text-gray-400"><span class="text-brand-amber font-bold">${r}ª:</span> ${picks.length > 0 ? picks.map(p => `[${p}]`).join(' ') : '<span class="text-red-400">vacía</span>'}</div>`;
+                }
+                container.innerHTML += `
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-brand-orange/30 transition-all">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-black text-white text-lg">${u.name}</span>
+                                    ${isComplete ? '<span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold">COMPLETA</span>' : '<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-bold">INCOMPLETA</span>'}
+                                    <span class="text-[10px] text-gray-500">${totalPicks}/18</span>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-1 mt-2">
+                                    ${picksSummary}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 mt-3 pt-3 border-t border-white/10">
+                            <button onclick="window.openEditBet('${u.id}')" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-pen"></i> EDITAR
+                            </button>
+                            <button onclick="window.deleteUserBet('${u.id}', '${u.name}')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-trash"></i> ELIMINAR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        window.openEditBet = function(userId) {
+            const user = appState.users.find(u => u.id === userId);
+            if (!user) return;
+            appState.editingUser = user;
+            appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
+            document.getElementById('edit-user-name').textContent = user.name;
+            renderEditRaces();            document.getElementById('modal-edit-bet').classList.remove('hidden');
+        }
+        window.closeEditModal = function() {
+            document.getElementById('modal-edit-bet').classList.add('hidden');
+            appState.editingUser = null;
+            appState.editingPicks = null;
+        }
+        window.renderEditRaces = function() {
+            const container = document.getElementById('edit-races-container');
+            container.innerHTML = '';
+            for (let race = 1; race <= 6; race++) {
+                const totalHorses = appState.raceConfig[race];
+                const scratched = appState.scratched[race];
+                const picks = appState.editingPicks[race];
+                let horsesHtml = '';
+                for (let i = 1; i <= totalHorses; i++) {
+                    if (scratched.includes(i)) continue;
+                    const isSelected = picks.includes(i);
+                    horsesHtml += `<button onclick="window.toggleEditPick(${race}, ${i})" class="horse-btn w-10 h-10 rounded-lg font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300 hover:bg-white/10'}">${i}</button>`;
+                }
+                container.innerHTML += `
+                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-black text-brand-amber text-sm">${race}ª VÁLIDA</h4>
+                            <span class="text-xs font-bold ${picks.length === 3 ? 'text-green-400' : 'text-gray-500'}">${picks.length}/3</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            ${horsesHtml}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        window.toggleEditPick = function(race, horse) {
+            const picks = appState.editingPicks[race];
+            const index = picks.indexOf(horse);
+            if (index > -1) {
+                picks.splice(index, 1);
+            } else if (picks.length < 3) {
+                picks.push(horse);
+            }
+            renderEditRaces();
+        }
+        window.saveEditedBet = async function() {
+            if (!appState.editingUser) return;
+            let totalPicks = 0;
+            for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
+            if (totalPicks !== 18) {
+                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
+                    return;                }
+            }
+            try {
+                const userDoc = doc(db, "usuarios", appState.editingUser.id);
+                await updateDoc(userDoc, { picks: appState.editingPicks });
+                const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
+                if (userIndex > -1) {
+                    appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
+                }
+                saveUsersToLocalStorage();
+                alert("✅ Jugada actualizada correctamente.");
+                closeEditModal();
+                renderAdminEditList();
+            } catch (error) {
+                console.error("❌ Error actualizando jugada:", error);
+                alert("️ Error al guardar los cambios.");
+            }
+        }
+        window.deleteUserBet = async function(userId, userName) {
+            if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
+                return;
+            }
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, "usuarios", userId));
+                appState.users = appState.users.filter(u => u.id !== userId);
+                saveUsersToLocalStorage();
+                alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible para ser usado.`);
+                renderAdminEditList();
+            } catch (error) {
+                console.error("❌ Error eliminando jugada:", error);
+                alert("⚠️ Error al eliminar la jugada.");
+            }
+                                }
+        function contarJugadasCompletas() {
+            return appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += (u.picks[r] || []).length;
+                return total === 18;
+            }).length;
+        }
+        function calcularPremio() {
+            const jugadoresActivos = contarJugadasCompletas();
+            const pozoTotal = jugadoresActivos * PRECIO_JUGADA;
+            const premio = pozoTotal * PORCENTAJE_PREMIO;
+            return { jugadoresActivos, pozoTotal, premio };
+        }
+        function formatearBs(monto) {
+            return 'Bs. ' + monto.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
         window.generateInitialReport = function() {
             const completeUsers = appState.users.filter(u => {
                 let totalPicks = 0;
@@ -627,7 +769,7 @@
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
-            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
+            msg += ' Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
             msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
@@ -639,9 +781,8 @@
                     msg += `${r}ª V.: ${picksStr}\n`;
                 }
                 msg += '\n';
-            });
-            msg += '━━━━━━━━━━━━━━━━━━━\n';
-            msg += '⚠️ *¡IMPORTANTE!*\n';
+            });            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            msg += '️ *¡IMPORTANTE!*\n';
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
@@ -652,7 +793,6 @@
             window.lastInitialReport = msg;
             document.getElementById('initial-report-preview-container').scrollIntoView({ behavior: 'smooth' });
         }
-
         window.copyInitialReport = async function() {
             if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
             try {
@@ -668,7 +808,6 @@
                 alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
             }
         }
-
         window.generateWhatsAppReport = function() {
             let currentRace = 0;
             for (let r = 1; r <= 6; r++) {
@@ -688,23 +827,30 @@
             });
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            const { jugadoresActivos, premio } = calcularPremio();
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
-            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
             msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
             msg += '📊 *ESTADO ACTUAL*\n';
             msg += `✅ Vivos: ${aliveUsers.length}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
-            msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
+            msg += ` Restan: ${6 - currentRace} válidas\n\n`;
+            msg += `💰 *Premio:* ${formatearBs(premio)}\n`;
+            msg += `_(Calculado: ${jugadoresActivos} jugadas activas)_\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            if (currentRace === 6 && aliveUsers.length === 0) {
+                msg += '💰 *ACUMULADO* 💰\n\n';
+                msg += 'No hubo ganadores en esta jornada.\n';
+                msg += `El premio de *${formatearBs(premio)}* se acumula para la próxima.\n\n`;
+                msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            }
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '', '🥉'];
+                const medals = ['', '🥈', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
-                    const paidIcon = u.paid ? '✅' : '⏳';
-                    msg += `${medal} *${u.name}* ${paidIcon}\n`;
+                    msg += `${medal} *${u.name}*\n`;
                     for (let r = 1; r <= currentRace; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
@@ -718,8 +864,7 @@
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
                 msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
                 eliminatedUsers.forEach(u => {
-                    const paidIcon = u.paid ? '✅' : '⏳';
-                    msg += `*${u.name}* ${paidIcon} _(Cayó en ${u.eliminatedAt}ª)_\n`;
+                    msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= currentRace; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
@@ -734,13 +879,14 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
-                    msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';                    msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
+                    msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
-                    msg += ' *¡No hubo ganadores esta jornada!*\n';
+                    msg += '😱 *¡No hubo ganadores esta jornada!*\n';
+                    msg += `💰 *ACUMULADO:* ${formatearBs(premio)} para la próxima`;
                 }
             } else {
-                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* `;
+                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
             }
             const preview = document.getElementById('whatsapp-preview');
             preview.textContent = msg;
@@ -748,9 +894,8 @@
             window.lastWhatsAppReport = msg;
             document.getElementById('whatsapp-preview-container').scrollIntoView({ behavior: 'smooth' });
         }
-
         window.copyWhatsAppReport = async function() {
-            if (!window.lastWhatsAppReport) return alert("️ Primero genera el reporte.");
+            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
                 alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -764,7 +909,6 @@
                 alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
             }
         }
-
         window.renderAdminPayments = async function() {
             await loadUsersFromFirebase();
             const container = document.getElementById('admin-payment-list');
@@ -773,7 +917,6 @@
                 container.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/5"><span class="font-black text-sm">${u.name}</span><button onclick="window.togglePayment('${u.id}', '${u.name}')" class="px-3 py-1.5 rounded text-[10px] font-black transition-all uppercase tracking-wider ${u.paid ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">${u.paid ? 'PAGADO ✅' : 'PENDIENTE'}</button></div>`;
             });
         }
-
         window.togglePayment = async function(userId, name) {
             try {
                 const userDoc = doc(db, "usuarios", userId);
@@ -785,9 +928,7 @@
                     saveUsersToLocalStorage();
                 }
                 renderAdminPayments();
-            } catch (error) { alert("⚠️ Error actualizando pago."); }
-        }
-
+            } catch (error) { alert("⚠️ Error actualizando pago."); }        }
         init();
     </script>
 </body>
