@@ -260,7 +260,7 @@
         const db = getFirestore(app);
 
         const PRECIO_JUGADA = 800;
-        const PORCENTAJE_PREMIO = 0.80; // CAMBIADO A 80%
+        const PORCENTAJE_PREMIO = 0.80;
 
         const appState = {
             currentUser: null,
@@ -819,7 +819,7 @@
             }
             
             try {
-                await deleteDoc(doc(db, "usuarios"), userId));
+                await deleteDoc(doc(db, "usuarios", userId));
                 appState.users = appState.users.filter(u => u.id !== userId);
                 saveUsersToLocalStorage();
                 alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible para ser usado.`);
@@ -926,17 +926,11 @@
             }
             if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
             
-            // FILTRO: Solo usuarios con 18 selecciones completas
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
                 for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
                 return total === 18;
             });
-            
-            // LOG DE DEPURACIÓN
-            console.log('🔍 Debug - Usuarios válidos:', usuariosValidos.length);
-            console.log('🔍 Debug - Carrera actual:', currentRace);
-            console.log('🔍 Debug - Resultados:', appState.results);
             
             const usersWithStatus = usuariosValidos.map(user => {
                 let status = { alive: true, eliminatedAt: null, details: {} };
@@ -954,11 +948,6 @@
             
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
-            
-            // LOG DE DEPURACIÓN
-            console.log('🔍 Debug - Vivos:', aliveUsers.length);
-            console.log('🔍 Debug - Eliminados:', eliminatedUsers.length);
-            console.log('🔍 Debug - Lista eliminados:', eliminatedUsers.map(u => `${u.name} (cayó en ${u.eliminatedAt}ª)`));
             
             const { jugadoresActivos, premio } = calcularPremio();
             
