@@ -638,21 +638,21 @@
         }
 
         window.renderAdminResults = function() {
-            const container = document.getElementById('admin-results-container');
-            container.innerHTML = '';
-            for (let r = 1; r <= 6; r++) {
-                const hasResult = appState.results[r] !== null;
-                const isNext = !hasResult && (r === 1 || appState.results[r-1] !== null);
-                container.innerHTML += `<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5 ${!isNext && !hasResult ? 'opacity-50' : ''}"><span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span><input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" placeholder="#" min="1" max="${appState.raceConfig[r]}" class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg" ${!isNext && !hasResult ? 'disabled' : ''}><button onclick="window.saveRaceResult(${r})" class="px-4 py-2 rounded-lg font-black text-sm transition-all ${hasResult ? 'bg-green-500/20 text-green-400 border border-green-500/30' : isNext ? 'bg-brand-orange text-white hover:bg-orange-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}" ${!isNext && !hasResult ? 'disabled' : ''}>${hasResult ? '✅ Guardado' : 'GUARDAR'}</button></div>`;
-            }
-            const hasAnyResult = appState.results.some(r => r !== null);
-            const whatsappSection = document.getElementById('whatsapp-section');
-            if (hasAnyResult) {
-                whatsappSection.classList.remove('hidden');
-            } else {
-                whatsappSection.classList.add('hidden');
-            }
-        }
+			const container = document.getElementById('admin-results-container');
+			container.innerHTML = '';
+			for (let r = 1; r <= 6; r++) {
+				const hasResult = appState.results[r] !== null;
+				const isNext = !hasResult && (r === 1 || appState.results[r-1] !== null);
+				container.innerHTML += `<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5 ${!isNext && !hasResult ? 'opacity-50' : ''}"><span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span><input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" placeholder="#" min="1" max="${appState.raceConfig[r]}" class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg" ${!isNext && !hasResult ? 'disabled' : ''}><button onclick="window.saveRaceResult(${r})" class="px-4 py-2 rounded-lg font-black text-sm transition-all ${hasResult ? 'bg-green-500/20 text-green-400 border border-green-500/30' : isNext ? 'bg-brand-orange text-white hover:bg-orange-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}" ${!isNext && !hasResult ? 'disabled' : ''}>${hasResult ? '✅ Guardado' : 'GUARDAR'}</button></div>`;
+			}
+			const hasAnyResult = Object.values(appState.results).some(r => r !== null);
+			const whatsappSection = document.getElementById('whatsapp-section');
+			if (hasAnyResult) {
+				whatsappSection.classList.remove('hidden');
+			} else {
+        whatsappSection.classList.add('hidden');
+    }
+}
 
         window.saveRaceResult = async function(race) {
             const input = document.getElementById(`res-race-${race}`);
