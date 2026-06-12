@@ -209,7 +209,7 @@
                 <div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                     <p class="text-xs text-yellow-400 font-bold">
                         <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                        ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
+                        ️ Los cambios se aplican inmediatamente. Usa con precaución.
                     </p>
                 </div>
                 <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
@@ -312,10 +312,8 @@
             try {
                 const usersSnapshot = await getDocs(collection(db, "usuarios"));
                 const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (users.length > 0) {
-                    appState.users = users;
-                    return true;
-                }
+                appState.users = users;
+                return true;
             } catch (error) {
                 console.warn("⚠️ Error cargando usuarios:", error);
             }
@@ -353,8 +351,8 @@
         async function init() {
             const configLoaded = await loadConfigFromFirebase();
             if (!configLoaded) loadFromLocalStorage();
-            const usersLoaded = await loadUsersFromFirebase();
-            if (!usersLoaded) loadFromLocalStorage();
+            await loadUsersFromFirebase();
+            loadFromLocalStorage();
             renderAdminConfigInputs();
             renderAdminResults();
             saveUsersToLocalStorage();
@@ -392,9 +390,10 @@
             window.scrollTo(0, 0);
         }
 
+        // REGISTRO: Solo en memoria local, NO en Firebase (el nombre no se reserva)
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
-            if (!nick) return alert("️ Ingresa un apodo.");
+            if (!nick) return alert("⚠️ Ingresa un apodo.");
             
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
@@ -419,16 +418,8 @@
                 createdAt: new Date().toISOString() 
             };
             
-            const userId = await saveUserToFirebase(newUser);
-            if (!userId) {
-                alert("⚠️ Error de conexión. Intenta de nuevo.");
-                return;
-            }
-            
-            const userWithId = { id: userId, ...newUser };
-            appState.currentUser = userWithId;
-            appState.users.push(userWithId);
-            saveUsersToLocalStorage();
+            const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            appState.currentUser = { id: tempId, ...newUser };
             
             document.getElementById('display-nickname').textContent = nick;
             showView('view-play');
@@ -479,8 +470,9 @@
             renderUserBoard();
         }
 
+        // ENVÍO: Aquí SÍ se guarda en Firebase (se reserva el nombre)
         window.submitBet = async function() {
-            let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
+            let resumen = ' RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
                 const picks = appState.currentUser.picks[r];
                 const picksStr = picks.map(p => `[${p}]`).join(' ');
@@ -490,13 +482,22 @@
             
             if (confirm(resumen)) {
                 try {
-                    const userDoc = doc(db, "usuarios", appState.currentUser.id);
-                    await updateDoc(userDoc, { picks: appState.currentUser.picks });
+                    const docRef = await addDoc(collection(db, "usuarios"), {
+                        name: appState.currentUser.name,
+                        picks: appState.currentUser.picks,
+                        paid: false,
+                        createdAt: appState.currentUser.createdAt
+                    });
+                    
+                    appState.currentUser.id = docRef.id;
+                    appState.users.push(appState.currentUser);
                     saveUsersToLocalStorage();
+                    
                     alert("✅ ¡Jugada enviada con éxito!");
                     showView('view-ranking');
                 } catch (error) {
-                    alert("⚠️ Error al guardar.");
+                    console.error("❌ Error guardando jugada:", error);
+                    alert("️ Error al guardar.");
                 }
             }
         }
@@ -638,26 +639,26 @@
         }
 
         window.renderAdminResults = function() {
-			const container = document.getElementById('admin-results-container');
-			container.innerHTML = '';
-			for (let r = 1; r <= 6; r++) {
-				const hasResult = appState.results[r] !== null;
-				const isNext = !hasResult && (r === 1 || appState.results[r-1] !== null);
-				container.innerHTML += `<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5 ${!isNext && !hasResult ? 'opacity-50' : ''}"><span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span><input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" placeholder="#" min="1" max="${appState.raceConfig[r]}" class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg" ${!isNext && !hasResult ? 'disabled' : ''}><button onclick="window.saveRaceResult(${r})" class="px-4 py-2 rounded-lg font-black text-sm transition-all ${hasResult ? 'bg-green-500/20 text-green-400 border border-green-500/30' : isNext ? 'bg-brand-orange text-white hover:bg-orange-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}" ${!isNext && !hasResult ? 'disabled' : ''}>${hasResult ? '✅ Guardado' : 'GUARDAR'}</button></div>`;
-			}
-			const hasAnyResult = Object.values(appState.results).some(r => r !== null);
-			const whatsappSection = document.getElementById('whatsapp-section');
-			if (hasAnyResult) {
-				whatsappSection.classList.remove('hidden');
-			} else {
-        whatsappSection.classList.add('hidden');
-    }
-}
+            const container = document.getElementById('admin-results-container');
+            container.innerHTML = '';
+            for (let r = 1; r <= 6; r++) {
+                const hasResult = appState.results[r] !== null;
+                const isNext = !hasResult && (r === 1 || appState.results[r-1] !== null);
+                container.innerHTML += `<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5 ${!isNext && !hasResult ? 'opacity-50' : ''}"><span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span><input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" placeholder="#" min="1" max="${appState.raceConfig[r]}" class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg" ${!isNext && !hasResult ? 'disabled' : ''}><button onclick="window.saveRaceResult(${r})" class="px-4 py-2 rounded-lg font-black text-sm transition-all ${hasResult ? 'bg-green-500/20 text-green-400 border border-green-500/30' : isNext ? 'bg-brand-orange text-white hover:bg-orange-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}" ${!isNext && !hasResult ? 'disabled' : ''}>${hasResult ? '✅ Guardado' : 'GUARDAR'}</button></div>`;
+            }
+            const hasAnyResult = Object.values(appState.results).some(r => r !== null);
+            const whatsappSection = document.getElementById('whatsapp-section');
+            if (hasAnyResult) {
+                whatsappSection.classList.remove('hidden');
+            } else {
+                whatsappSection.classList.add('hidden');
+            }
+        }
 
         window.saveRaceResult = async function(race) {
             const input = document.getElementById(`res-race-${race}`);
             const val = input.value;
-            if (!val) return alert("️ Debes ingresar el número del ganador.");
+            if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
             const winner = parseInt(val);
             if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
             appState.results[race] = winner;
@@ -809,20 +810,21 @@
             }
         }
 
+        // ELIMINAR: Recarga desde Firebase para permitir múltiples eliminaciones
         window.deleteUserBet = async function(userId, userName) {
             if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
                 return;
             }
             
-            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) {
+            if (!confirm(`️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) {
                 return;
             }
             
             try {
                 await deleteDoc(doc(db, "usuarios", userId));
-                appState.users = appState.users.filter(u => u.id !== userId);
+                await loadUsersFromFirebase();
                 saveUsersToLocalStorage();
-                alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible para ser usado.`);
+                alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible.`);
                 renderAdminEditList();
             } catch (error) {
                 console.error("❌ Error eliminando jugada:", error);
@@ -856,7 +858,7 @@
                 return totalPicks === 18;
             });
             if (completeUsers.length === 0) {
-                return alert("⚠️ Aún no hay participantes con jugada completa (18 selecciones).");
+                return alert("️ Aún no hay participantes con jugada completa (18 selecciones).");
             }
             const incompleteCount = appState.users.length - completeUsers.length;
             let confirmMsg = `✅ Se incluirán ${completeUsers.length} participante(s) con jugada completa.`;
@@ -872,11 +874,10 @@
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
-            msg += `_(Calculado: ${jugadoresActivos} jugadas × Bs. 800 × 80%)\n\n`;
+            msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
-            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
+            msg += ' Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
             msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
@@ -894,7 +895,7 @@
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
-            msg += ' *¡Que comience la emoción!* 🐎';
+            msg += '🐎 *¡Que comience la emoción!* 🐎';
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
@@ -918,13 +919,14 @@
             }
         }
 
+        // REPORTE PROGRESIVO: 6 carreras siempre visibles, símbolos solo en finalizadas
         window.generateWhatsAppReport = function() {
             let currentRace = 0;
             for (let r = 1; r <= 6; r++) {
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -943,6 +945,9 @@
                         status.eliminatedAt = r; 
                     }
                 }
+                for (let r = currentRace + 1; r <= 6; r++) {
+                    status.details[r] = { picks: user.picks[r], winner: null, isHit: null };
+                }
                 return { ...user, ...status };
             });
             
@@ -954,8 +959,7 @@
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
-            msg += `_(Calculado: ${jugadoresActivos} jugadas × Bs. 800 × 80%)\n\n`;
+            msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
             msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
@@ -978,11 +982,14 @@
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     msg += `${medal} *${u.name}*\n`;
-                    for (let r = 1; r <= currentRace; r++) {
+                    for (let r = 1; r <= 6; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        const icon = d.isHit ? '✔️' : '';
-                        msg += `${r}ª: ${picksStr} ${icon}\n`;
+                        let icon = '';
+                        if (r <= currentRace) {
+                            icon = d.isHit ? ' ✔️' : ' ❌';
+                        }
+                        msg += `${r}ª: ${picksStr}${icon}\n`;
                     }
                     msg += '\n';
                 });
@@ -993,16 +1000,14 @@
                 msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
                 eliminatedUsers.forEach(u => {
                     msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
-                    for (let r = 1; r <= currentRace; r++) {
+                    for (let r = 1; r <= 6; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        let icon = '⏸️';
-                        if (r === u.eliminatedAt) {
-                            icon = '❌';
-                        } else if (d.isHit) {
-                            icon = '✔️';
+                        let icon = '';
+                        if (r <= currentRace) {
+                            icon = d.isHit ? ' ✔️' : ' ❌';
                         }
-                        msg += `${r}ª: ${picksStr} ${icon}\n`;
+                        msg += `${r}ª: ${picksStr}${icon}\n`;
                     }
                     msg += '\n';
                 });
@@ -1011,7 +1016,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
@@ -1030,7 +1035,7 @@
         }
 
         window.copyWhatsAppReport = async function() {
-            if (!window.lastWhatsAppReport) return alert("️ Primero genera el reporte.");
+            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
                 alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -1065,7 +1070,7 @@
                     saveUsersToLocalStorage();
                 }
                 renderAdminPayments();
-            } catch (error) { alert("️ Error actualizando pago."); }
+            } catch (error) { alert("⚠️ Error actualizando pago."); }
         }
 
         init();
