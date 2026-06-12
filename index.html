@@ -209,7 +209,7 @@
                 <div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                     <p class="text-xs text-yellow-400 font-bold">
                         <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                        ️ Los cambios se aplican inmediatamente. Usa con precaución.
+                        ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
                     </p>
                 </div>
                 <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
@@ -390,7 +390,6 @@
             window.scrollTo(0, 0);
         }
 
-        // REGISTRO: Solo en memoria local, NO en Firebase (el nombre no se reserva)
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
             if (!nick) return alert("⚠️ Ingresa un apodo.");
@@ -470,7 +469,6 @@
             renderUserBoard();
         }
 
-        // ENVÍO: Aquí SÍ se guarda en Firebase (se reserva el nombre)
         window.submitBet = async function() {
             let resumen = ' RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
@@ -497,7 +495,7 @@
                     showView('view-ranking');
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
-                    alert("️ Error al guardar.");
+                    alert("⚠️ Error al guardar.");
                 }
             }
         }
@@ -545,10 +543,10 @@
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
                         <div class="text-center">
-                            <span class="text-4xl block mb-2">💰</span>
+                            <span class="text-5xl block mb-3"></span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
-                            <p class="text-lg font-black text-green-400 mt-2">Premio para la próxima: ${formatearBs(premio)}</p>
+                            <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premio)}</p>
                         </div>
                     </div>
                 `;
@@ -786,7 +784,7 @@
             for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
             
             if (totalPicks !== 18) {
-                if (!confirm(`️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
+                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
                     return;
                 }
             }
@@ -805,18 +803,17 @@
                 closeEditModal();
                 renderAdminEditList();
             } catch (error) {
-                console.error("❌ Error actualizando jugada:", error);
+                console.error(" Error actualizando jugada:", error);
                 alert("⚠️ Error al guardar los cambios.");
             }
         }
 
-        // ELIMINAR: Recarga desde Firebase para permitir múltiples eliminaciones
         window.deleteUserBet = async function(userId, userName) {
             if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
                 return;
             }
             
-            if (!confirm(`️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) {
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) {
                 return;
             }
             
@@ -919,7 +916,6 @@
             }
         }
 
-        // REPORTE PROGRESIVO: 6 carreras siempre visibles, símbolos solo en finalizadas
         window.generateWhatsAppReport = function() {
             let currentRace = 0;
             for (let r = 1; r <= 6; r++) {
@@ -957,22 +953,22 @@
             const { jugadoresActivos, premio } = calcularPremio();
             
             let msg = '';
-            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += ' *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
+            msg += ` *RESULTADO ${currentRace}ª VÁLIDA*\n`;
             msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
-            msg += '📊 *ESTADO ACTUAL*\n';
+            msg += ' *ESTADO ACTUAL*\n';
             msg += `✅ Vivos: ${aliveUsers.length}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
             msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
             if (currentRace === 6 && aliveUsers.length === 0) {
-                msg += '💰 *ACUMULADO* 💰\n\n';
+                msg += '🏆 *ACUMULADO* 🏆\n\n';
                 msg += 'No hubo ganadores en esta jornada.\n';
-                msg += `El premio de *${formatearBs(premio)}* se acumula para la próxima.\n\n`;
+                msg += `El premio de *${formatearBs(premio)}* queda acumulado para la próxima semana.\n\n`;
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             }
             
@@ -997,7 +993,7 @@
             
             if (eliminatedUsers.length > 0) {
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
+                msg += ' *Y ALLÁ RRROOODARON* \n\n';
                 eliminatedUsers.forEach(u => {
                     msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= 6; r++) {
@@ -1016,12 +1012,12 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
-                    msg += '😱 *¡No hubo ganadores esta jornada!*\n';
-                    msg += `💰 *ACUMULADO:* ${formatearBs(premio)} para la próxima`;
+                    msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
+                    msg += `El premio de *${formatearBs(premio)}* queda acumulado para la próxima semana.`;
                 }
             } else {
                 msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
