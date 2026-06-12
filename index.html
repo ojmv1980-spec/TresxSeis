@@ -73,7 +73,7 @@
             <button onclick="showView('view-ranking')" class="md:hidden p-2 rounded-lg bg-brand-orange/20 text-brand-orange">
                 <i class="fa-solid fa-trophy"></i>
             </button>
-            <button onclick="showView('view-admin')" class="text-xs font-bold text-gray-500 hover:text-brand-orange transition-colors flex items-center gap-1 border border-white/10 px-2 py-1 rounded">
+            <button onclick="openAdmin()" class="text-xs font-bold text-gray-500 hover:text-brand-orange transition-colors flex items-center gap-1 border border-white/10 px-2 py-1 rounded">
                 <i class="fa-solid fa-lock"></i> <span class="hidden sm:inline">ADMIN</span>
             </button>
         </div>
@@ -188,7 +188,7 @@
                 <div id="whatsapp-section" class="hidden mt-6 space-y-3">
                     <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span> GENERAR REPORTE DE RESULTADOS</span>
+                        <span>📋 GENERAR REPORTE DE RESULTADOS</span>
                     </button>
                     <div id="whatsapp-preview-container" class="hidden">
                         <div class="flex justify-between items-center mb-2">
@@ -266,7 +266,7 @@
         const db = getFirestore(app);
 
         const PRECIO_JUGADA = 800;
-        const PORCENTAJE_PREMIO = 0.75;
+        const PORCENTAJE_PREMIO = 0.20; // CAMBIADO DE 0.75 A 0.20 (20%)
 
         const appState = {
             currentUser: null,
@@ -370,6 +370,16 @@
         window.goHome = function() {
             document.getElementById('reg-nickname').value = '';
             showView('view-register');
+        }
+
+        // RESTAURADA VALIDACIÓN DE CLAVE ADMIN
+        window.openAdmin = function() {
+            const pass = prompt("🔒 Ingrese clave de administrador:");
+            if (pass === "111180") {
+                showView('view-admin');
+            } else if (pass !== null) {
+                alert("❌ Clave incorrecta.");
+            }
         }
 
         window.showView = function(viewId) {
@@ -493,14 +503,11 @@
                     alert("✅ ¡Jugada enviada con éxito!");
                     showView('view-ranking');
                 } catch (error) {
-                    alert("️ Error al guardar.");
+                    alert("⚠️ Error al guardar.");
                 }
             }
         }
 
-        // ============================================
-        // RANKING - FILTRADO: SOLO JUGADAS COMPLETAS
-        // ============================================
         window.renderRanking = function() {
             const list = document.getElementById('ranking-list');
             list.innerHTML = '';
@@ -510,7 +517,6 @@
                 else break;
             }
             
-            // FILTRO: Solo usuarios con 18 selecciones completas
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
                 for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
@@ -576,7 +582,7 @@
                 const d = u.details[r];
                 if (!d) continue;
                 const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
-                const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg"></span>';
+                const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
             const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
@@ -670,9 +676,6 @@
             renderRanking();
         }
 
-        // ============================================
-        // EDICIÓN DE JUGADAS
-        // ============================================
         window.renderAdminEditList = function() {
             const container = document.getElementById('admin-edit-list');
             if (!container) return;
@@ -789,7 +792,7 @@
             for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
             
             if (totalPicks !== 18) {
-                if (!confirm(`️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
+                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
                     return;
                 }
             }
@@ -809,12 +812,12 @@
                 renderAdminEditList();
             } catch (error) {
                 console.error("❌ Error actualizando jugada:", error);
-                alert("️ Error al guardar los cambios.");
+                alert("⚠️ Error al guardar los cambios.");
             }
         }
 
         window.deleteUserBet = async function(userId, userName) {
-            if (!confirm(`️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
+            if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
                 return;
             }
             
@@ -830,13 +833,10 @@
                 renderAdminEditList();
             } catch (error) {
                 console.error("❌ Error eliminando jugada:", error);
-                alert("️ Error al eliminar la jugada.");
+                alert("⚠️ Error al eliminar la jugada.");
             }
         }
 
-        // ============================================
-        // CÁLCULOS
-        // ============================================
         function contarJugadasCompletas() {
             return appState.users.filter(u => {
                 let total = 0;
@@ -873,8 +873,14 @@
             if (!confirm(confirmMsg + '\n\n¿Deseas generar el reporte?')) {
                 return;
             }
+            
+            const { jugadoresActivos, premio } = calcularPremio();
+            
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
+            msg += `_(Calculado: ${jugadoresActivos} jugadas × Bs. 800 × 20%)\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
@@ -919,6 +925,7 @@
             }
         }
 
+        // CORREGIDO: Ahora filtra solo usuarios con 18 selecciones completas
         window.generateWhatsAppReport = function() {
             let currentRace = 0;
             for (let r = 1; r <= 6; r++) {
@@ -927,7 +934,14 @@
             }
             if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
             
-            const usersWithStatus = appState.users.map(user => {
+            // FILTRO: Solo usuarios con 18 selecciones completas
+            const usuariosValidos = appState.users.filter(u => {
+                let total = 0;
+                for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
+                return total === 18;
+            });
+            
+            const usersWithStatus = usuariosValidos.map(user => {
                 let status = { alive: true, eliminatedAt: null, details: {} };
                 for (let r = 1; r <= currentRace; r++) {
                     const winner = appState.results[r];
@@ -945,14 +959,15 @@
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
+            msg += `_(Calculado: ${jugadoresActivos} jugadas × Bs. 800 × 20%)\n\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
-            msg += ` Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
+            msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
             msg += '📊 *ESTADO ACTUAL*\n';
             msg += `✅ Vivos: ${aliveUsers.length}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
             msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
-            msg += `💰 *Premio:* ${formatearBs(premio)}\n`;
-            msg += `_(Calculado: ${jugadoresActivos} jugadas activas)_\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
             if (currentRace === 6 && aliveUsers.length === 0) {
@@ -986,7 +1001,7 @@
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
                         let icon = '⏸️';
-                        if (r === u.eliminatedAt) icon = '';
+                        if (r === u.eliminatedAt) icon = '❌';
                         else if (d.isHit) icon = '✔️';
                         msg += `${r}ª: ${picksStr} ${icon}\n`;
                     }
@@ -996,7 +1011,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* \n';
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
