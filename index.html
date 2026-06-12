@@ -394,7 +394,7 @@
 
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
-            if (!nick) return alert("⚠️ Ingresa un apodo.");
+            if (!nick) return alert("️ Ingresa un apodo.");
             
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
@@ -578,7 +578,7 @@
                 const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
-            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+            const positionDisplay = isWinner ? '<span class="text-3xl"></span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
             const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
             return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
         }
@@ -657,7 +657,7 @@
         window.saveRaceResult = async function(race) {
             const input = document.getElementById(`res-race-${race}`);
             const val = input.value;
-            if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
+            if (!val) return alert("️ Debes ingresar el número del ganador.");
             const winner = parseInt(val);
             if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
             appState.results[race] = winner;
@@ -785,7 +785,7 @@
             for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
             
             if (totalPicks !== 18) {
-                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
+                if (!confirm(`️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
                     return;
                 }
             }
@@ -894,7 +894,7 @@
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
-            msg += '🐎 *¡Que comience la emoción!* 🐎';
+            msg += ' *¡Que comience la emoción!* 🐎';
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
@@ -924,7 +924,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -1011,7 +1011,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
@@ -1030,7 +1030,7 @@
         }
 
         window.copyWhatsAppReport = async function() {
-            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastWhatsAppReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
                 alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -1065,7 +1065,7 @@
                     saveUsersToLocalStorage();
                 }
                 renderAdminPayments();
-            } catch (error) { alert("⚠️ Error actualizando pago."); }
+            } catch (error) { alert("️ Error actualizando pago."); }
         }
 
         init();
