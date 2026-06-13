@@ -183,7 +183,7 @@
                 <div id="whatsapp-section" class="hidden mt-6 space-y-3">
                     <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span>📋 GENERAR REPORTE DE RESULTADOS</span>
+                        <span> GENERAR REPORTE DE RESULTADOS</span>
                     </button>
                     <div id="whatsapp-preview-container" class="hidden">
                         <div class="flex justify-between items-center mb-2">
@@ -195,7 +195,7 @@
                             </button>
                         </div>
                         <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
-                        <p class="text-[10px] text-gray-500 mt-2 text-center"> Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+                        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
                     </div>
                 </div>
             </div>
@@ -392,7 +392,7 @@
 
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
-            if (!nick) return alert("⚠️ Ingresa un apodo.");
+            if (!nick) return alert("️ Ingresa un apodo.");
             
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
@@ -495,12 +495,12 @@
                     showView('view-ranking');
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
-                    alert("⚠️ Error al guardar.");
+                    alert("️ Error al guardar.");
                 }
             }
         }
 
-        // ✅ NUEVA VERSIÓN: Calcula detalles de las 6 carreras siempre
+        // ✅ CAMBIO CLAVE: ACUMULADO aparece cuando NO hay vivos (en CUALQUIER carrera)
         window.renderRanking = function() {
             const list = document.getElementById('ranking-list');
             list.innerHTML = '';
@@ -518,7 +518,6 @@
             
             const usersWithStatus = usuariosValidos.map(user => {
                 let status = { alive: true, eliminatedAt: null, details: {} };
-                // Calcular detalles para las 6 carreras SIEMPRE
                 for (let r = 1; r <= 6; r++) {
                     const winner = appState.results[r];
                     if (winner !== null) {
@@ -529,7 +528,6 @@
                             status.eliminatedAt = r; 
                         }
                     } else {
-                        // Carrera futura sin resultado
                         status.details[r] = { picks: user.picks[r], winner: null, isHit: null };
                     }
                 }
@@ -549,12 +547,12 @@
                 </div>`;
             }
             
-            // 🏆 Mostrar ACUMULADO solo si es la 6ª válida y NO hay vivos
-            if (currentRace === 6 && aliveUsers.length === 0) {
+            // 🏆 ACUMULADO: aparece cuando NO hay vivos (en CUALQUIER carrera)
+            if (aliveUsers.length === 0 && currentRace > 0) {
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
                         <div class="text-center">
-                            <span class="text-5xl block mb-3">🏆</span>
+                            <span class="text-5xl block mb-3"></span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
                             <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premio)}</p>
@@ -579,10 +577,8 @@
             }
         }
 
-        // ✅ NUEVA VERSIÓN: Muestra las 6 carreras siempre, con símbolos solo en las finalizadas
         function renderUserCard(u, position, currentRace, isWinner) {
             let racesHtml = '';
-            // Mostrar las 6 carreras SIEMPRE
             for (let r = 1; r <= 6; r++) {
                 const d = u.details[r];
                 if (!d) continue;
@@ -591,10 +587,8 @@
                 
                 let statusIcon = '';
                 if (d.winner !== null) {
-                    // Carrera finalizada: mostrar ✔️ o ❌
                     statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 } else {
-                    // Carrera futura: sin ícono
                     statusIcon = '<span class="text-gray-600 text-lg">-</span>';
                 }
                 
@@ -682,7 +676,7 @@
             const val = input.value;
             if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
             const winner = parseInt(val);
-            if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
+            if (winner < 1 || winner > appState.raceConfig[race]) return alert(`️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
             appState.results[race] = winner;
             await saveConfigToFirebase();
             let aciertos = 0, fallos = 0;
@@ -849,7 +843,7 @@
                 renderAdminEditList();
             } catch (error) {
                 console.error("❌ Error eliminando jugada:", error);
-                alert("⚠️ Error al eliminar la jugada.");
+                alert("️ Error al eliminar la jugada.");
             }
         }
 
@@ -897,9 +891,9 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += ' *REPORTE COMPLETO DE JUGADAS*\n';
+            msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
-            msg += ` *Total de Participantes:* ${completeUsers.length}\n\n`;
+            msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
             sortedUsers.forEach((u, index) => {
@@ -925,7 +919,7 @@
         }
 
         window.copyInitialReport = async function() {
-            if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
+            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
                 alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -946,7 +940,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -989,8 +983,9 @@
             msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
-            if (currentRace === 6 && aliveUsers.length === 0) {
-                msg += '🏆 *ACUMULADO* \n\n';
+            // 🏆 ACUMULADO en WhatsApp también aparece cuando NO hay vivos
+            if (aliveUsers.length === 0) {
+                msg += '🏆 *ACUMULADO* 🏆\n\n';
                 msg += 'No hubo ganadores en esta jornada.\n';
                 msg += `El premio de *${formatearBs(premio)}* queda acumulado para la próxima semana.\n\n`;
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1017,7 +1012,7 @@
             
             if (eliminatedUsers.length > 0) {
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-                msg += ' *Y ALLÁ RRROOODARON* 💀\n\n';
+                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
                 eliminatedUsers.forEach(u => {
                     msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= 6; r++) {
@@ -1036,7 +1031,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
