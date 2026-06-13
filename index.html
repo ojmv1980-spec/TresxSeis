@@ -195,7 +195,7 @@
                             </button>
                         </div>
                         <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
-                        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+                        <p class="text-[10px] text-gray-500 mt-2 text-center"> Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
                     </div>
                 </div>
             </div>
@@ -282,7 +282,7 @@
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
-                console.error(" Error guardando configuración:", error);
+                console.error("❌ Error guardando configuración:", error);
             }
             localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
                 raceConfig: appState.raceConfig,
@@ -349,25 +349,15 @@
         }
 
         async function init() {
-			// 1. Cargar configuración desde Firebase PRIMERO
-			const configLoaded = await loadConfigFromFirebase();
-    
-			// 2. SOLO si Firebase falla, usar localStorage
-			if (!configLoaded) {
-        loadFromLocalStorage();
-		}
-    
-			// 3. Cargar usuarios desde Firebase
-			const usersLoaded = await loadUsersFromFirebase();
-    
-			// 4. Renderizar interfaz
-			renderAdminConfigInputs();
-			renderAdminResults();
-    
-			// 5. Guardar respaldo local
-			saveUsersToLocalStorage();
-			saveConfigToFirebase();
-		}
+            const configLoaded = await loadConfigFromFirebase();
+            if (!configLoaded) loadFromLocalStorage();
+            const usersLoaded = await loadUsersFromFirebase();
+            if (!usersLoaded) loadFromLocalStorage();
+            renderAdminConfigInputs();
+            renderAdminResults();
+            saveUsersToLocalStorage();
+            saveConfigToFirebase();
+        }
 
         window.goHome = function() {
             document.getElementById('reg-nickname').value = '';
@@ -510,6 +500,7 @@
             }
         }
 
+        // ✅ NUEVA VERSIÓN: Calcula detalles de las 6 carreras siempre
         window.renderRanking = function() {
             const list = document.getElementById('ranking-list');
             list.innerHTML = '';
@@ -527,11 +518,20 @@
             
             const usersWithStatus = usuariosValidos.map(user => {
                 let status = { alive: true, eliminatedAt: null, details: {} };
-                for (let r = 1; r <= currentRace; r++) {
+                // Calcular detalles para las 6 carreras SIEMPRE
+                for (let r = 1; r <= 6; r++) {
                     const winner = appState.results[r];
-                    const isHit = winner && user.picks[r].includes(winner);
-                    status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
-                    if (!isHit && status.alive) { status.alive = false; status.eliminatedAt = r; }
+                    if (winner !== null) {
+                        const isHit = user.picks[r].includes(winner);
+                        status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                        if (!isHit && status.alive) { 
+                            status.alive = false; 
+                            status.eliminatedAt = r; 
+                        }
+                    } else {
+                        // Carrera futura sin resultado
+                        status.details[r] = { picks: user.picks[r], winner: null, isHit: null };
+                    }
                 }
                 return { ...user, ...status };
             });
@@ -549,6 +549,7 @@
                 </div>`;
             }
             
+            // 🏆 Mostrar ACUMULADO solo si es la 6ª válida y NO hay vivos
             if (currentRace === 6 && aliveUsers.length === 0) {
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
@@ -570,7 +571,7 @@
                 });
             }
             if (eliminatedUsers.length > 0) {
-                list.innerHTML += `<div class="text-center mt-8 mb-3"><h3 class="text-lg font-black text-red-400 uppercase tracking-wider"><i class="fa-solid fa-skull mr-2"></i>Y ALLÁ RRROOODARON</h3></div>`;
+                list.innerHTML += `<div class="text-center mt-8 mb-3"><h3 class="text-lg font-black text-red-400 uppercase tracking-wider"><i class="fa-solid fa-skull mr-2"></i>Y ALLÁ RRROOODARON 💀</h3></div>`;
                 eliminatedUsers.forEach(u => { list.innerHTML += renderUserCard(u, null, currentRace, false); });
             }
             if (currentRace === 0) {
@@ -578,15 +579,28 @@
             }
         }
 
+        // ✅ NUEVA VERSIÓN: Muestra las 6 carreras siempre, con símbolos solo en las finalizadas
         function renderUserCard(u, position, currentRace, isWinner) {
             let racesHtml = '';
-            for (let r = 1; r <= currentRace; r++) {
+            // Mostrar las 6 carreras SIEMPRE
+            for (let r = 1; r <= 6; r++) {
                 const d = u.details[r];
                 if (!d) continue;
+                
                 const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
-                const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
+                
+                let statusIcon = '';
+                if (d.winner !== null) {
+                    // Carrera finalizada: mostrar ✔️ o ❌
+                    statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
+                } else {
+                    // Carrera futura: sin ícono
+                    statusIcon = '<span class="text-gray-600 text-lg">-</span>';
+                }
+                
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
+            
             const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
             const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
             return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
@@ -813,7 +827,7 @@
                 closeEditModal();
                 renderAdminEditList();
             } catch (error) {
-                console.error(" Error actualizando jugada:", error);
+                console.error("❌ Error actualizando jugada:", error);
                 alert("⚠️ Error al guardar los cambios.");
             }
         }
@@ -883,9 +897,9 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
+            msg += ' *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
-            msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
+            msg += ` *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
             sortedUsers.forEach((u, index) => {
@@ -902,7 +916,7 @@
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
-            msg += ' *¡Que comience la emoción!* 🐎';
+            msg += '🐎 *¡Que comience la emoción!* 🐎';
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
@@ -911,7 +925,7 @@
         }
 
         window.copyInitialReport = async function() {
-            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
                 alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -932,7 +946,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -984,7 +998,7 @@
             
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '🥈', '🥉'];
+                const medals = ['🥇', '🥈', ''];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     msg += `${medal} *${u.name}*\n`;
@@ -1003,7 +1017,7 @@
             
             if (eliminatedUsers.length > 0) {
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
+                msg += ' *Y ALLÁ RRROOODARON* 💀\n\n';
                 eliminatedUsers.forEach(u => {
                     msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= 6; r++) {
@@ -1022,7 +1036,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
