@@ -282,7 +282,7 @@
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
-                console.error("❌ Error guardando configuración:", error);
+                console.error(" Error guardando configuración:", error);
             }
             localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
                 raceConfig: appState.raceConfig,
@@ -470,7 +470,7 @@
         }
 
         window.submitBet = async function() {
-            let resumen = ' RESUMEN DE TU JUGADA\n\n';
+            let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
                 const picks = appState.currentUser.picks[r];
                 const picksStr = picks.map(p => `[${p}]`).join(' ');
@@ -543,7 +543,7 @@
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
                         <div class="text-center">
-                            <span class="text-5xl block mb-3"></span>
+                            <span class="text-5xl block mb-3">🏆</span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
                             <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premio)}</p>
@@ -577,7 +577,7 @@
                 const statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
-            const positionDisplay = isWinner ? '<span class="text-3xl"></span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
             const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
             return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
         }
@@ -855,7 +855,7 @@
                 return totalPicks === 18;
             });
             if (completeUsers.length === 0) {
-                return alert("️ Aún no hay participantes con jugada completa (18 selecciones).");
+                return alert("⚠️ Aún no hay participantes con jugada completa (18 selecciones).");
             }
             const incompleteCount = appState.users.length - completeUsers.length;
             let confirmMsg = `✅ Se incluirán ${completeUsers.length} participante(s) con jugada completa.`;
@@ -874,7 +874,7 @@
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
-            msg += ' Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
             msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
@@ -892,7 +892,7 @@
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
-            msg += '🐎 *¡Que comience la emoción!* 🐎';
+            msg += ' *¡Que comience la emoción!* 🐎';
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
@@ -922,7 +922,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -953,20 +953,20 @@
             const { jugadoresActivos, premio } = calcularPremio();
             
             let msg = '';
-            msg += ' *3 x 6 ACTIVO* 🏇\n';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += ` *RESULTADO ${currentRace}ª VÁLIDA*\n`;
+            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
             msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
-            msg += ' *ESTADO ACTUAL*\n';
+            msg += '📊 *ESTADO ACTUAL*\n';
             msg += `✅ Vivos: ${aliveUsers.length}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
             msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
             if (currentRace === 6 && aliveUsers.length === 0) {
-                msg += '🏆 *ACUMULADO* 🏆\n\n';
+                msg += '🏆 *ACUMULADO* \n\n';
                 msg += 'No hubo ganadores en esta jornada.\n';
                 msg += `El premio de *${formatearBs(premio)}* queda acumulado para la próxima semana.\n\n`;
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -993,7 +993,7 @@
             
             if (eliminatedUsers.length > 0) {
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-                msg += ' *Y ALLÁ RRROOODARON* \n\n';
+                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
                 eliminatedUsers.forEach(u => {
                     msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
                     for (let r = 1; r <= 6; r++) {
@@ -1012,7 +1012,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
