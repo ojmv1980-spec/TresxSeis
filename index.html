@@ -183,7 +183,7 @@
                 <div id="whatsapp-section" class="hidden mt-6 space-y-3">
                     <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span> GENERAR REPORTE DE RESULTADOS</span>
+                        <span>📋 GENERAR REPORTE DE RESULTADOS</span>
                     </button>
                     <div id="whatsapp-preview-container" class="hidden">
                         <div class="flex justify-between items-center mb-2">
@@ -197,6 +197,18 @@
                         <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
                         <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
                     </div>
+                </div>
+                
+                <!-- ️ ZONA PELIGROSA: NUEVA JORNADA -->
+                <div id="reset-section" class="mt-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>ZONA PELIGROSA
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Vacía toda la base de datos para iniciar una nueva jornada dominical.</p>
+                    <button onclick="resetAllData()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trash-can text-xl"></i>
+                        <span>🗑️ INICIAR NUEVA JORNADA</span>
+                    </button>
                 </div>
             </div>
             <div id="adm-cobranza" class="adm-content hidden">
@@ -315,7 +327,7 @@
                 appState.users = users;
                 return true;
             } catch (error) {
-                console.warn("⚠️ Error cargando usuarios:", error);
+                console.warn("️ Error cargando usuarios:", error);
             }
             return false;
         }
@@ -392,7 +404,7 @@
 
         window.registerUser = async function() {
             const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
-            if (!nick) return alert("️ Ingresa un apodo.");
+            if (!nick) return alert("⚠️ Ingresa un apodo.");
             
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
@@ -500,7 +512,6 @@
             }
         }
 
-        // ✅ CAMBIO CLAVE: ACUMULADO aparece cuando NO hay vivos (en CUALQUIER carrera)
         window.renderRanking = function() {
             const list = document.getElementById('ranking-list');
             list.innerHTML = '';
@@ -547,12 +558,11 @@
                 </div>`;
             }
             
-            // 🏆 ACUMULADO: aparece cuando NO hay vivos (en CUALQUIER carrera)
             if (aliveUsers.length === 0 && currentRace > 0) {
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
                         <div class="text-center">
-                            <span class="text-5xl block mb-3"></span>
+                            <span class="text-5xl block mb-3">🏆</span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
                             <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premio)}</p>
@@ -843,7 +853,7 @@
                 renderAdminEditList();
             } catch (error) {
                 console.error("❌ Error eliminando jugada:", error);
-                alert("️ Error al eliminar la jugada.");
+                alert("⚠️ Error al eliminar la jugada.");
             }
         }
 
@@ -891,9 +901,9 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
+            msg += ' *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
-            msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
+            msg += ` *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
             sortedUsers.forEach((u, index) => {
@@ -919,7 +929,7 @@
         }
 
         window.copyInitialReport = async function() {
-            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
                 alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -940,7 +950,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -983,7 +993,6 @@
             msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
-            // 🏆 ACUMULADO en WhatsApp también aparece cuando NO hay vivos
             if (aliveUsers.length === 0) {
                 msg += '🏆 *ACUMULADO* 🏆\n\n';
                 msg += 'No hubo ganadores en esta jornada.\n';
@@ -993,7 +1002,7 @@
             
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '🥈', ''];
+                const medals = ['🥇', '', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     msg += `${medal} *${u.name}*\n`;
@@ -1086,6 +1095,56 @@
                 }
                 renderAdminPayments();
             } catch (error) { alert("⚠️ Error actualizando pago."); }
+        }
+
+        // 🗑️ FUNCIÓN PARA VACIAR TODA LA BASE DE DATOS
+        window.resetAllData = async function() {
+            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n¿Estás seguro de que deseas continuar?");
+            
+            if (!confirm1) return;
+            
+            const confirm2 = prompt("️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
+            
+            if (confirm2 !== 'BORRAR') {
+                alert("❌ Operación cancelada. El texto no coincide.");
+                return;
+            }
+            
+            try {
+                const usersSnapshot = await getDocs(collection(db, "usuarios"));
+                const deletePromises = usersSnapshot.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+                
+                const configDoc = doc(db, "global_config", "main");
+                await setDoc(configDoc, {
+                    raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 },
+                    scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+                    results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
+                    updatedAt: new Date().toISOString()
+                });
+                
+                appState.raceConfig = { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 };
+                appState.scratched = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+                appState.results = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+                appState.users = [];
+                appState.currentUser = null;
+                
+                localStorage.removeItem('tresXSeisActivo_Config');
+                localStorage.removeItem('tresXSeisActivo_Users');
+                
+                renderAdminConfigInputs();
+                renderAdminResults();
+                renderAdminScratch();
+                renderAdminEditList();
+                
+                alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇");
+                
+                goHome();
+                
+            } catch (error) {
+                console.error("❌ Error al vaciar la base de datos:", error);
+                alert("⚠️ Ocurrió un error al vaciar la base de datos. Intenta de nuevo.");
+            }
         }
 
         init();
