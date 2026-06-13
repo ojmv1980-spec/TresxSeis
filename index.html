@@ -349,15 +349,25 @@
         }
 
         async function init() {
-            const configLoaded = await loadConfigFromFirebase();
-            if (!configLoaded) loadFromLocalStorage();
-            await loadUsersFromFirebase();
-            loadFromLocalStorage();
-            renderAdminConfigInputs();
-            renderAdminResults();
-            saveUsersToLocalStorage();
-            saveConfigToFirebase();
-        }
+			// 1. Cargar configuración desde Firebase PRIMERO
+			const configLoaded = await loadConfigFromFirebase();
+    
+			// 2. SOLO si Firebase falla, usar localStorage
+			if (!configLoaded) {
+        loadFromLocalStorage();
+		}
+    
+			// 3. Cargar usuarios desde Firebase
+			const usersLoaded = await loadUsersFromFirebase();
+    
+			// 4. Renderizar interfaz
+			renderAdminConfigInputs();
+			renderAdminResults();
+    
+			// 5. Guardar respaldo local
+			saveUsersToLocalStorage();
+			saveConfigToFirebase();
+		}
 
         window.goHome = function() {
             document.getElementById('reg-nickname').value = '';
