@@ -199,7 +199,6 @@
                     </div>
                 </div>
                 
-                <!-- ️ ZONA PELIGROSA: NUEVA JORNADA -->
                 <div id="reset-section" class="mt-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
                     <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i>ZONA PELIGROSA
@@ -207,13 +206,31 @@
                     <p class="text-xs text-gray-400 mb-3">Vacía toda la base de datos para iniciar una nueva jornada dominical.</p>
                     <button onclick="resetAllData()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-solid fa-trash-can text-xl"></i>
-                        <span>🗑️ INICIAR NUEVA JORNADA</span>
+                        <span>️ INICIAR NUEVA JORNADA</span>
                     </button>
                 </div>
             </div>
             <div id="adm-cobranza" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Control de Pagos (Bs.)</h3>
                 <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+                
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <button onclick="generatePaymentReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        <span>📋 GENERAR LOG DE COBRANZA</span>
+                    </button>
+                    <div id="payment-report-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-green-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyPaymentReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="payment-report-preview" class="whatsapp-preview border border-green-500/30"></div>
+                    </div>
+                </div>
             </div>
             <div id="adm-edicion" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">✏️ Edición de Jugadas</h3>
@@ -294,7 +311,7 @@
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
-                console.error("❌ Error guardando configuración:", error);
+                console.error(" Error guardando configuración:", error);
             }
             localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
                 raceConfig: appState.raceConfig,
@@ -327,7 +344,7 @@
                 appState.users = users;
                 return true;
             } catch (error) {
-                console.warn("️ Error cargando usuarios:", error);
+                console.warn("⚠️ Error cargando usuarios:", error);
             }
             return false;
         }
@@ -507,7 +524,7 @@
                     showView('view-ranking');
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
-                    alert("️ Error al guardar.");
+                    alert("⚠️ Error al guardar.");
                 }
             }
         }
@@ -554,7 +571,7 @@
                     <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
                     <p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p>
                     <p class="text-xs text-gray-500 mt-1">Vivos: ${aliveUsers.length} | Eliminados: ${eliminatedUsers.length}</p>
-                    <p class="text-xs text-green-400 mt-1 font-bold">💰 Premio: ${formatearBs(premio)}</p>
+                    <p class="text-xs text-green-400 mt-1 font-bold"> Premio: ${formatearBs(premio)}</p>
                 </div>`;
             }
             
@@ -562,7 +579,7 @@
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
                         <div class="text-center">
-                            <span class="text-5xl block mb-3">🏆</span>
+                            <span class="text-5xl block mb-3"></span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
                             <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premio)}</p>
@@ -686,7 +703,7 @@
             const val = input.value;
             if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
             const winner = parseInt(val);
-            if (winner < 1 || winner > appState.raceConfig[race]) return alert(`️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
+            if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
             appState.results[race] = winner;
             await saveConfigToFirebase();
             let aciertos = 0, fallos = 0;
@@ -932,7 +949,7 @@
             if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
-                alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+                alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégala en tu grupo de WhatsApp.");
             } catch (err) {
                 const textarea = document.createElement('textarea');
                 textarea.value = window.lastInitialReport;
@@ -940,7 +957,7 @@
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+                alert("✅ ¡Reporte copiado! Pégala en WhatsApp.");
             }
         }
 
@@ -1002,7 +1019,7 @@
             
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '', '🥉'];
+                const medals = ['🥇', '🥈', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     msg += `${medal} *${u.name}*\n`;
@@ -1040,7 +1057,7 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
+                    msg += ' *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
                     msg += `\n\n💰 *Premio:* ${formatearBs(premio)}`;
                 } else {
@@ -1062,7 +1079,7 @@
             if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
-                alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
+                alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégala en tu grupo de WhatsApp.");
             } catch (err) {
                 const textarea = document.createElement('textarea');
                 textarea.value = window.lastWhatsAppReport;
@@ -1070,7 +1087,7 @@
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+                alert("✅ ¡Reporte copiado! Pégala en WhatsApp.");
             }
         }
 
@@ -1097,13 +1114,12 @@
             } catch (error) { alert("⚠️ Error actualizando pago."); }
         }
 
-        // 🗑️ FUNCIÓN PARA VACIAR TODA LA BASE DE DATOS
         window.resetAllData = async function() {
             const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n¿Estás seguro de que deseas continuar?");
             
             if (!confirm1) return;
             
-            const confirm2 = prompt("️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
+            const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
             
             if (confirm2 !== 'BORRAR') {
                 alert("❌ Operación cancelada. El texto no coincide.");
@@ -1144,6 +1160,49 @@
             } catch (error) {
                 console.error("❌ Error al vaciar la base de datos:", error);
                 alert("⚠️ Ocurrió un error al vaciar la base de datos. Intenta de nuevo.");
+            }
+        }
+
+        window.generatePaymentReport = function() {
+            if (appState.users.length === 0) {
+                return alert("⚠️ No hay participantes registrados.");
+            }
+            
+            const sortedUsers = [...appState.users].sort((a, b) => {
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            });
+            
+            let msg = '';
+            msg += '📋 *LISTA DE PARTICIPANTES*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            sortedUsers.forEach((u, index) => {
+                msg += `${index + 1}. *${u.name}*\n`;
+            });
+            
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            
+            const preview = document.getElementById('payment-report-preview');
+            preview.textContent = msg;
+            document.getElementById('payment-report-container').classList.remove('hidden');
+            window.lastPaymentReport = msg;
+            document.getElementById('payment-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyPaymentReport = async function() {
+            if (!window.lastPaymentReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastPaymentReport);
+                alert("✅ ¡Lista de cobranza copiada!\n\nAhora pégala en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastPaymentReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Lista copiada! Pégala en WhatsApp.");
             }
         }
 
