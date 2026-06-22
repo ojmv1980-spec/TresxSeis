@@ -206,7 +206,7 @@
                     <p class="text-xs text-gray-400 mb-3">Vacía toda la base de datos para iniciar una nueva jornada dominical.</p>
                     <button onclick="resetAllData()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-solid fa-trash-can text-xl"></i>
-                        <span>️ INICIAR NUEVA JORNADA</span>
+                        <span>🗑️ INICIAR NUEVA JORNADA</span>
                     </button>
                 </div>
             </div>
@@ -217,7 +217,7 @@
                 <div class="mt-4 pt-4 border-t border-white/10">
                     <button onclick="generatePaymentReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span>📋 GENERAR LOG DE COBRANZA</span>
+                        <span> GENERAR LOG DE COBRANZA</span>
                     </button>
                     <div id="payment-report-container" class="hidden mt-4">
                         <div class="flex justify-between items-center mb-2">
@@ -241,6 +241,30 @@
                         ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
                     </p>
                 </div>
+                
+                <!-- NUEVO: Sección de Promedios -->
+                <div class="mb-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-purple-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-chart-simple mr-2"></i>ANÁLISIS ESTADÍSTICO
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Muestra los 5 números más elegidos por carrera.</p>
+                    <button onclick="generateAveragesReport()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl shadow-lg shadow-purple-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-bar text-xl"></i>
+                        <span>📊 GENERAR PROMEDIOS</span>
+                    </button>
+                    <div id="averages-report-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-purple-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyAveragesReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="averages-report-preview" class="whatsapp-preview border border-purple-500/30"></div>
+                    </div>
+                </div>
+
                 <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
             </div>
         </div>
@@ -311,7 +335,7 @@
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
-                console.error(" Error guardando configuración:", error);
+                console.error("❌ Error guardando configuración:", error);
             }
             localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
                 raceConfig: appState.raceConfig,
@@ -431,7 +455,7 @@
                     suggestedName = `${nick} ${String(counter).padStart(2, '0')}`;
                     counter++;
                 }
-                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
+                const useSuggested = confirm(`️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
                 if (useSuggested) {
                     document.getElementById('reg-nickname').value = suggestedName;
                     return;
@@ -524,7 +548,7 @@
                     showView('view-ranking');
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
-                    alert("⚠️ Error al guardar.");
+                    alert("️ Error al guardar.");
                 }
             }
         }
@@ -571,7 +595,7 @@
                     <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
                     <p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p>
                     <p class="text-xs text-gray-500 mt-1">Vivos: ${aliveUsers.length} | Eliminados: ${eliminatedUsers.length}</p>
-                    <p class="text-xs text-green-400 mt-1 font-bold"> Premio: ${formatearBs(premio)}</p>
+                    <p class="text-xs text-green-400 mt-1 font-bold">💰 Premio: ${formatearBs(premio)}</p>
                 </div>`;
             }
             
@@ -754,6 +778,9 @@
                             <button onclick="window.openEditBet('${u.id}')" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-pen"></i> EDITAR
                             </button>
+                            <button onclick="window.sendPlayerWhatsApp('${u.id}')" class="bg-green-600 hover:bg-green-500 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1" title="Copiar jugada para WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                            </button>
                             <button onclick="window.deleteUserBet('${u.id}', '${u.name}')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1">
                                 <i class="fa-solid fa-trash"></i> ELIMINAR
                             </button>
@@ -870,7 +897,7 @@
                 renderAdminEditList();
             } catch (error) {
                 console.error("❌ Error eliminando jugada:", error);
-                alert("⚠️ Error al eliminar la jugada.");
+                alert("️ Error al eliminar la jugada.");
             }
         }
 
@@ -918,9 +945,9 @@
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += ' *REPORTE COMPLETO DE JUGADAS*\n';
+            msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
-            msg += ` *Total de Participantes:* ${completeUsers.length}\n\n`;
+            msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
             sortedUsers.forEach((u, index) => {
@@ -937,7 +964,7 @@
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
-            msg += '🐎 *¡Que comience la emoción!* 🐎';
+            msg += ' *¡Que comience la emoción!* 🐎';
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
@@ -946,10 +973,10 @@
         }
 
         window.copyInitialReport = async function() {
-            if (!window.lastInitialReport) return alert("️ Primero genera el reporte.");
+            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastInitialReport);
-                alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégala en tu grupo de WhatsApp.");
+                alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
             } catch (err) {
                 const textarea = document.createElement('textarea');
                 textarea.value = window.lastInitialReport;
@@ -957,7 +984,7 @@
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                alert("✅ ¡Reporte copiado! Pégala en WhatsApp.");
+                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
             }
         }
 
@@ -967,7 +994,7 @@
                 if (appState.results[r] !== null) currentRace = r;
                 else break;
             }
-            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
+            if (currentRace === 0) return alert("️ No hay resultados para reportar.");
             
             const usuariosValidos = appState.users.filter(u => {
                 let total = 0;
@@ -1079,7 +1106,7 @@
             if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
-                alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégala en tu grupo de WhatsApp.");
+                alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
             } catch (err) {
                 const textarea = document.createElement('textarea');
                 textarea.value = window.lastWhatsAppReport;
@@ -1087,7 +1114,7 @@
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                alert("✅ ¡Reporte copiado! Pégala en WhatsApp.");
+                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
             }
         }
 
@@ -1204,6 +1231,106 @@
                 document.body.removeChild(textarea);
                 alert("✅ ¡Lista copiada! Pégala en WhatsApp.");
             }
+        }
+
+        // 📊 FUNCIÓN PARA GENERAR PROMEDIOS (TOP 5 NÚMEROS MÁS ELEGIDOS)
+        window.generateAveragesReport = function() {
+            if (appState.users.length === 0) {
+                return alert("⚠️ No hay participantes registrados.");
+            }
+            
+            const validUsers = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += (u.picks[r] || []).length;
+                return total === 18;
+            });
+            
+            if (validUsers.length === 0) {
+                return alert("⚠️ No hay participantes con jugada completa.");
+            }
+            
+            let msg = '';
+            msg += '📊 *ANÁLISIS ESTADÍSTICO*\n';
+            msg += ' Top 5 números más elegidos\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '👥 Participantes: ' + validUsers.length + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '*DATOS*\n\n';
+            
+            for (let r = 1; r <= 6; r++) {
+                const frequency = {};
+                
+                validUsers.forEach(u => {
+                    const picks = u.picks[r] || [];
+                    picks.forEach(p => {
+                        frequency[p] = (frequency[p] || 0) + 1;
+                    });
+                });
+                
+                const sorted = Object.entries(frequency)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+                
+                const topNumbers = sorted.map(([num, count]) => `[${num}]`).join('.');
+                msg += `${r}era. V.: ${topNumbers}\n`;
+            }
+            
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += '💡 *Los números aparecen en orden de mayor a menor frecuencia*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━';
+            
+            const preview = document.getElementById('averages-report-preview');
+            preview.textContent = msg;
+            document.getElementById('averages-report-container').classList.remove('hidden');
+            window.lastAveragesReport = msg;
+            document.getElementById('averages-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyAveragesReport = async function() {
+            if (!window.lastAveragesReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastAveragesReport);
+                alert("✅ ¡Promedios copiados!\n\nAhora pégalos en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastAveragesReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Promedios copiados! Pégalos en WhatsApp.");
+            }
+        }
+
+        // 📱 FUNCIÓN PARA ENVIAR JUGADA INDIVIDUAL POR WHATSAPP
+        window.sendPlayerWhatsApp = function(userId) {
+            const user = appState.users.find(u => u.id === userId);
+            if (!user) return;
+            
+            let msg = '';
+            msg += '🎯 *JUGADA DE: ' + user.name + '*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            for (let r = 1; r <= 6; r++) {
+                const picks = user.picks[r] || [];
+                const picksStr = picks.map(p => `[${p}]`).join(' ');
+                msg += `${r}ª V.: ${picksStr}\n`;
+            }
+            
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            
+            navigator.clipboard.writeText(msg).then(() => {
+                alert(`✅ ¡Jugada de "${user.name}" copiada!\n\nAhora pégala en WhatsApp para enviársela.`);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = msg;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(`✅ ¡Jugada de "${user.name}" copiada! Pégala en WhatsApp.`);
+            });
         }
 
         init();
