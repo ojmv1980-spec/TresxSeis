@@ -217,7 +217,7 @@
                 <div class="mt-4 pt-4 border-t border-white/10">
                     <button onclick="generatePaymentReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span> GENERAR LOG DE COBRANZA</span>
+                        <span>📋 GENERAR LOG DE COBRANZA</span>
                     </button>
                     <div id="payment-report-container" class="hidden mt-4">
                         <div class="flex justify-between items-center mb-2">
@@ -233,7 +233,7 @@
                 </div>
             </div>
             <div id="adm-edicion" class="adm-content hidden">
-                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">✏️ Edición de Jugadas</h3>
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">️ Edición de Jugadas</h3>
                 <p class="text-xs text-gray-400 mb-4">Modifica o elimina las jugadas de los participantes.</p>
                 <div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                     <p class="text-xs text-yellow-400 font-bold">
@@ -242,7 +242,6 @@
                     </p>
                 </div>
                 
-                <!-- NUEVO: Sección de Promedios -->
                 <div class="mb-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
                     <h4 class="text-sm font-black text-purple-400 uppercase tracking-wider mb-2">
                         <i class="fa-solid fa-chart-simple mr-2"></i>ANÁLISIS ESTADÍSTICO
@@ -455,7 +454,7 @@
                     suggestedName = `${nick} ${String(counter).padStart(2, '0')}`;
                     counter++;
                 }
-                const useSuggested = confirm(`️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
+                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
                 if (useSuggested) {
                     document.getElementById('reg-nickname').value = suggestedName;
                     return;
@@ -548,7 +547,7 @@
                     showView('view-ranking');
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
-                    alert("️ Error al guardar.");
+                    alert("⚠️ Error al guardar.");
                 }
             }
         }
@@ -603,7 +602,7 @@
                 list.innerHTML += `
                     <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
                         <div class="text-center">
-                            <span class="text-5xl block mb-3"></span>
+                            <span class="text-5xl block mb-3">🏆</span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
                             <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premio)}</p>
@@ -1046,7 +1045,7 @@
             
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '🥈', '🥉'];
+                const medals = ['🥇', '', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     msg += `${medal} *${u.name}*\n`;
@@ -1142,14 +1141,14 @@
         }
 
         window.resetAllData = async function() {
-            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n¿Estás seguro de que deseas continuar?");
+            const confirm1 = confirm("️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n¿Estás seguro de que deseas continuar?");
             
             if (!confirm1) return;
             
             const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
             
             if (confirm2 !== 'BORRAR') {
-                alert("❌ Operación cancelada. El texto no coincide.");
+                alert(" Operación cancelada. El texto no coincide.");
                 return;
             }
             
@@ -1218,7 +1217,7 @@
         }
 
         window.copyPaymentReport = async function() {
-            if (!window.lastPaymentReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastPaymentReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastPaymentReport);
                 alert("✅ ¡Lista de cobranza copiada!\n\nAhora pégala en tu grupo de WhatsApp.");
@@ -1251,7 +1250,7 @@
             
             let msg = '';
             msg += '📊 *ANÁLISIS ESTADÍSTICO*\n';
-            msg += ' Top 5 números más elegidos\n';
+            msg += '🎯 Top 5 números más elegidos\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '👥 Participantes: ' + validUsers.length + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1272,7 +1271,7 @@
                     .slice(0, 5);
                 
                 const topNumbers = sorted.map(([num, count]) => `[${num}]`).join('.');
-                msg += `${r}era. V.: ${topNumbers}\n`;
+                msg += `${r}ª V.: ${topNumbers}\n`;
             }
             
             msg += '\n━━━━━━━━━━━━━━━━━━━\n';
@@ -1287,7 +1286,7 @@
         }
 
         window.copyAveragesReport = async function() {
-            if (!window.lastAveragesReport) return alert("⚠️ Primero genera el reporte.");
+            if (!window.lastAveragesReport) return alert("️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastAveragesReport);
                 alert("✅ ¡Promedios copiados!\n\nAhora pégalos en tu grupo de WhatsApp.");
