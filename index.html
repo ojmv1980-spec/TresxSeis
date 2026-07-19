@@ -148,7 +148,6 @@
                 <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Cantidad de Ejemplares por Válida</h3>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="admin-race-inputs"></div>
                 
-                <!-- NUEVO: Monto por Jugada -->
                 <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
                     <h4 class="text-sm font-black text-blue-400 uppercase tracking-wider mb-2">
                         <i class="fa-solid fa-coins mr-2"></i>MONTO POR JUGADA
@@ -161,7 +160,6 @@
                     </div>
                 </div>
                 
-                <!-- NUEVO: Monto Acumulado (persistente) -->
                 <div class="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
                     <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider mb-2">
                         <i class="fa-solid fa-trophy mr-2"></i>MONTO ACUMULADO
@@ -220,7 +218,7 @@
                 <div id="whatsapp-section" class="hidden mt-6 space-y-3">
                     <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span> GENERAR REPORTE DE RESULTADOS</span>
+                        <span>📋 GENERAR REPORTE DE RESULTADOS</span>
                     </button>
                     <div id="whatsapp-preview-container" class="hidden">
                         <div class="flex justify-between items-center mb-2">
@@ -254,7 +252,7 @@
                 <div class="mt-4 pt-4 border-t border-white/10">
                     <button onclick="generatePaymentReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
-                        <span> GENERAR LOG DE COBRANZA</span>
+                        <span>📋 GENERAR LOG DE COBRANZA</span>
                     </button>
                     <div id="payment-report-container" class="hidden mt-4">
                         <div class="flex justify-between items-center mb-2">
@@ -307,40 +305,39 @@
     </div>
 
     <div id="modal-edit-bet" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
-        <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
-            <h2 class="text-lg font-black text-brand-orange">
-                <i class="fa-solid fa-pen-to-square mr-2"></i>
-                Editar Jugada
-            </h2>
-            <button onclick="closeEditModal()" class="text-gray-400 hover:text-white p-2">
-                <i class="fa-solid fa-xmark text-2xl"></i>
-            </button>
-        </div>
-        <div class="p-5">
-            <!-- NUEVO: Campo para editar el nombre -->
-            <div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
-                <label class="text-xs font-black text-blue-400 uppercase tracking-wider mb-2 block">
-                    <i class="fa-solid fa-user mr-1"></i>APODO DEL PARTICIPANTE
-                </label>
-                <input type="text" id="edit-user-name-input" 
-                    class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg uppercase"
-                    placeholder="INGRESA EL NUEVO APODO">
+        <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
+                <h2 class="text-lg font-black text-brand-orange">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i>
+                    Editar Jugada
+                </h2>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
             </div>
-            
-            <p class="text-xs text-gray-400 mb-4">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>
-            <div id="edit-races-container" class="space-y-4"></div>
-            <div class="mt-6 flex gap-3">
-                <button onclick="saveEditedBet()" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
-                    <i class="fa-solid fa-save mr-2"></i>GUARDAR CAMBIOS
-                </button>
-                <button onclick="closeEditModal()" class="px-6 bg-gray-700 hover:bg-gray-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
-                    CANCELAR
-                </button>
+            <div class="p-5">
+                <div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                    <label class="text-xs font-black text-blue-400 uppercase tracking-wider mb-2 block">
+                        <i class="fa-solid fa-user mr-1"></i>APODO DEL PARTICIPANTE
+                    </label>
+                    <input type="text" id="edit-user-name-input" 
+                        class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg uppercase"
+                        placeholder="INGRESA EL NUEVO APODO">
+                </div>
+                
+                <p class="text-xs text-gray-400 mb-4">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>
+                <div id="edit-races-container" class="space-y-4"></div>
+                <div class="mt-6 flex gap-3">
+                    <button onclick="saveEditedBet()" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        <i class="fa-solid fa-save mr-2"></i>GUARDAR CAMBIOS
+                    </button>
+                    <button onclick="closeEditModal()" class="px-6 bg-gray-700 hover:bg-gray-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        CANCELAR
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -361,6 +358,7 @@
         const PRECIO_JUGADA = 800;
         const PORCENTAJE_PREMIO = 0.80;
 
+        // ✅ CORREGIDO: Se agregó la coma faltante después de acumuladoFecha
         const appState = {
             currentUser: null,
             raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
@@ -371,8 +369,8 @@
             editingPicks: null,
             precioJugada: 800,
             acumulado: 0,
-            acumuladoFecha: ''
-            isAdmin: false  // ← NUEVO: controla si ya se ingresó la clave
+            acumuladoFecha: '',
+            isAdmin: false
         };
 
         async function saveConfigToFirebase() {
@@ -415,7 +413,7 @@
                     return true;
                 }
             } catch (error) {
-                console.warn("️ Error cargando configuración:", error);
+                console.warn("⚠️ Error cargando configuración:", error);
             }
             return false;
         }
@@ -480,21 +478,19 @@
         }
 
         window.openAdmin = function() {
-    // Si ya está autenticado, ir directo al panel
-    if (appState.isAdmin) {
-        showView('view-admin');
-        return;
-    }
-    
-    // Si no está autenticado, pedir la clave
-    const pass = prompt("🔒 Ingrese clave de administrador:");
-    if (pass === "111180") {
-        appState.isAdmin = true;  // ← Marcar como autenticado
-        showView('view-admin');
-    } else if (pass !== null) {
-        alert("❌ Clave incorrecta.");
-    }
-}
+            if (appState.isAdmin) {
+                showView('view-admin');
+                return;
+            }
+            
+            const pass = prompt("🔒 Ingrese clave de administrador:");
+            if (pass === "111180") {
+                appState.isAdmin = true;
+                showView('view-admin');
+            } else if (pass !== null) {
+                alert("❌ Clave incorrecta.");
+            }
+        }
 
         window.showView = function(viewId) {
             document.getElementById('view-register').classList.add('hidden');
@@ -509,7 +505,6 @@
                 renderAdminResults();
                 renderAdminPayments();
                 renderAdminEditList();
-                // Cargar valores en los nuevos inputs
                 const precioInput = document.getElementById('config-precio');
                 const acumuladoInput = document.getElementById('config-acumulado');
                 const acumuladoFechaInput = document.getElementById('config-acumulado-fecha');
@@ -600,7 +595,7 @@
         }
 
         window.submitBet = async function() {
-            let resumen = ' RESUMEN DE TU JUGADA\n\n';
+            let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
                 const picks = appState.currentUser.picks[r];
                 const picksStr = picks.map(p => `[${p}]`).join(' ');
@@ -625,7 +620,7 @@
                     showView('view-ranking');
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
-                    alert("️ Error al guardar.");
+                    alert("⚠️ Error al guardar.");
                 }
             }
         }
@@ -753,7 +748,6 @@
                 appState.scratched[i] = appState.scratched[i].filter(s => s <= val);
             }
             
-            // Guardar nuevos campos
             const precioInput = document.getElementById('config-precio');
             if (precioInput) {
                 appState.precioJugada = parseInt(precioInput.value) || 800;
@@ -888,18 +882,17 @@
         }
 
         window.openEditBet = function(userId) {
-    const user = appState.users.find(u => u.id === userId);
-    if (!user) return;
-    
-    appState.editingUser = user;
-    appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
-    
-    // Cargar el nombre actual en el input
-    document.getElementById('edit-user-name-input').value = user.name;
-    
-    renderEditRaces();
-    document.getElementById('modal-edit-bet').classList.remove('hidden');
-}
+            const user = appState.users.find(u => u.id === userId);
+            if (!user) return;
+            
+            appState.editingUser = user;
+            appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
+            
+            document.getElementById('edit-user-name-input').value = user.name;
+            
+            renderEditRaces();
+            document.getElementById('modal-edit-bet').classList.remove('hidden');
+        }
 
         window.closeEditModal = function() {
             document.getElementById('modal-edit-bet').classList.add('hidden');
@@ -949,54 +942,51 @@
         }
 
         window.saveEditedBet = async function() {
-    if (!appState.editingUser) return;
-    
-    // Obtener el nuevo nombre del input
-    const newName = document.getElementById('edit-user-name-input').value.trim().toUpperCase();
-    
-    if (!newName) {
-        return alert("⚠️ El apodo no puede estar vacío.");
-    }
-    
-    // Validar que el nombre no esté en uso por otro participante
-    const existingUser = appState.users.find(u => u.name === newName && u.id !== appState.editingUser.id);
-    if (existingUser) {
-        return alert(`⚠️ El apodo "${newName}" ya está en uso por otro participante.`);
-    }
-    
-    let totalPicks = 0;
-    for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
-    
-    if (totalPicks !== 18) {
-        if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
-            return;
+            if (!appState.editingUser) return;
+            
+            const newName = document.getElementById('edit-user-name-input').value.trim().toUpperCase();
+            
+            if (!newName) {
+                return alert("⚠️ El apodo no puede estar vacío.");
+            }
+            
+            const existingUser = appState.users.find(u => u.name === newName && u.id !== appState.editingUser.id);
+            if (existingUser) {
+                return alert(`⚠️ El apodo "${newName}" ya está en uso por otro participante.`);
+            }
+            
+            let totalPicks = 0;
+            for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
+            
+            if (totalPicks !== 18) {
+                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
+                    return;
+                }
+            }
+            
+            try {
+                const userDoc = doc(db, "usuarios", appState.editingUser.id);
+                
+                await updateDoc(userDoc, { 
+                    name: newName,
+                    picks: appState.editingPicks 
+                });
+                
+                const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
+                if (userIndex > -1) {
+                    appState.users[userIndex].name = newName;
+                    appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
+                }
+                
+                saveUsersToLocalStorage();
+                alert("✅ Jugada y apodo actualizados correctamente.");
+                closeEditModal();
+                renderAdminEditList();
+            } catch (error) {
+                console.error("❌ Error actualizando jugada:", error);
+                alert("⚠️ Error al guardar los cambios.");
+            }
         }
-    }
-    
-    try {
-        const userDoc = doc(db, "usuarios", appState.editingUser.id);
-        
-        // Guardar el nuevo nombre y las selecciones
-        await updateDoc(userDoc, { 
-            name: newName,
-            picks: appState.editingPicks 
-        });
-        
-        const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
-        if (userIndex > -1) {
-            appState.users[userIndex].name = newName;
-            appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
-        }
-        
-        saveUsersToLocalStorage();
-        alert("✅ Jugada y apodo actualizados correctamente.");
-        closeEditModal();
-        renderAdminEditList();
-    } catch (error) {
-        console.error("❌ Error actualizando jugada:", error);
-        alert("️ Error al guardar los cambios.");
-    }
-}
 
         window.deleteUserBet = async function(userId, userName) {
             if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
@@ -1066,15 +1056,15 @@
             
             if (acumulado > 0) {
                 msg += `🏆 *ACUMULADO:* ${formatearBs(acumulado)}\n`;
-                msg += ` *PREMIO:* ${formatearBs(premio)}\n`;
-                msg += ` *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
+                msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
             } else {
                 msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             }
             
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
-            msg += ' Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
             msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
@@ -1156,7 +1146,6 @@
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
-            // CONDICIONAL: Si hay acumulado, mostrar 3 montos
             if (acumulado > 0) {
                 const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
                 let fechaFormateada = 'jornada anterior';
@@ -1167,25 +1156,24 @@
                         fechaFormateada = `${partes[2]}-${meses[mesIdx]}`;
                     }
                 }
-                msg += ` *ACUMULADO* (${fechaFormateada}): ${formatearBs(acumulado)}\n`;
+                msg += `🏆 *ACUMULADO* (${fechaFormateada}): ${formatearBs(acumulado)}\n`;
                 msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
                 msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
             } else {
-                // Sin acumulado: mostrar solo el PREMIO
                 msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
             }
             
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            msg += ` *RESULTADO ${currentRace}ª VÁLIDA*\n`;
+            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
             msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
             msg += '📊 *ESTADO ACTUAL*\n';
             msg += `✅ Vivos: ${aliveUsers.length}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
-            msg += ` Restan: ${6 - currentRace} válidas\n\n`;
+            msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
             if (aliveUsers.length === 0) {
-                msg += ' *ACUMULADO* 🏆\n\n';
+                msg += '🏆 *ACUMULADO* 🏆\n\n';
                 msg += 'No hubo ganadores en esta jornada.\n';
                 msg += `El premio de *${formatearBs(premioTotal)}* queda acumulado para la próxima semana.\n\n`;
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1193,7 +1181,7 @@
             
             if (aliveUsers.length > 0) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['', '🥈', '🥉'];
+                const medals = ['🥇', '🥈', '🥉'];
                 aliveUsers.forEach((u, i) => {
                     const medal = i < 3 ? medals[i] : '•';
                     msg += `${medal} *${u.name}*\n`;
@@ -1250,7 +1238,7 @@
         }
 
         window.copyWhatsAppReport = async function() {
-            if (!window.lastWhatsAppReport) return alert("️ Primero genera el reporte.");
+            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
             try {
                 await navigator.clipboard.writeText(window.lastWhatsAppReport);
                 alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
@@ -1319,7 +1307,6 @@
                 appState.raceConfig = { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 };
                 appState.scratched = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
                 appState.results = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
-                // NO resetear precioJugada, acumulado ni acumuladoFecha
                 appState.users = [];
                 appState.currentUser = null;
                 
@@ -1352,7 +1339,7 @@
             
             let msg = '';
             msg += '📋 *LISTA DE PARTICIPANTES*\n';
-            msg += ' Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
             sortedUsers.forEach((u, index) => {
@@ -1401,7 +1388,7 @@
             
             let msg = '';
             msg += '📊 *ANÁLISIS ESTADÍSTICO*\n';
-            msg += ' Top 5 números más elegidos\n';
+            msg += '🎯 Top 5 números más elegidos\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '👥 Participantes: ' + validUsers.length + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1457,7 +1444,7 @@
             if (!user) return;
             
             let msg = '';
-            msg += ' *JUGADA DE: ' + user.name + '*\n';
+            msg += '🎯 *JUGADA DE: ' + user.name + '*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
@@ -1482,7 +1469,6 @@
             });
         }
 
-        //  FUNCIÓN PARA LIMPIAR ACUMULADO
         window.limpiarAcumulado = async function() {
             if (appState.acumulado === 0) {
                 return alert("⚠️ No hay acumulado que limpiar.");
