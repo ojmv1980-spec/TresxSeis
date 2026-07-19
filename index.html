@@ -372,6 +372,7 @@
             precioJugada: 800,
             acumulado: 0,
             acumuladoFecha: ''
+            isAdmin: false  // ← NUEVO: controla si ya se ingresó la clave
         };
 
         async function saveConfigToFirebase() {
@@ -479,13 +480,21 @@
         }
 
         window.openAdmin = function() {
-            const pass = prompt("🔒 Ingrese clave de administrador:");
-            if (pass === "111180") {
-                showView('view-admin');
-            } else if (pass !== null) {
-                alert("❌ Clave incorrecta.");
-            }
-        }
+    // Si ya está autenticado, ir directo al panel
+    if (appState.isAdmin) {
+        showView('view-admin');
+        return;
+    }
+    
+    // Si no está autenticado, pedir la clave
+    const pass = prompt("🔒 Ingrese clave de administrador:");
+    if (pass === "111180") {
+        appState.isAdmin = true;  // ← Marcar como autenticado
+        showView('view-admin');
+    } else if (pass !== null) {
+        alert("❌ Clave incorrecta.");
+    }
+}
 
         window.showView = function(viewId) {
             document.getElementById('view-register').classList.add('hidden');
