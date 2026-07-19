@@ -307,30 +307,40 @@
     </div>
 
     <div id="modal-edit-bet" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
-            <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
-                <h2 class="text-lg font-black text-brand-orange">
-                    <i class="fa-solid fa-pen-to-square mr-2"></i>
-                    Editar Jugada: <span id="edit-user-name" class="text-white"></span>
-                </h2>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white p-2">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
+    <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
+        <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
+            <h2 class="text-lg font-black text-brand-orange">
+                <i class="fa-solid fa-pen-to-square mr-2"></i>
+                Editar Jugada
+            </h2>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+        <div class="p-5">
+            <!-- NUEVO: Campo para editar el nombre -->
+            <div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                <label class="text-xs font-black text-blue-400 uppercase tracking-wider mb-2 block">
+                    <i class="fa-solid fa-user mr-1"></i>APODO DEL PARTICIPANTE
+                </label>
+                <input type="text" id="edit-user-name-input" 
+                    class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg uppercase"
+                    placeholder="INGRESA EL NUEVO APODO">
             </div>
-            <div class="p-5">
-                <p class="text-xs text-gray-400 mb-4">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>
-                <div id="edit-races-container" class="space-y-4"></div>
-                <div class="mt-6 flex gap-3">
-                    <button onclick="saveEditedBet()" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
-                        <i class="fa-solid fa-save mr-2"></i>GUARDAR CAMBIOS
-                    </button>
-                    <button onclick="closeEditModal()" class="px-6 bg-gray-700 hover:bg-gray-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
-                        CANCELAR
-                    </button>
-                </div>
+            
+            <p class="text-xs text-gray-400 mb-4">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>
+            <div id="edit-races-container" class="space-y-4"></div>
+            <div class="mt-6 flex gap-3">
+                <button onclick="saveEditedBet()" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                    <i class="fa-solid fa-save mr-2"></i>GUARDAR CAMBIOS
+                </button>
+                <button onclick="closeEditModal()" class="px-6 bg-gray-700 hover:bg-gray-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                    CANCELAR
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -869,16 +879,18 @@
         }
 
         window.openEditBet = function(userId) {
-            const user = appState.users.find(u => u.id === userId);
-            if (!user) return;
-            
-            appState.editingUser = user;
-            appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
-            
-            document.getElementById('edit-user-name').textContent = user.name;
-            renderEditRaces();
-            document.getElementById('modal-edit-bet').classList.remove('hidden');
-        }
+    const user = appState.users.find(u => u.id === userId);
+    if (!user) return;
+    
+    appState.editingUser = user;
+    appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
+    
+    // Cargar el nombre actual en el input
+    document.getElementById('edit-user-name-input').value = user.name;
+    
+    renderEditRaces();
+    document.getElementById('modal-edit-bet').classList.remove('hidden');
+}
 
         window.closeEditModal = function() {
             document.getElementById('modal-edit-bet').classList.add('hidden');
@@ -928,35 +940,54 @@
         }
 
         window.saveEditedBet = async function() {
-            if (!appState.editingUser) return;
-            
-            let totalPicks = 0;
-            for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
-            
-            if (totalPicks !== 18) {
-                if (!confirm(`️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
-                    return;
-                }
-            }
-            
-            try {
-                const userDoc = doc(db, "usuarios", appState.editingUser.id);
-                await updateDoc(userDoc, { picks: appState.editingPicks });
-                
-                const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
-                if (userIndex > -1) {
-                    appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
-                }
-                
-                saveUsersToLocalStorage();
-                alert("✅ Jugada actualizada correctamente.");
-                closeEditModal();
-                renderAdminEditList();
-            } catch (error) {
-                console.error("❌ Error actualizando jugada:", error);
-                alert("⚠️ Error al guardar los cambios.");
-            }
+    if (!appState.editingUser) return;
+    
+    // Obtener el nuevo nombre del input
+    const newName = document.getElementById('edit-user-name-input').value.trim().toUpperCase();
+    
+    if (!newName) {
+        return alert("⚠️ El apodo no puede estar vacío.");
+    }
+    
+    // Validar que el nombre no esté en uso por otro participante
+    const existingUser = appState.users.find(u => u.name === newName && u.id !== appState.editingUser.id);
+    if (existingUser) {
+        return alert(`⚠️ El apodo "${newName}" ya está en uso por otro participante.`);
+    }
+    
+    let totalPicks = 0;
+    for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
+    
+    if (totalPicks !== 18) {
+        if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
+            return;
         }
+    }
+    
+    try {
+        const userDoc = doc(db, "usuarios", appState.editingUser.id);
+        
+        // Guardar el nuevo nombre y las selecciones
+        await updateDoc(userDoc, { 
+            name: newName,
+            picks: appState.editingPicks 
+        });
+        
+        const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
+        if (userIndex > -1) {
+            appState.users[userIndex].name = newName;
+            appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
+        }
+        
+        saveUsersToLocalStorage();
+        alert("✅ Jugada y apodo actualizados correctamente.");
+        closeEditModal();
+        renderAdminEditList();
+    } catch (error) {
+        console.error("❌ Error actualizando jugada:", error);
+        alert("️ Error al guardar los cambios.");
+    }
+}
 
         window.deleteUserBet = async function(userId, userName) {
             if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
