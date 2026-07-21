@@ -160,37 +160,43 @@
                     </div>
                 </div>
                 
+                <!-- NUEVO: HISTORIAL DE ACUMULADOS -->
                 <div class="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
                     <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider mb-2">
-                        <i class="fa-solid fa-trophy mr-2"></i>MONTO ACUMULADO
+                        <i class="fa-solid fa-trophy mr-2"></i>HISTORIAL DE ACUMULADOS
                     </h4>
-                    <p class="text-xs text-gray-400 mb-3">Si la jornada anterior no tuvo ganadores, ingresa el monto acumulado. <b>Este campo NO se borra al iniciar nueva jornada.</b></p>
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <div>
-                            <label class="text-[10px] text-gray-500 uppercase font-bold">Monto (Bs.)</label>
-                            <input type="number" id="config-acumulado" value="0" min="0" step="100" 
-                                class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-gray-500 uppercase font-bold">Fecha Jornada</label>
-                            <input type="date" id="config-acumulado-fecha" 
-                                class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-sm">
-                        </div>
+                    <p class="text-xs text-gray-400 mb-3">Gestiona los montos acumulados de jornadas sin ganadores.</p>
+                    
+                    <div class="mb-3 p-3 bg-brand-dark/50 rounded-lg border border-white/10 text-center">
+                        <p class="text-[10px] text-gray-400 uppercase">Total Acumulado Actual</p>
+                        <p class="text-2xl font-black text-green-400" id="display-total-acumulado">Bs. 0,00</p>
                     </div>
-                    <button onclick="limpiarAcumulado()" class="w-full bg-gray-700 hover:bg-gray-600 text-white text-xs font-black py-2 rounded-lg transition-all flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-eraser"></i> LIMPIAR ACUMULADO (cuando ya se usó)
-                    </button>
+
+                    <div id="lista-historial-acumulados" class="space-y-2 mb-3 max-h-40 overflow-y-auto pr-1">
+                        <!-- Items inyectados por JS -->
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="agregarAcumuladoManual()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-plus"></i> AGREGAR MANUAL
+                        </button>
+                        <button onclick="liquidarAcumulados()" class="flex-1 bg-red-600 hover:bg-red-500 text-white text-xs font-black py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> LIQUIDAR TODOS
+                        </button>
+                    </div>
                 </div>
                 
                 <button onclick="saveRaceConfig()" class="w-full mt-6 bg-brand-amber text-black font-black py-3 rounded-xl active:scale-95 transition-transform">
                     <i class="fa-solid fa-save mr-2"></i>GUARDAR CONFIGURACIÓN
                 </button>
             </div>
+            
             <div id="adm-retirados" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">Marcar Ejemplares Retirados</h3>
                 <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo.</p>
                 <div id="admin-scratch-container" class="space-y-4"></div>
             </div>
+            
             <div id="adm-resultados" class="adm-content hidden">
                 <h3 class="text-sm font-black text-brand-amber mb-4 uppercase tracking-wider">Cargar Resultados Carrera por Carrera</h3>
                 <div id="initial-report-section" class="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
@@ -245,6 +251,7 @@
                     </button>
                 </div>
             </div>
+            
             <div id="adm-cobranza" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Control de Pagos (Bs.)</h3>
                 <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
@@ -267,6 +274,7 @@
                     </div>
                 </div>
             </div>
+            
             <div id="adm-edicion" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">✏️ Edición de Jugadas</h3>
                 <p class="text-xs text-gray-400 mb-4">Modifica o elimina las jugadas de los participantes.</p>
@@ -355,10 +363,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const PRECIO_JUGADA = 800;
         const PORCENTAJE_PREMIO = 0.80;
 
-        // ✅ CORREGIDO: Se agregó la coma faltante después de acumuladoFecha
+        // ✅ ESTRUCTURA ACTUALIZADA: historialAcumulados en lugar de campos únicos
         const appState = {
             currentUser: null,
             raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
@@ -368,8 +375,7 @@
             editingUser: null,
             editingPicks: null,
             precioJugada: 800,
-            acumulado: 0,
-            acumuladoFecha: '',
+            historialAcumulados: [],
             isAdmin: false
         };
 
@@ -381,8 +387,7 @@
                     scratched: appState.scratched,
                     results: appState.results,
                     precioJugada: appState.precioJugada,
-                    acumulado: appState.acumulado,
-                    acumuladoFecha: appState.acumuladoFecha,
+                    historialAcumulados: appState.historialAcumulados,
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
@@ -393,8 +398,7 @@
                 scratched: appState.scratched,
                 results: appState.results,
                 precioJugada: appState.precioJugada,
-                acumulado: appState.acumulado,
-                acumuladoFecha: appState.acumuladoFecha
+                historialAcumulados: appState.historialAcumulados
             }));
         }
 
@@ -408,8 +412,7 @@
                     appState.scratched = data.scratched || appState.scratched;
                     appState.results = data.results || appState.results;
                     appState.precioJugada = data.precioJugada || 800;
-                    appState.acumulado = data.acumulado || 0;
-                    appState.acumuladoFecha = data.acumuladoFecha || '';
+                    appState.historialAcumulados = data.historialAcumulados || [];
                     return true;
                 }
             } catch (error) {
@@ -448,8 +451,7 @@
                 appState.scratched = parsed.scratched || appState.scratched;
                 appState.results = parsed.results || appState.results;
                 appState.precioJugada = parsed.precioJugada || 800;
-                appState.acumulado = parsed.acumulado || 0;
-                appState.acumuladoFecha = parsed.acumuladoFecha || '';
+                appState.historialAcumulados = parsed.historialAcumulados || [];
             }
             const usersSaved = localStorage.getItem('tresXSeisActivo_Users');
             if (usersSaved) {
@@ -468,6 +470,7 @@
             if (!usersLoaded) loadFromLocalStorage();
             renderAdminConfigInputs();
             renderAdminResults();
+            renderHistorialAcumulados();
             saveUsersToLocalStorage();
             saveConfigToFirebase();
         }
@@ -482,7 +485,6 @@
                 showView('view-admin');
                 return;
             }
-            
             const pass = prompt("🔒 Ingrese clave de administrador:");
             if (pass === "111180") {
                 appState.isAdmin = true;
@@ -505,12 +507,9 @@
                 renderAdminResults();
                 renderAdminPayments();
                 renderAdminEditList();
+                renderHistorialAcumulados();
                 const precioInput = document.getElementById('config-precio');
-                const acumuladoInput = document.getElementById('config-acumulado');
-                const acumuladoFechaInput = document.getElementById('config-acumulado-fecha');
                 if (precioInput) precioInput.value = appState.precioJugada || 800;
-                if (acumuladoInput) acumuladoInput.value = appState.acumulado || 0;
-                if (acumuladoFechaInput) acumuladoFechaInput.value = appState.acumuladoFecha || '';
             }
             window.scrollTo(0, 0);
         }
@@ -611,11 +610,9 @@
                         paid: false,
                         createdAt: appState.currentUser.createdAt
                     });
-                    
                     appState.currentUser.id = docRef.id;
                     appState.users.push(appState.currentUser);
                     saveUsersToLocalStorage();
-                    
                     alert("✅ ¡Jugada enviada con éxito!");
                     showView('view-ranking');
                 } catch (error) {
@@ -660,12 +657,12 @@
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
             
-            const { jugadoresActivos, premio, premioTotal, acumulado } = calcularPremio();
+            const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
             
             if (currentRace > 0) {
-                let premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio: ${formatearBs(premio)}</p>`;
-                if (acumulado > 0) {
-                    premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio Total: ${formatearBs(premioTotal)}</p>`;
+                let premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio Semanal: ${formatearBs(premioSemanal)}</p>`;
+                if (acumuladoTotal > 0) {
+                    premioHtml += `<p class="text-xs text-amber-400 font-bold">🏆 Premio Total: ${formatearBs(premioTotal)}</p>`;
                 }
                 list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4">
                     <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
@@ -709,19 +706,15 @@
             for (let r = 1; r <= 6; r++) {
                 const d = u.details[r];
                 if (!d) continue;
-                
                 const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
-                
                 let statusIcon = '';
                 if (d.winner !== null) {
                     statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 } else {
                     statusIcon = '<span class="text-gray-600 text-lg">-</span>';
                 }
-                
                 racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
             }
-            
             const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
             const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
             return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
@@ -747,23 +740,12 @@
                 appState.raceConfig[i] = val;
                 appState.scratched[i] = appState.scratched[i].filter(s => s <= val);
             }
-            
             const precioInput = document.getElementById('config-precio');
             if (precioInput) {
                 appState.precioJugada = parseInt(precioInput.value) || 800;
             }
-            
-            const acumuladoInput = document.getElementById('config-acumulado');
-            const acumuladoFechaInput = document.getElementById('config-acumulado-fecha');
-            if (acumuladoInput) {
-                appState.acumulado = parseInt(acumuladoInput.value) || 0;
-            }
-            if (acumuladoFechaInput) {
-                appState.acumuladoFecha = acumuladoFechaInput.value || '';
-            }
-            
             await saveConfigToFirebase();
-            alert("✅ Configuración guardada.\n\nMonto por jugada: Bs. " + appState.precioJugada.toLocaleString('es-VE') + "\nAcumulado: Bs. " + appState.acumulado.toLocaleString('es-VE'));
+            alert("✅ Configuración guardada.\n\nMonto por jugada: Bs. " + appState.precioJugada.toLocaleString('es-VE'));
             renderAdminScratch();
             renderAdminResults();
             if (appState.currentUser) renderUserBoard();
@@ -819,38 +801,149 @@
             if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
             const winner = parseInt(val);
             if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
+            
             appState.results[race] = winner;
             await saveConfigToFirebase();
+            
             let aciertos = 0, fallos = 0;
             appState.users.forEach(u => { if (u.picks[race].includes(winner)) aciertos++; else fallos++; });
-            alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
+            
+            // Lógica automática de acumulación si es la 6ª válida y no hay ganadores
+            if (race === 6) {
+                const usuariosValidos = appState.users.filter(u => {
+                    let total = 0;
+                    for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
+                    return total === 18;
+                });
+                const aliveUsers = usuariosValidos.filter(u => {
+                    for (let r = 1; r <= 6; r++) {
+                        const w = appState.results[r];
+                        if (w !== null && !u.picks[r].includes(w)) return false;
+                    }
+                    return true;
+                });
+                
+                if (aliveUsers.length === 0) {
+                    const { premioTotal } = calcularPremio();
+                    const hoy = new Date().toISOString().split('T')[0];
+                    appState.historialAcumulados.push({
+                        monto: premioTotal,
+                        fecha: hoy,
+                        origen: 'Jornada'
+                    });
+                    await saveConfigToFirebase();
+                    renderHistorialAcumulados();
+                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 No hubo ganadores. El premio total de ${formatearBs(premioTotal)} se ha acumulado automáticamente.`);
+                } else {
+                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 ¡HAY GANADORES!\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}`);
+                }
+            } else {
+                alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
+            }
+            
             renderAdminResults();
             renderRanking();
+        }
+
+        // ✅ NUEVAS FUNCIONES PARA HISTORIAL DE ACUMULADOS
+        window.renderHistorialAcumulados = function() {
+            const container = document.getElementById('lista-historial-acumulados');
+            const totalDisplay = document.getElementById('display-total-acumulado');
+            if (!container || !totalDisplay) return;
+            
+            container.innerHTML = '';
+            const total = appState.historialAcumulados.reduce((sum, item) => sum + item.monto, 0);
+            totalDisplay.textContent = formatearBs(total);
+            
+            if (appState.historialAcumulados.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No hay acumulados registrados.</p>';
+                return;
+            }
+            
+            appState.historialAcumulados.forEach((item, index) => {
+                const partes = item.fecha.split('-');
+                const fechaCorta = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0].slice(-2)}` : item.fecha;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-2 rounded border border-white/10">
+                        <div>
+                            <p class="text-xs font-bold text-white">${fechaCorta}</p>
+                            <p class="text-[10px] text-gray-400">${item.origen || 'Manual'}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-black text-green-400">${formatearBs(item.monto)}</span>
+                            <button onclick="eliminarAcumulado(${index})" class="text-red-400 hover:text-red-300 p-1 transition-colors">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.agregarAcumuladoManual = async function() {
+            const montoStr = prompt("Ingresa el monto acumulado (solo números, ej: 5000):");
+            if (!montoStr) return;
+            const monto = parseFloat(montoStr.replace(',', '.'));
+            if (isNaN(monto) || monto <= 0) return alert("Monto inválido.");
+            
+            const fecha = prompt("Ingresa la fecha (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+            if (!fecha) return;
+            
+            appState.historialAcumulados.push({
+                monto: monto,
+                fecha: fecha,
+                origen: 'Manual'
+            });
+            
+            await saveConfigToFirebase();
+            renderHistorialAcumulados();
+            alert("✅ Acumulado agregado correctamente.");
+        }
+
+        window.eliminarAcumulado = async function(index) {
+            if (!confirm("¿Eliminar este registro acumulado específico?")) return;
+            appState.historialAcumulados.splice(index, 1);
+            await saveConfigToFirebase();
+            renderHistorialAcumulados();
+        }
+
+        window.liquidarAcumulados = async function() {
+            if (appState.historialAcumulados.length === 0) {
+                return alert("No hay acumulados para liquidar.");
+            }
+            
+            const confirm1 = confirm("⚠️ ¿Estás seguro de LIQUIDAR todos los acumulados?\n\nEsta acción se realiza cuando el premio acumulado ha sido pagado a los ganadores y no se puede deshacer.");
+            if (!confirm1) return;
+            
+            const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'LIQUIDAR' en mayúsculas para confirmar:");
+            if (confirm2 !== 'LIQUIDAR') {
+                return alert("❌ Operación cancelada. El texto no coincide.");
+            }
+            
+            appState.historialAcumulados = [];
+            await saveConfigToFirebase();
+            renderHistorialAcumulados();
+            alert("✅ Todos los acumulados han sido liquidados exitosamente.");
         }
 
         window.renderAdminEditList = function() {
             const container = document.getElementById('admin-edit-list');
             if (!container) return;
             container.innerHTML = '';
-            
             if (appState.users.length === 0) {
                 container.innerHTML = '<p class="text-center text-gray-500 py-8">No hay participantes registrados.</p>';
                 return;
             }
-            
             const sortedUsers = [...appState.users].sort((a, b) => a.name.localeCompare(b.name));
-            
             sortedUsers.forEach(u => {
                 let totalPicks = 0;
                 for (let r = 1; r <= 6; r++) totalPicks += (u.picks[r] || []).length;
                 const isComplete = totalPicks === 18;
-                
                 let picksSummary = '';
                 for (let r = 1; r <= 6; r++) {
                     const picks = u.picks[r] || [];
                     picksSummary += `<div class="text-xs text-gray-400"><span class="text-brand-amber font-bold">${r}ª:</span> ${picks.length > 0 ? picks.map(p => `[${p}]`).join(' ') : '<span class="text-red-400">vacía</span>'}</div>`;
                 }
-                
                 container.innerHTML += `
                     <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-brand-orange/30 transition-all">
                         <div class="flex justify-between items-start mb-3">
@@ -884,12 +977,9 @@
         window.openEditBet = function(userId) {
             const user = appState.users.find(u => u.id === userId);
             if (!user) return;
-            
             appState.editingUser = user;
             appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
-            
             document.getElementById('edit-user-name-input').value = user.name;
-            
             renderEditRaces();
             document.getElementById('modal-edit-bet').classList.remove('hidden');
         }
@@ -903,28 +993,23 @@
         window.renderEditRaces = function() {
             const container = document.getElementById('edit-races-container');
             container.innerHTML = '';
-            
             for (let race = 1; race <= 6; race++) {
                 const totalHorses = appState.raceConfig[race];
                 const scratched = appState.scratched[race];
                 const picks = appState.editingPicks[race];
-                
                 let horsesHtml = '';
                 for (let i = 1; i <= totalHorses; i++) {
                     if (scratched.includes(i)) continue;
                     const isSelected = picks.includes(i);
                     horsesHtml += `<button onclick="window.toggleEditPick(${race}, ${i})" class="horse-btn w-10 h-10 rounded-lg font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300 hover:bg-white/10'}">${i}</button>`;
                 }
-                
                 container.innerHTML += `
                     <div class="bg-white/5 p-3 rounded-xl border border-white/5">
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="font-black text-brand-amber text-sm">${race}ª VÁLIDA</h4>
                             <span class="text-xs font-bold ${picks.length === 3 ? 'text-green-400' : 'text-gray-500'}">${picks.length}/3</span>
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                            ${horsesHtml}
-                        </div>
+                        <div class="flex flex-wrap gap-2">${horsesHtml}</div>
                     </div>
                 `;
             }
@@ -933,51 +1018,32 @@
         window.toggleEditPick = function(race, horse) {
             const picks = appState.editingPicks[race];
             const index = picks.indexOf(horse);
-            if (index > -1) {
-                picks.splice(index, 1);
-            } else if (picks.length < 3) {
-                picks.push(horse);
-            }
+            if (index > -1) picks.splice(index, 1);
+            else if (picks.length < 3) picks.push(horse);
             renderEditRaces();
         }
 
         window.saveEditedBet = async function() {
             if (!appState.editingUser) return;
-            
             const newName = document.getElementById('edit-user-name-input').value.trim().toUpperCase();
-            
-            if (!newName) {
-                return alert("⚠️ El apodo no puede estar vacío.");
-            }
-            
+            if (!newName) return alert("⚠️ El apodo no puede estar vacío.");
             const existingUser = appState.users.find(u => u.name === newName && u.id !== appState.editingUser.id);
-            if (existingUser) {
-                return alert(`⚠️ El apodo "${newName}" ya está en uso por otro participante.`);
-            }
+            if (existingUser) return alert(`⚠️ El apodo "${newName}" ya está en uso por otro participante.`);
             
             let totalPicks = 0;
             for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
-            
             if (totalPicks !== 18) {
-                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) {
-                    return;
-                }
+                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) return;
             }
             
             try {
                 const userDoc = doc(db, "usuarios", appState.editingUser.id);
-                
-                await updateDoc(userDoc, { 
-                    name: newName,
-                    picks: appState.editingPicks 
-                });
-                
+                await updateDoc(userDoc, { name: newName, picks: appState.editingPicks });
                 const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
                 if (userIndex > -1) {
                     appState.users[userIndex].name = newName;
                     appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
                 }
-                
                 saveUsersToLocalStorage();
                 alert("✅ Jugada y apodo actualizados correctamente.");
                 closeEditModal();
@@ -989,14 +1055,8 @@
         }
 
         window.deleteUserBet = async function(userId, userName) {
-            if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) {
-                return;
-            }
-            
-            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) {
-                return;
-            }
-            
+            if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) return;
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) return;
             try {
                 await deleteDoc(doc(db, "usuarios", userId));
                 await loadUsersFromFirebase();
@@ -1017,13 +1077,14 @@
             }).length;
         }
 
+        // ✅ FUNCIÓN ACTUALIZADA PARA CALCULAR PREMIO CON HISTORIAL
         function calcularPremio() {
             const jugadoresActivos = contarJugadasCompletas();
             const pozoTotal = jugadoresActivos * appState.precioJugada;
-            const premio = pozoTotal * PORCENTAJE_PREMIO;
-            const acumulado = appState.acumulado || 0;
-            const premioTotal = premio + acumulado;
-            return { jugadoresActivos, pozoTotal, premio, acumulado, premioTotal };
+            const premioSemanal = pozoTotal * PORCENTAJE_PREMIO;
+            const acumuladoTotal = appState.historialAcumulados.reduce((sum, item) => sum + item.monto, 0);
+            const premioTotal = premioSemanal + acumuladoTotal;
+            return { jugadoresActivos, pozoTotal, premioSemanal, acumuladoTotal, premioTotal };
         }
 
         function formatearBs(monto) {
@@ -1036,30 +1097,24 @@
                 for (let r = 1; r <= 6; r++) totalPicks += u.picks[r].length;
                 return totalPicks === 18;
             });
-            if (completeUsers.length === 0) {
-                return alert("⚠️ Aún no hay participantes con jugada completa (18 selecciones).");
-            }
+            if (completeUsers.length === 0) return alert("⚠️ Aún no hay participantes con jugada completa (18 selecciones).");
+            
             const incompleteCount = appState.users.length - completeUsers.length;
             let confirmMsg = `✅ Se incluirán ${completeUsers.length} participante(s) con jugada completa.`;
-            if (incompleteCount > 0) {
-                confirmMsg += `\n\n⚠️ ${incompleteCount} participante(s) aún no han completado su jugada y NO aparecerán en este reporte.`;
-            }
-            if (!confirm(confirmMsg + '\n\n¿Deseas generar el reporte?')) {
-                return;
-            }
+            if (incompleteCount > 0) confirmMsg += `\n\n⚠️ ${incompleteCount} participante(s) aún no han completado su jugada y NO aparecerán en este reporte.`;
+            if (!confirm(confirmMsg + '\n\n¿Deseas generar el reporte?')) return;
             
-            const { jugadoresActivos, premio, premioTotal, acumulado } = calcularPremio();
-            
+            const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
-            if (acumulado > 0) {
-                msg += `🏆 *ACUMULADO:* ${formatearBs(acumulado)}\n`;
-                msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
+            if (acumuladoTotal > 0) {
+                msg += `🏆 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
+                msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
                 msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
             } else {
-                msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
+                msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n\n`;
             }
             
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1083,6 +1138,7 @@
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
             msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
             msg += '🐎 *¡Que comience la emoción!* 🐎';
+            
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
@@ -1126,10 +1182,7 @@
                     const winner = appState.results[r];
                     const isHit = winner && user.picks[r].includes(winner);
                     status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
-                    if (!isHit && status.alive) { 
-                        status.alive = false; 
-                        status.eliminatedAt = r; 
-                    }
+                    if (!isHit && status.alive) { status.alive = false; status.eliminatedAt = r; }
                 }
                 for (let r = currentRace + 1; r <= 6; r++) {
                     status.details[r] = { picks: user.picks[r], winner: null, isHit: null };
@@ -1139,28 +1192,26 @@
             
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
-            
-            const { jugadoresActivos, premio, acumulado, premioTotal } = calcularPremio();
+            const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
             
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             
-            if (acumulado > 0) {
-                const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-                let fechaFormateada = 'jornada anterior';
-                if (appState.acumuladoFecha) {
-                    const partes = appState.acumuladoFecha.split('-');
-                    if (partes.length === 3) {
-                        const mesIdx = parseInt(partes[1]) - 1;
-                        fechaFormateada = `${partes[2]}-${meses[mesIdx]}`;
-                    }
-                }
-                msg += `🏆 *ACUMULADO* (${fechaFormateada}): ${formatearBs(acumulado)}\n`;
-                msg += `💰 *PREMIO:* ${formatearBs(premio)}\n`;
-                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
+            // ✅ REPORTE ACTUALIZADO CON HISTORIAL DE ACUMULADOS
+            if (acumuladoTotal > 0) {
+                msg += '🏆 *HISTORIAL DE ACUMULADOS*\n';
+                appState.historialAcumulados.forEach(item => {
+                    const partes = item.fecha.split('-');
+                    const fechaCorta = partes.length === 3 ? `${partes[2]}/${partes[1]}` : item.fecha;
+                    msg += `• ${fechaCorta}: ${formatearBs(item.monto)}\n`;
+                });
+                msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
+                msg += `💰 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
+                msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
+                msg += `🎯 *PREMIO TOTAL A JUGAR:* ${formatearBs(premioTotal)}\n\n`;
             } else {
-                msg += `💰 *PREMIO:* ${formatearBs(premio)}\n\n`;
+                msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n\n`;
             }
             
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1188,10 +1239,7 @@
                     for (let r = 1; r <= 6; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        let icon = '';
-                        if (r <= currentRace) {
-                            icon = d.isHit ? ' ✔️' : ' ❌';
-                        }
+                        let icon = r <= currentRace ? (d.isHit ? ' ✔️' : ' ❌') : '';
                         msg += `${r}ª: ${picksStr}${icon}\n`;
                     }
                     msg += '\n';
@@ -1206,10 +1254,7 @@
                     for (let r = 1; r <= 6; r++) {
                         const d = u.details[r];
                         const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        let icon = '';
-                        if (r <= currentRace) {
-                            icon = d.isHit ? ' ✔️' : ' ❌';
-                        }
+                        let icon = r <= currentRace ? (d.isHit ? ' ✔️' : ' ❌') : '';
                         msg += `${r}ª: ${picksStr}${icon}\n`;
                     }
                     msg += '\n';
@@ -1221,7 +1266,7 @@
                 if (aliveUsers.length > 0) {
                     msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
                     msg += aliveUsers.map(u => `🐎 *${u.name}*`).join('\n');
-                    msg += `\n\n💰 *Premio:* ${formatearBs(premioTotal)}`;
+                    msg += `\n\n💰 *Premio Total:* ${formatearBs(premioTotal)}`;
                 } else {
                     msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
                     msg += `El premio de *${formatearBs(premioTotal)}* queda acumulado para la próxima semana.`;
@@ -1277,12 +1322,10 @@
         }
 
         window.resetAllData = async function() {
-            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El monto acumulado y su fecha\n\n¿Estás seguro de que deseas continuar?");
-            
+            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El historial de acumulados\n\n¿Estás seguro de que deseas continuar?");
             if (!confirm1) return;
             
             const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
-            
             if (confirm2 !== 'BORRAR') {
                 alert("❌ Operación cancelada. El texto no coincide.");
                 return;
@@ -1299,8 +1342,7 @@
                     scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
                     results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
                     precioJugada: appState.precioJugada,
-                    acumulado: appState.acumulado,
-                    acumuladoFecha: appState.acumuladoFecha,
+                    historialAcumulados: appState.historialAcumulados, // ✅ Se preserva el historial
                     updatedAt: new Date().toISOString()
                 });
                 
@@ -1317,11 +1359,10 @@
                 renderAdminResults();
                 renderAdminScratch();
                 renderAdminEditList();
+                renderHistorialAcumulados();
                 
-                alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\nEl monto por jugada (Bs. " + appState.precioJugada.toLocaleString('es-VE') + ") y el acumulado (Bs. " + appState.acumulado.toLocaleString('es-VE') + ") se mantuvieron.");
-                
+                alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\nEl historial de acumulados se mantuvo intacto.");
                 goHome();
-                
             } catch (error) {
                 console.error("❌ Error al vaciar la base de datos:", error);
                 alert("⚠️ Ocurrió un error al vaciar la base de datos. Intenta de nuevo.");
@@ -1329,23 +1370,13 @@
         }
 
         window.generatePaymentReport = function() {
-            if (appState.users.length === 0) {
-                return alert("⚠️ No hay participantes registrados.");
-            }
-            
-            const sortedUsers = [...appState.users].sort((a, b) => {
-                return new Date(a.createdAt) - new Date(b.createdAt);
-            });
-            
+            if (appState.users.length === 0) return alert("⚠️ No hay participantes registrados.");
+            const sortedUsers = [...appState.users].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             let msg = '';
             msg += '📋 *LISTA DE PARTICIPANTES*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            
-            sortedUsers.forEach((u, index) => {
-                msg += `${index + 1}. *${u.name}*\n`;
-            });
-            
+            sortedUsers.forEach((u, index) => { msg += `${index + 1}. *${u.name}*\n`; });
             msg += '\n━━━━━━━━━━━━━━━━━━━\n';
             
             const preview = document.getElementById('payment-report-preview');
@@ -1372,19 +1403,13 @@
         }
 
         window.generateAveragesReport = function() {
-            if (appState.users.length === 0) {
-                return alert("⚠️ No hay participantes registrados.");
-            }
-            
+            if (appState.users.length === 0) return alert("⚠️ No hay participantes registrados.");
             const validUsers = appState.users.filter(u => {
                 let total = 0;
                 for (let r = 1; r <= 6; r++) total += (u.picks[r] || []).length;
                 return total === 18;
             });
-            
-            if (validUsers.length === 0) {
-                return alert("⚠️ No hay participantes con jugada completa.");
-            }
+            if (validUsers.length === 0) return alert("⚠️ No hay participantes con jugada completa.");
             
             let msg = '';
             msg += '📊 *ANÁLISIS ESTADÍSTICO*\n';
@@ -1396,18 +1421,11 @@
             
             for (let r = 1; r <= 6; r++) {
                 const frequency = {};
-                
                 validUsers.forEach(u => {
                     const picks = u.picks[r] || [];
-                    picks.forEach(p => {
-                        frequency[p] = (frequency[p] || 0) + 1;
-                    });
+                    picks.forEach(p => { frequency[p] = (frequency[p] || 0) + 1; });
                 });
-                
-                const sorted = Object.entries(frequency)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
-                
+                const sorted = Object.entries(frequency).sort((a, b) => b[1] - a[1]).slice(0, 5);
                 const topNumbers = sorted.map(([num, count]) => `[${num}]`).join('.');
                 msg += `${r}ª V.: ${topNumbers}\n`;
             }
@@ -1442,18 +1460,15 @@
         window.sendPlayerWhatsApp = function(userId) {
             const user = appState.users.find(u => u.id === userId);
             if (!user) return;
-            
             let msg = '';
             msg += '🎯 *JUGADA DE: ' + user.name + '*\n';
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            
             for (let r = 1; r <= 6; r++) {
                 const picks = user.picks[r] || [];
                 const picksStr = picks.map(p => `[${p}]`).join(' ');
                 msg += `${r}ª V.: ${picksStr}\n`;
             }
-            
             msg += '\n━━━━━━━━━━━━━━━━━━━\n';
             
             navigator.clipboard.writeText(msg).then(() => {
@@ -1467,24 +1482,6 @@
                 document.body.removeChild(textarea);
                 alert(`✅ ¡Jugada de "${user.name}" copiada! Pégala en WhatsApp.`);
             });
-        }
-
-        window.limpiarAcumulado = async function() {
-            if (appState.acumulado === 0) {
-                return alert("⚠️ No hay acumulado que limpiar.");
-            }
-            
-            const confirm = window.confirm(`⚠️ ¿Estás seguro de limpiar el acumulado de Bs. ${appState.acumulado.toLocaleString('es-VE')}?\n\nEsta acción no se puede deshacer.`);
-            if (!confirm) return;
-            
-            appState.acumulado = 0;
-            appState.acumuladoFecha = '';
-            await saveConfigToFirebase();
-            
-            document.getElementById('config-acumulado').value = '0';
-            document.getElementById('config-acumulado-fecha').value = '';
-            
-            alert("✅ Acumulado limpiado correctamente.");
         }
 
         init();
