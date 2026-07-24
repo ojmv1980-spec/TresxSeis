@@ -844,17 +844,17 @@
                 });
                 
                 if (aliveUsers.length === 0) {
-                    const { premioTotal } = calcularPremio();
+                    const { premioSemanal } = calcularPremio();
                     const hoy = new Date().toISOString().split('T')[0];
                     appState.historialAcumulados.push({
-                        monto: premioTotal,
+                        monto: premioSemanal,
                         fecha: hoy,
                         origen: 'Jornada'
                     });
                     await saveConfigToFirebase();
                     renderHistorialAcumulados();
-                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 No hubo ganadores. El premio total de ${formatearBs(premioTotal)} se ha acumulado automáticamente.`);
-                } else {
+                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 No hubo ganadores. El premio semanal de ${formatearBs(premioSemanal)} se ha acumulado automáticamente.`);
+            } else {
                     alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 ¡HAY GANADORES!\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}`);
                 }
             } else {
