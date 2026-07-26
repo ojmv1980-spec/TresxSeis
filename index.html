@@ -1228,9 +1228,12 @@
                     msg += `• ${fechaCorta}: ${formatearBs(item.monto)}\n`;
                 });
                 msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
-                msg += `💰 *PREMIO TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n\n`;
+                msg += `💰 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
+                msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
             } else {
-                msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n\n`;
+                msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioSemanal)}\n\n`;
             }
             
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
