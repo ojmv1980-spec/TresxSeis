@@ -1240,32 +1240,28 @@
             msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
             msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
             msg += '📊 *ESTADO ACTUAL*\n';
-            msg += `✅ Vivos: ${aliveUsers.length}\n`;
+            const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `✅ Ganadores: ${aliveUsers.length}` : `✅ Vivos: ${aliveUsers.length}`;
+            msg += `${etiquetaEstado}\n`;
             msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
-            msg += ` Restan: ${6 - currentRace} válidas\n\n`;
-            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
             
-            if (aliveUsers.length === 0) {
-                msg += ' *ACUMULADO* 🏆\n\n';
+                        if (aliveUsers.length === 0) {
+                msg += '🏆 *ACUMULADO* 🏆\n\n';
                 msg += 'No hubo ganadores en esta jornada.\n';
                 msg += `El premio de *${formatearBs(acumuladoTotal)}* queda acumulado para la próxima semana.\n\n`;
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             }
             
             if (aliveUsers.length > 0) {
-                msg += ' *VIVOS* (Siguen en carrera)\n\n';
-                const medals = ['🥇', '🥈', '🥉'];
-                aliveUsers.forEach((u, i) => {
-                    const medal = i < 3 ? medals[i] : '•';
-                    msg += `${medal} *${u.name}*\n`;
-                    for (let r = 1; r <= 6; r++) {
-                        const d = u.details[r];
-                        const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
-                        let icon = r <= currentRace ? (d.isHit ? ' ✔️' : ' ❌') : '';
-                        msg += `${r}ª: ${picksStr}${icon}\n`;
-                    }
-                    msg += '\n';
+                // Calcular premio individual
+                const premioIndividual = premioTotal / aliveUsers.length;
+                const tituloGanadores = aliveUsers.length > 1 ? 'A LOS GANADORES' : 'AL GANADOR';
+
+                msg += `🏆 *¡FELICIDADES ${tituloGanadores}!* 🏆\n\n`;
+                aliveUsers.forEach(u => {
+                    msg += `*${u.name}* ➡️ ${formatearBs(premioIndividual)}\n`;
                 });
+                msg += '➖➖➖➖➖➖➖➖➖➖➖\n\n';
             }
             
             if (eliminatedUsers.length > 0) {
@@ -1285,15 +1281,11 @@
             
             msg += '━━━━━━━━━━━━━━━━━━━\n';
             if (currentRace === 6) {
-                if (aliveUsers.length > 0) {
-                    msg += '🏆 *¡FELICIDADES A LOS GANADORES!* 🏆\n';
-                    msg += aliveUsers.map(u => ` *${u.name}*`).join('\n');
-                    msg += `\n\n💰 *Premio Total:* ${formatearBs(premioTotal)}`;
-                } else {
-                    // ✅ CORREGIDO: Usa acumuladoTotal en lugar de premioTotal
+                if (aliveUsers.length === 0) {
                     msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
                     msg += `El premio de *${formatearBs(acumuladoTotal)}* queda acumulado para la próxima semana.`;
                 }
+                // Si hay ganadores, no mostramos nada extra al final porque ya se mostró arriba.
             } else {
                 msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
             }
