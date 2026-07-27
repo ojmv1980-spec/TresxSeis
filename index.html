@@ -661,14 +661,17 @@
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
             
             if (currentRace > 0) {
+                const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `Ganadores: ${aliveUsers.length}` : `Vivos: ${aliveUsers.length}`;
                 let premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio Semanal: ${formatearBs(premioSemanal)}</p>`;
                 if (acumuladoTotal > 0) {
-                    premioHtml += `<p class="text-xs text-amber-400 font-bold"> Premio Acumulado: ${formatearBs(acumuladoTotal)}</p>`;
+                    premioHtml += `<p class="text-xs text-amber-400 font-bold">🏆 Premio Acumulado: ${formatearBs(acumuladoTotal)}</p>`;
                 }
+                premioHtml += `<p class="text-xs text-blue-400 font-bold">🎯 Premio Total: ${formatearBs(premioTotal)}</p>`;
+                
                 list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4">
-                    
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
                     <p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p>
-                    <p class="text-xs text-gray-500 mt-1">Vivos: ${aliveUsers.length} | Eliminados: ${eliminatedUsers.length}</p>
+                    <p class="text-xs text-gray-500 mt-1">${etiquetaEstado} | Eliminados: ${eliminatedUsers.length}</p>
                     ${premioHtml}
                 </div>`;
             }
@@ -687,13 +690,18 @@
                 `;
             }
             
-            if (aliveUsers.length > 0) {
-                list.innerHTML += `<div class="text-center mb-3"><h3 class="text-lg font-black text-green-400 uppercase tracking-wider"><i class="fa-solid fa-heart mr-2"></i>VIVOS</h3></div>`;
-                aliveUsers.forEach((u, index) => {
-                    const isWinner = currentRace === 6 && u.alive;
-                    list.innerHTML += renderUserCard(u, index + 1, currentRace, isWinner);
-                });
-            }
+           if (aliveUsers.length > 0) {
+            const tituloVivos = (currentRace === 6) ? '<i class="fa-solid fa-trophy mr-2"></i>GANADORES' : '<i class="fa-solid fa-heart mr-2"></i>VIVOS';
+            const colorTitulo = (currentRace === 6) ? 'text-amber-400' : 'text-green-400';
+            list.innerHTML += `<div class="text-center mb-3"><h3 class="text-lg font-black ${colorTitulo} uppercase tracking-wider">${tituloVivos}</h3></div>`;
+            
+            const premioIndividual = (currentRace === 6) ? (premioTotal / aliveUsers.length) : 0;
+        
+            aliveUsers.forEach((u, index) => {
+                const isWinner = currentRace === 6 && u.alive;
+                list.innerHTML += renderUserCard(u, index + 1, currentRace, isWinner, premioIndividual);
+            });
+        }
             if (eliminatedUsers.length > 0) {
                 list.innerHTML += `<div class="text-center mt-8 mb-3"><h3 class="text-lg font-black text-red-400 uppercase tracking-wider"><i class="fa-solid fa-skull mr-2"></i>Y ALLÁ RRROOODARON 💀</h3></div>`;
                 eliminatedUsers.forEach(u => { list.innerHTML += renderUserCard(u, null, currentRace, false); });
@@ -703,24 +711,31 @@
             }
         }
 
-        function renderUserCard(u, position, currentRace, isWinner) {
-            let racesHtml = '';
-            for (let r = 1; r <= 6; r++) {
-                const d = u.details[r];
-                if (!d) continue;
-                const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
-                let statusIcon = '';
-                if (d.winner !== null) {
-                    statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
-                } else {
-                    statusIcon = '<span class="text-gray-600 text-lg">-</span>';
-                }
-                racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
-            }
-            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
-            const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
-            return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div><span class="font-black text-lg text-white block leading-none">${u.name}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
+        function renderUserCard(u, position, currentRace, isWinner, premioIndividual = 0) {
+    let racesHtml = '';
+    for (let r = 1; r <= 6; r++) {
+        const d = u.details[r];
+        if (!d) continue;
+        const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
+        let statusIcon = '';
+        if (d.winner !== null) {
+            statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
+        } else {
+            statusIcon = '<span class="text-gray-600 text-lg">-</span>';
         }
+        racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
+    }
+    
+    const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+    const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
+    
+    let nombreHtml = `<span class="font-black text-lg text-white block leading-none">${u.name}</span>`;
+    if (premioIndividual > 0) {
+        nombreHtml += `<span class="text-xs text-green-400 font-black">➡️ ${formatearBs(premioIndividual)}</span>`;
+    }
+
+    return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div>${nombreHtml}<span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
+}
 
         window.switchAdminTab = function(tabId) {
             document.querySelectorAll('.adm-content').forEach(el => el.classList.add('hidden'));
