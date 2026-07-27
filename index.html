@@ -712,7 +712,7 @@
                 const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
                 let statusIcon = '';
                 if (d.winner !== null) {
-                    statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg"></span>';
+                    statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
                 } else {
                     statusIcon = '<span class="text-gray-600 text-lg">-</span>';
                 }
