@@ -655,9 +655,10 @@
                 }
                 return { ...user, ...status };
             });
-            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
-            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
-            
+            // Orden cronológico (quien entró primero, va primero)
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
             
             if (currentRace > 0) {
@@ -1142,7 +1143,8 @@
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
             msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
-            const sortedUsers = [...completeUsers].sort((a, b) => a.name.localeCompare(b.name));
+            // Orden cronológico para que el número en el reporte coincida con el Ranking
+            const sortedUsers = [...completeUsers].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             sortedUsers.forEach((u, index) => {
                 msg += `*${index + 1}. ${u.name}*\n`;
                 for (let r = 1; r <= 6; r++) {
@@ -1211,8 +1213,9 @@
                 return { ...user, ...status };
             });
             
-            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => a.name.localeCompare(b.name));
-            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => a.name.localeCompare(b.name));
+            // Orden cronológico para mantener el mismo número asignado en el Ranking
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
             
             let msg = '';
