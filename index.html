@@ -225,18 +225,36 @@
                         <i class="fa-brands fa-whatsapp text-2xl"></i>
                         <span>📋 GENERAR REPORTE DE RESULTADOS</span>
                     </button>
-                    <div id="whatsapp-preview-container" class="hidden">
-                        <div class="flex justify-between items-center mb-2">
-                            <h4 class="text-xs font-black text-green-400 uppercase tracking-wider">
-                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
-                            </h4>
-                            <button onclick="copyWhatsAppReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
-                            </button>
-                        </div>
-                        <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
-                        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
-                    </div>
+                    
+                    <button onclick="generateFinalReport()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-3 rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trophy text-2xl"></i>
+                        <span>🏆 GENERAR REPORTE FINAL</span>
+                    </button>
+                        <div id="whatsapp-preview-container" class="hidden">
+        <div class="flex justify-between items-center mb-2">
+            <h4 class="text-xs font-black text-green-400 uppercase tracking-wider">
+                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+            </h4>
+            <button onclick="copyWhatsAppReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+            </button>
+        </div>
+        <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
+        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+    </div>
+    
+    <div id="final-report-preview-container" class="hidden mt-4">
+        <div class="flex justify-between items-center mb-2">
+            <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">
+                <i class="fa-solid fa-eye mr-1"></i> Vista Previa - Reporte Final
+            </h4>
+            <button onclick="copyFinalReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+            </button>
+        </div>
+        <div id="final-report-preview" class="whatsapp-preview border border-amber-500/30"></div>
+        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+    </div>
                 </div>
                 
                 <div id="reset-section" class="mt-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
@@ -1327,6 +1345,93 @@
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
                 alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+            }
+        }
+
+                window.generateFinalReport = function() {
+            // Verificar que esté cargada la 6ª válida
+            if (appState.results[6] === null) {
+                return alert("⚠️ Debes cargar el resultado de la 6ª Válida para generar el Reporte Final.");
+            }
+            
+            const usuariosValidos = appState.users.filter(u => {
+                let total = 0;
+                for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
+                return total === 18;
+            });
+            
+            const usersWithStatus = usuariosValidos.map(user => {
+                let status = { alive: true, eliminatedAt: null, details: {} };
+                for (let r = 1; r <= 6; r++) {
+                    const winner = appState.results[r];
+                    const isHit = winner && user.picks[r].includes(winner);
+                    status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                    if (!isHit && status.alive) { 
+                        status.alive = false; 
+                        status.eliminatedAt = r; 
+                    }
+                }
+                return { ...user, ...status };
+            });
+            
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const { premioTotal } = calcularPremio();
+            
+            let msg = '';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += '🎯 *RESULTADO 6ª VÁLIDA*\n';
+            msg += `🏆 Ganador: Caballo *#${appState.results[6]}*\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            msg += `💰 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            msg += '📊 *ESTADO ACTUAL*\n';
+            msg += `✅ Ganadores: ${aliveUsers.length}\n\n`;
+            
+            msg += 'RESULTADO GENERAL:\n';
+            for (let r = 1; r <= 6; r++) {
+                msg += `${r}ª V. #${appState.results[r]}\n`;
+            }
+            msg += '\n';
+            
+            if (aliveUsers.length > 0) {
+                const premioIndividual = premioTotal / aliveUsers.length;
+                const tituloGanadores = aliveUsers.length > 1 ? 'A LOS GANADORES' : 'AL GANADOR';
+                
+                msg += `🏆 *¡FELICIDADES ${tituloGanadores}!* 🏆\n\n`;
+                aliveUsers.forEach(u => {
+                    msg += `*${u.name}* ➡️ ${formatearBs(premioIndividual)}\n`;
+                });
+                msg += '➖➖➖➖➖➖➖\n';
+                msg += ' *¡Gracias por participar!* 🐎\n\n';
+                msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
+            } else {
+                msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
+                msg += `El premio de *${formatearBs(premioTotal)}* queda acumulado para la próxima semana.\n\n`;
+                msg += '🐎 *¡Gracias por participar!* 🐎\n\n';
+                msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
+            }
+            
+            const preview = document.getElementById('final-report-preview');
+            preview.textContent = msg;
+            document.getElementById('final-report-preview-container').classList.remove('hidden');
+            window.lastFinalReport = msg;
+            document.getElementById('final-report-preview-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyFinalReport = async function() {
+            if (!window.lastFinalReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastFinalReport);
+                alert("✅ ¡Reporte Final copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastFinalReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte Final copiado! Pégalo en WhatsApp.");
             }
         }
 
