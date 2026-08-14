@@ -231,6 +231,17 @@
                         <i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Reasignaciones (Retiros Tardíos)
                     </h4>
                     <div id="reassign-log" class="space-y-1 max-h-52 overflow-y-auto pr-1 text-xs"></div>
+                    <button onclick="generateReassignReport()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                        <i class="fa-solid fa-file-lines mr-2"></i>GENERAR REPORTE PARA WHATSAPP
+                    </button>
+                    <div id="reassign-report-container" class="hidden mt-3">
+                        <div id="reassign-report-preview" class="whatsapp-preview border border-gray-500/30"></div>
+                        <div id="reassign-report-counter"></div>
+                        <div id="reassign-report-split"></div>
+                        <button onclick="copyReassignReport()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR HISTORIAL
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -690,13 +701,16 @@
             
             if (confirm(resumen)) {
                 try {
+                    const originalPicksSnapshot = JSON.parse(JSON.stringify(appState.currentUser.picks));
                     const docRef = await addDoc(collection(db, "usuarios"), {
                         name: appState.currentUser.name,
                         picks: appState.currentUser.picks,
+                        originalPicks: originalPicksSnapshot,
                         paid: false,
                         createdAt: appState.currentUser.createdAt
                     });
                     appState.currentUser.id = docRef.id;
+                    appState.currentUser.originalPicks = originalPicksSnapshot;
                     appState.users.push(appState.currentUser);
                     saveUsersToLocalStorage();
                     alert("✅ ¡Jugada enviada con éxito!");
@@ -891,7 +905,7 @@
                 }
                 const fecha = new Date().toISOString();
                 if (sustituto === null) {
-                    cambios.push({ jugador: user.name, carrera: race, de: horseRetirado, a: null, fecha, error: true });
+                    cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: null, fecha, error: true });
                     continue;
                 }
                 const idx = picks.indexOf(horseRetirado);
@@ -901,12 +915,55 @@
                 } catch (error) {
                     console.error("❌ Error reasignando jugada:", error);
                 }
-                cambios.push({ jugador: user.name, carrera: race, de: horseRetirado, a: sustituto, fecha, error: false });
+                cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: sustituto, fecha, error: false, revertido: false });
             }
             appState.reasignaciones = [...cambios, ...appState.reasignaciones];
             saveUsersToLocalStorage();
             await saveConfigToFirebase();
             return cambios;
+        }
+
+        // Cuando se desmarca (por error) un retiro que ya había disparado reasignaciones,
+        // intenta devolverle a cada jugador afectado su número original — solo si es seguro hacerlo.
+        async function revertirReasignacionesPorRetiro(race, horseRestaurado) {
+            const scratchedSet = appState.scratched[race];
+            const pendientes = appState.reasignaciones.filter(r =>
+                r.carrera === race && r.de === horseRestaurado && !r.error && !r.revertido && !r.tipo
+            );
+            if (pendientes.length === 0) return [];
+
+            const reversiones = [];
+            for (const entry of pendientes) {
+                const user = entry.userId
+                    ? appState.users.find(u => u.id === entry.userId)
+                    : appState.users.find(u => u.name === entry.jugador);
+                if (!user) { entry.revertido = true; continue; }
+
+                const picks = user.picks[race];
+                const idx = picks.indexOf(entry.a);
+                if (idx === -1) { entry.revertido = true; continue; }
+
+                const otrosPicks = picks.filter((_, i) => i !== idx);
+                const esSeguro = !scratchedSet.includes(entry.de) && !otrosPicks.includes(entry.de);
+
+                const fecha = new Date().toISOString();
+                if (!esSeguro) {
+                    reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: true, tipo: 'reversion' });
+                    continue;
+                }
+                picks[idx] = entry.de;
+                try {
+                    await updateDoc(doc(db, "usuarios", user.id), { picks: user.picks });
+                } catch (error) {
+                    console.error("❌ Error revirtiendo reasignación:", error);
+                }
+                entry.revertido = true;
+                reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: false, tipo: 'reversion' });
+            }
+            appState.reasignaciones = [...reversiones, ...appState.reasignaciones];
+            saveUsersToLocalStorage();
+            await saveConfigToFirebase();
+            return reversiones;
         }
 
         window.renderReassignLog = function() {
@@ -919,6 +976,12 @@
             }
             container.innerHTML = log.slice(0, 40).map(item => {
                 const fecha = new Date(item.fecha).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                if (item.tipo === 'reversion' && item.error) {
+                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — ⚠️ no se pudo revertir #${item.de}→#${item.a} (choque)</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                }
+                if (item.tipo === 'reversion') {
+                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ ${item.carrera}ª V. — #${item.de} → #${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                }
                 if (item.error) {
                     return `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — #${item.de} → ⚠️ sin sustituto</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
                 }
@@ -926,12 +989,58 @@
             }).join('');
         }
 
+        window.generateReassignReport = function() {
+            const log = appState.reasignaciones || [];
+            if (log.length === 0) return alert("⚠️ No hay reasignaciones registradas todavía.");
+            let msg = '🔄 *HISTORIAL DE REASIGNACIONES*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            [...log].reverse().forEach(item => {
+                const fecha = new Date(item.fecha).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                if (item.tipo === 'reversion') {
+                    msg += item.error
+                        ? `${item.carrera}ª V.: ⚠️ no se pudo revertir #${item.de}→#${item.a} — *${item.jugador}* (${fecha})\n`
+                        : `${item.carrera}ª V.: ↩️ #${item.de} → #${item.a} — *${item.jugador}* (${fecha})\n`;
+                } else if (item.error) {
+                    msg += `${item.carrera}ª V.: ⚠️ #${item.de} sin sustituto — *${item.jugador}* (${fecha})\n`;
+                } else {
+                    msg += `${item.carrera}ª V.: #${item.de} → #${item.a} — *${item.jugador}* (${fecha})\n`;
+                }
+            });
+            msg += '\n━━━━━━━━━━━━━━━━━━━';
+
+            const preview = document.getElementById('reassign-report-preview');
+            preview.textContent = msg;
+            document.getElementById('reassign-report-container').classList.remove('hidden');
+            window.lastReassignReport = msg;
+            actualizarContadorCaracteres(msg, 'reassign-report-counter', 'reassign-report-split');
+            document.getElementById('reassign-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyReassignReport = async function() {
+            if (!window.lastReassignReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastReassignReport);
+                alert("✅ ¡Historial copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastReassignReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Historial copiado! Pégalo en WhatsApp.");
+            }
+        }
+
         window.toggleScratch = async function(race, horse) {
             const arr = appState.scratched[race];
             const idx = arr.indexOf(horse);
             let cambios = [];
+            let reversiones = [];
             if (idx > -1) {
                 arr.splice(idx, 1);
+                reversiones = await revertirReasignacionesPorRetiro(race, horse);
             } else {
                 arr.push(horse);
                 cambios = await reasignarJugadasPorRetiro(race, horse);
@@ -958,6 +1067,21 @@
                 if (fallidas.length > 0) {
                     msg += `\n⚠️ No se encontró sustituto válido para (requiere revisión manual):\n`;
                     fallidas.forEach(c => msg += `• ${c.jugador}\n`);
+                }
+                alert(msg);
+            }
+
+            if (reversiones.length > 0) {
+                const exitosas = reversiones.filter(r => !r.error);
+                const fallidas = reversiones.filter(r => r.error);
+                let msg = `↩️ Retiro desmarcado: #${horse} en la ${race}ª Válida.\n\n`;
+                if (exitosas.length > 0) {
+                    msg += `✅ Jugadas restauradas a su selección original:\n`;
+                    exitosas.forEach(r => msg += `• ${r.jugador}: #${r.de} → #${r.a}\n`);
+                }
+                if (fallidas.length > 0) {
+                    msg += `\n⚠️ No se pudo restaurar automáticamente (choca con otra selección o retiro vigente) — revisa manualmente:\n`;
+                    fallidas.forEach(r => msg += `• ${r.jugador}\n`);
                 }
                 alert(msg);
             }
@@ -1390,13 +1514,14 @@
                 const nombres = parsed[r];
                 const count = Object.keys(nombres).length;
                 if (count === 0) continue;
-                preview += `<div class="bg-white/5 p-2 rounded border border-white/10"><p class="font-black text-brand-amber mb-1">${r}ª V. (${count} ejemplares)</p>`;
+                preview += `<div class="bg-white/5 p-2 rounded border border-white/10"><p class="font-black text-brand-amber mb-1">${r}ª V. (${count} ejemplares inscritos)</p>`;
                 Object.entries(nombres).sort((a, b) => a[0] - b[0]).forEach(([num, nombre]) => {
                     preview += `<p class="text-gray-300">#${num} ${nombre}</p>`;
                 });
                 preview += `</div>`;
             }
             preview += '</div>';
+            preview += `<p class="text-[11px] text-cyan-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i>La cantidad de ejemplares por válida se aplicará automáticamente a la configuración de carreras.</p>`;
             preview += `<button onclick="confirmarListadoEjemplares()" class="w-full mt-3 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all">✅ CONFIRMAR Y GUARDAR (${totalDetectados} ejemplares)</button>`;
 
             document.getElementById('horse-names-preview').innerHTML = preview;
@@ -1407,8 +1532,14 @@
         window.confirmarListadoEjemplares = async function() {
             if (!window.__pendingHorseNames) return;
             appState.horseNames = window.__pendingHorseNames;
+            for (let r = 1; r <= 6; r++) {
+                const count = Object.keys(appState.horseNames[r] || {}).length;
+                if (count > 0) appState.raceConfig[r] = count;
+            }
             await saveConfigToFirebase();
-            alert("✅ Listado de ejemplares guardado.\n\nLos reportes ahora mostrarán los nombres reales junto al número ganador.");
+            renderAdminConfigInputs();
+            renderAdminScratch();
+            alert("✅ Listado de ejemplares guardado, y la cantidad de inscritos por válida se actualizó automáticamente.\n\nLos reportes ahora mostrarán los nombres reales junto al número ganador.");
             document.getElementById('horse-names-preview').classList.add('hidden');
             document.getElementById('horse-names-input').value = '';
         }
