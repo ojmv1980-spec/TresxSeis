@@ -1787,7 +1787,7 @@
         }
 
         window.resetAllData = async function() {
-            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El historial de acumulados\n\n¿Estás seguro de que deseas continuar?");
+            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n• El listado de nombres de ejemplares\n• El historial de reasignaciones (retiros tardíos)\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El historial de acumulados\n\n¿Estás seguro de que deseas continuar?");
             if (!confirm1) return;
             
             const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
