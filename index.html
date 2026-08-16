@@ -147,6 +147,7 @@
             <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
             <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
             <button onclick="switchAdminTab('adm-edicion'); renderAdminEditList();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">5. Edición</button>
+            <button onclick="switchAdminTab('adm-cargarapida')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">6. Carga Rápida</button>
         </div>
 
         <div class="glass-panel rounded-2xl rounded-tl-none p-6 min-h-[400px]">
@@ -364,6 +365,26 @@
                 </div>
 
                 <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <div id="adm-cargarapida" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">⚡ Carga Rápida por Bloques</h3>
+                <p class="text-xs text-gray-400 mb-4">Pega uno o varios mensajes de WhatsApp tal cual te llegaron (nombre + 6 líneas de números, separados como sea). El sistema los interpreta automáticamente.</p>
+                <textarea id="quickload-input" rows="10" placeholder="LUIS F&#10;3/5/8&#10;2/7/8&#10;1/5/7&#10;1/9/10&#10;1/4/6&#10;2/6/8&#10;&#10;GUARO&#10;3,5,8&#10;2,3,7&#10;1,5,6&#10;1,4,9&#10;2,3,6&#10;2,9,12" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-mono mb-3" style="min-height: 220px;"></textarea>
+                <button onclick="procesarCargaRapida()" class="w-full bg-brand-orange hover:bg-brand-amber text-brand-dark font-black py-3 rounded-xl shadow-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>PROCESAR BLOQUES
+                </button>
+
+                <div id="quickload-preview-container" class="hidden mt-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-wider">Vista Previa — revisa y edita antes de confirmar</h4>
+                        <span id="quickload-count" class="text-xs font-black text-brand-amber"></span>
+                    </div>
+                    <div id="quickload-preview-list" class="space-y-3"></div>
+                    <button onclick="confirmarCargaRapidaLote()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform mt-2">
+                        <i class="fa-solid fa-check-double mr-2"></i>CONFIRMAR LOTE COMPLETO (<span id="quickload-selected-count">0</span>)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1543,6 +1564,210 @@
             document.getElementById('horse-names-preview').classList.add('hidden');
             document.getElementById('horse-names-input').value = '';
         }
+
+        // ===================== CARGA RÁPIDA POR BLOQUES =====================
+        function limpiarLineaANumeros(linea) {
+            const matches = (linea || '').match(/\d+/g);
+            return matches ? matches.map(Number) : [];
+        }
+
+        function resolverNombreUnico(nombreBase, nombresUsadosLote) {
+            const yaExiste = (n) => appState.users.some(u => u.name === n) || nombresUsadosLote.has(n);
+            if (!yaExiste(nombreBase)) { nombresUsadosLote.add(nombreBase); return nombreBase; }
+            let contador = 2;
+            let candidato = `${nombreBase} ${String(contador).padStart(2, '0')}`;
+            while (yaExiste(candidato)) { contador++; candidato = `${nombreBase} ${String(contador).padStart(2, '0')}`; }
+            nombresUsadosLote.add(candidato);
+            return candidato;
+        }
+
+        function buscarSustitutoValido(race, numeroBase, otrosPicks, scratchedSet, total) {
+            for (let paso = 1; paso <= total; paso++) {
+                let candidato = numeroBase + paso;
+                if (candidato > total) candidato -= total;
+                if (candidato < 1) candidato += total;
+                if (scratchedSet.includes(candidato)) continue;
+                if (otrosPicks.includes(candidato)) continue;
+                return candidato;
+            }
+            return null;
+        }
+
+        function parseQuickLoadText(text) {
+            const lineas = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const bloques = [];
+            for (let i = 0; i < lineas.length; i += 7) bloques.push(lineas.slice(i, i + 7));
+
+            return bloques.map(bloque => {
+                if (bloque.length < 7) {
+                    return { incompleto: true, nombre: bloque[0] || '', races: [[], [], [], [], [], []] };
+                }
+                const analizadas = bloque.map(l => ({ texto: l, numeros: limpiarLineaANumeros(l) }));
+                const candidatasNombre = analizadas.filter(a => a.numeros.length !== 3);
+                if (candidatasNombre.length !== 1) {
+                    return { incompleto: true, nombre: bloque[0] || '', races: analizadas.slice(1).map(a => a.numeros) };
+                }
+                const nombreLinea = candidatasNombre[0];
+                const races = analizadas.filter(a => a !== nombreLinea).map(a => a.numeros);
+                return { incompleto: false, nombre: nombreLinea.texto, races };
+            });
+        }
+
+        window.procesarCargaRapida = function() {
+            const text = document.getElementById('quickload-input').value;
+            if (!text.trim()) return alert("⚠️ Pega al menos un bloque de jugada.");
+            const bloques = parseQuickLoadText(text);
+            const nombresUsadosLote = new Set();
+
+            const resultado = bloques.map(bloque => {
+                const avisos = [];
+                if (bloque.incompleto) avisos.push('No se pudo interpretar este bloque con confianza (¿faltan o sobran líneas?). Revisa nombre y números manualmente.');
+                const nombreFinal = resolverNombreUnico((bloque.nombre || 'SIN NOMBRE').toUpperCase().trim() || 'SIN NOMBRE', nombresUsadosLote);
+
+                const racesFinal = [];
+                for (let r = 1; r <= 6; r++) {
+                    const total = appState.raceConfig[r];
+                    const scratchedSet = appState.scratched[r];
+                    let picks = (bloque.races[r - 1] || []).slice(0, 3);
+                    while (picks.length < 3) picks.push(null);
+                    const finalesRace = [];
+                    for (const valor of picks) {
+                        const invalido = valor === null || valor < 1 || valor > total || scratchedSet.includes(valor) || finalesRace.includes(valor);
+                        if (invalido) {
+                            const base = valor === null ? 0 : valor;
+                            const sustituto = buscarSustitutoValido(r, base, finalesRace, scratchedSet, total);
+                            if (sustituto !== null) {
+                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : '#' + valor + ' inválido/retirado'} → se asignó #${sustituto} automáticamente`);
+                                finalesRace.push(sustituto);
+                            } else {
+                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : '#' + valor} sin sustituto disponible — revisar manualmente`);
+                                finalesRace.push(valor || 0);
+                            }
+                        } else {
+                            finalesRace.push(valor);
+                        }
+                    }
+                    racesFinal.push(finalesRace);
+                }
+                return { nombre: nombreFinal, races: racesFinal, avisos, incompleto: bloque.incompleto };
+            });
+
+            window.__quickloadData = resultado;
+            renderQuickloadPreview(resultado);
+        }
+
+        function renderQuickloadPreview(data) {
+            const container = document.getElementById('quickload-preview-list');
+            document.getElementById('quickload-preview-container').classList.remove('hidden');
+            document.getElementById('quickload-count').textContent = `${data.length} jugador(es) detectado(s)`;
+            container.innerHTML = data.map((item, idx) => {
+                const avisosHtml = item.avisos.length > 0
+                    ? `<div class="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-[11px] text-yellow-400 space-y-0.5">${item.avisos.map(a => `<p>⚠️ ${a}</p>`).join('')}</div>`
+                    : '';
+                const racesInputs = item.races.map((r, i) => `
+                    <div>
+                        <label class="block text-[9px] font-black text-gray-500 mb-0.5 uppercase">${i + 1}ª V.</label>
+                        <input type="text" id="ql-race-${idx}-${i + 1}" value="${r.join(',')}" class="w-full glass-input rounded-lg px-2 py-1.5 text-center font-black text-xs">
+                    </div>`).join('');
+                return `
+                <div class="p-3 rounded-xl border ${item.incompleto ? 'border-red-500/40 bg-red-500/5' : 'border-white/10 bg-white/5'}" id="ql-block-${idx}" data-cargado="0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="ql-check-${idx}" ${item.incompleto ? '' : 'checked'} onchange="actualizarQuickloadSelectedCount()" class="w-4 h-4 accent-brand-orange flex-shrink-0">
+                        <input type="text" id="ql-name-${idx}" value="${item.nombre}" class="flex-1 glass-input rounded-lg px-3 py-2 text-sm font-black uppercase">
+                        <button onclick="cargarBloqueIndividual(${idx})" class="bg-brand-orange/20 hover:bg-brand-orange/40 text-brand-orange text-[10px] font-black px-2 py-2 rounded-lg whitespace-nowrap flex-shrink-0">Cargar solo éste</button>
+                    </div>
+                    ${item.incompleto ? '<p class="text-[11px] text-red-400 mb-2">⚠️ Bloque no interpretado con confianza — revisa nombre y números antes de incluirlo.</p>' : ''}
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-2">${racesInputs}</div>
+                    ${avisosHtml}
+                </div>`;
+            }).join('');
+            actualizarQuickloadSelectedCount();
+        }
+
+        window.actualizarQuickloadSelectedCount = function() {
+            const total = window.__quickloadData ? window.__quickloadData.length : 0;
+            let count = 0;
+            for (let i = 0; i < total; i++) {
+                const chk = document.getElementById(`ql-check-${i}`);
+                if (chk && chk.checked) count++;
+            }
+            document.getElementById('quickload-selected-count').textContent = count;
+        }
+
+        async function guardarJugadaCargaRapida(idx) {
+            const nameInput = document.getElementById(`ql-name-${idx}`);
+            if (!nameInput) return null;
+            let nombre = nameInput.value.trim().toUpperCase();
+            if (!nombre) { alert('⚠️ El bloque no tiene nombre, no se puede cargar.'); return null; }
+
+            if (appState.users.some(u => u.name === nombre)) {
+                let contador = 2;
+                let candidato = `${nombre} ${String(contador).padStart(2, '0')}`;
+                while (appState.users.some(u => u.name === candidato)) { contador++; candidato = `${nombre} ${String(contador).padStart(2, '0')}`; }
+                const usar = confirm(`⚠️ El apodo "${nombre}" ya existe.\n\n¿Usar "${candidato}" en su lugar?`);
+                if (!usar) return null;
+                nombre = candidato;
+            }
+
+            const picks = {};
+            for (let r = 1; r <= 6; r++) {
+                const input = document.getElementById(`ql-race-${idx}-${r}`);
+                const numeros = limpiarLineaANumeros(input.value);
+                if (numeros.length !== 3) { alert(`⚠️ La ${r}ª Válida de "${nombre}" no tiene exactamente 3 números. Corrígela antes de cargar.`); return null; }
+                picks[r] = numeros;
+            }
+
+            const originalPicksSnapshot = JSON.parse(JSON.stringify(picks));
+            try {
+                const docRef = await addDoc(collection(db, "usuarios"), {
+                    name: nombre, picks, originalPicks: originalPicksSnapshot, paid: false, createdAt: new Date().toISOString()
+                });
+                appState.users.push({ id: docRef.id, name: nombre, picks, originalPicks: originalPicksSnapshot, paid: false });
+                saveUsersToLocalStorage();
+                return nombre;
+            } catch (error) {
+                console.error("❌ Error cargando jugada rápida:", error);
+                alert(`⚠️ Error al guardar la jugada de "${nombre}".`);
+                return null;
+            }
+        }
+
+        window.cargarBloqueIndividual = async function(idx) {
+            const nombre = await guardarJugadaCargaRapida(idx);
+            if (!nombre) return;
+            const block = document.getElementById(`ql-block-${idx}`);
+            block.dataset.cargado = '1';
+            block.style.opacity = '0.4';
+            block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
+            renderAdminEditList();
+            alert(`✅ Jugada de "${nombre}" cargada con éxito.`);
+        }
+
+        window.confirmarCargaRapidaLote = async function() {
+            const total = window.__quickloadData ? window.__quickloadData.length : 0;
+            if (total === 0) return alert("⚠️ Primero procesa un lote de bloques.");
+            const cargados = [];
+            const saltados = [];
+            for (let i = 0; i < total; i++) {
+                const chk = document.getElementById(`ql-check-${i}`);
+                const block = document.getElementById(`ql-block-${i}`);
+                if (!chk || !chk.checked || !block || block.dataset.cargado === '1') continue;
+                const nombre = await guardarJugadaCargaRapida(i);
+                if (nombre) {
+                    cargados.push(nombre);
+                    block.dataset.cargado = '1';
+                    block.style.opacity = '0.4';
+                    block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
+                } else {
+                    saltados.push(i);
+                }
+            }
+            renderAdminEditList();
+            let msg = `✅ Lote procesado.\n\nCargados (${cargados.length}):\n${cargados.map(n => '• ' + n).join('\n')}`;
+            if (saltados.length > 0) msg += `\n\n⚠️ ${saltados.length} bloque(s) quedaron sin cargar (corrígelos o usa "Cargar solo éste" de nuevo).`;
+            alert(msg);
+        }
+        // =================== FIN CARGA RÁPIDA POR BLOQUES ===================
 
         window.generateInitialReport = function() {
             const completeUsers = appState.users.filter(u => {
