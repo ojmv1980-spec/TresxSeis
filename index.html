@@ -1621,6 +1621,7 @@
 
             const resultado = bloques.map(bloque => {
                 const avisos = [];
+                const sustituciones = [];
                 if (bloque.incompleto) avisos.push('No se pudo interpretar este bloque con confianza (¿faltan o sobran líneas?). Revisa nombre y números manualmente.');
                 const nombreFinal = resolverNombreUnico((bloque.nombre || 'SIN NOMBRE').toUpperCase().trim() || 'SIN NOMBRE', nombresUsadosLote);
 
@@ -1638,6 +1639,7 @@
                             const sustituto = buscarSustitutoValido(r, base, finalesRace, scratchedSet, total);
                             if (sustituto !== null) {
                                 avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : '#' + valor + ' inválido/retirado'} → se asignó #${sustituto} automáticamente`);
+                                sustituciones.push({ carrera: r, de: valor === null ? 0 : valor, a: sustituto });
                                 finalesRace.push(sustituto);
                             } else {
                                 avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : '#' + valor} sin sustituto disponible — revisar manualmente`);
@@ -1649,7 +1651,7 @@
                     }
                     racesFinal.push(finalesRace);
                 }
-                return { nombre: nombreFinal, races: racesFinal, avisos, incompleto: bloque.incompleto };
+                return { nombre: nombreFinal, races: racesFinal, avisos, sustituciones, incompleto: bloque.incompleto };
             });
 
             window.__quickloadData = resultado;
@@ -1724,6 +1726,17 @@
                 });
                 appState.users.push({ id: docRef.id, name: nombre, picks, originalPicks: originalPicksSnapshot, paid: false });
                 saveUsersToLocalStorage();
+
+                const item = window.__quickloadData ? window.__quickloadData[idx] : null;
+                if (item && item.sustituciones && item.sustituciones.length > 0) {
+                    const fecha = new Date().toISOString();
+                    const nuevasEntradas = item.sustituciones.map(s => ({
+                        jugador: nombre, userId: docRef.id, carrera: s.carrera, de: s.de, a: s.a, fecha, error: false
+                    }));
+                    appState.reasignaciones = [...nuevasEntradas, ...appState.reasignaciones];
+                    await saveConfigToFirebase();
+                    renderReassignLog();
+                }
                 return nombre;
             } catch (error) {
                 console.error("❌ Error cargando jugada rápida:", error);
