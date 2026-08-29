@@ -244,6 +244,25 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="mt-6 p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+                    <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>Log de Retiros Tardíos (por Válida)
+                    </h4>
+                    <p class="text-[11px] text-gray-500 mb-2">Solo retiros marcados en esta sección, separados por válida — no incluye sustituciones de Carga Rápida ni del registro.</p>
+                    <div id="retiros-log-por-valida" class="space-y-3 max-h-64 overflow-y-auto pr-1 text-xs"></div>
+                    <button onclick="generateRetirosTardiosReport()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                        <i class="fa-solid fa-file-lines mr-2"></i>GENERAR REPORTE PARA WHATSAPP
+                    </button>
+                    <div id="retiros-report-container" class="hidden mt-3">
+                        <div id="retiros-report-preview" class="whatsapp-preview border border-red-500/30"></div>
+                        <div id="retiros-report-counter"></div>
+                        <div id="retiros-report-split"></div>
+                        <button onclick="copyRetirosTardiosReport()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR LOG DE RETIROS
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div id="adm-resultados" class="adm-content hidden">
@@ -605,6 +624,7 @@
                 renderHistorialAcumulados();
                 renderModoRankingBtn();
                 renderReassignLog();
+                renderRetirosTardiosPorValida();
                 const precioInput = document.getElementById('config-precio');
                 if (precioInput) precioInput.value = appState.precioJugada || 800;
             }
@@ -767,7 +787,7 @@
                         const fecha = new Date().toISOString();
                         const nuevasEntradas = subs.map(s => ({
                             jugador: appState.currentUser.name, userId: docRef.id,
-                            carrera: s.race, de: s.de, a: s.a, fecha, error: false
+                            carrera: s.race, de: s.de, a: s.a, fecha, error: false, origen: 'registro'
                         }));
                         appState.reasignaciones = [...nuevasEntradas, ...appState.reasignaciones];
                         await saveConfigToFirebase();
@@ -968,7 +988,7 @@
                 }
                 const fecha = new Date().toISOString();
                 if (sustituto === null) {
-                    cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: null, fecha, error: true });
+                    cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: null, fecha, error: true, origen: 'retiro' });
                     continue;
                 }
                 const idx = picks.indexOf(horseRetirado);
@@ -978,7 +998,7 @@
                 } catch (error) {
                     console.error("❌ Error reasignando jugada:", error);
                 }
-                cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: sustituto, fecha, error: false, revertido: false });
+                cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: sustituto, fecha, error: false, revertido: false, origen: 'retiro' });
             }
             appState.reasignaciones = [...cambios, ...appState.reasignaciones];
             saveUsersToLocalStorage();
@@ -991,7 +1011,7 @@
         async function revertirReasignacionesPorRetiro(race, horseRestaurado) {
             const scratchedSet = appState.scratched[race];
             const pendientes = appState.reasignaciones.filter(r =>
-                r.carrera === race && r.de === horseRestaurado && !r.error && !r.revertido && !r.tipo
+                r.carrera === race && r.de === horseRestaurado && !r.error && !r.revertido && !r.tipo && r.origen === 'retiro'
             );
             if (pendientes.length === 0) return [];
 
@@ -1011,7 +1031,7 @@
 
                 const fecha = new Date().toISOString();
                 if (!esSeguro) {
-                    reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: true, tipo: 'reversion' });
+                    reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: true, tipo: 'reversion', origen: 'retiro' });
                     continue;
                 }
                 picks[idx] = entry.de;
@@ -1021,7 +1041,7 @@
                     console.error("❌ Error revirtiendo reasignación:", error);
                 }
                 entry.revertido = true;
-                reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: false, tipo: 'reversion' });
+                reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: false, tipo: 'reversion', origen: 'retiro' });
             }
             appState.reasignaciones = [...reversiones, ...appState.reasignaciones];
             saveUsersToLocalStorage();
@@ -1095,6 +1115,85 @@
             }
         }
 
+        // ============ LOG INDEPENDIENTE: SOLO RETIROS TARDÍOS, SEPARADO POR VÁLIDA ============
+        window.renderRetirosTardiosPorValida = function() {
+            const container = document.getElementById('retiros-log-por-valida');
+            if (!container) return;
+            const log = (appState.reasignaciones || []).filter(item => item.origen === 'retiro');
+            if (log.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-3">Sin retiros tardíos registrados todavía.</p>';
+                return;
+            }
+            let html = '';
+            for (let r = 1; r <= 6; r++) {
+                const items = log.filter(item => item.carrera === r).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+                if (items.length === 0) continue;
+                html += `<div><p class="font-black text-brand-amber mb-1">${r}ª VÁLIDA</p><div class="space-y-1">`;
+                items.forEach(item => {
+                    if (item.tipo === 'reversion' && item.error) {
+                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">⚠️ no se pudo revertir #${item.de}→#${item.a}</span></div>`;
+                    } else if (item.tipo === 'reversion') {
+                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ #${item.de} → #${item.a}</span></div>`;
+                    } else if (item.error) {
+                        html += `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">#${item.de} → ⚠️ sin sustituto</span></div>`;
+                    } else {
+                        html += `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">#${item.de} → #${item.a}</span></div>`;
+                    }
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html || '<p class="text-gray-500 text-center py-3">Sin retiros tardíos registrados todavía.</p>';
+        }
+
+        window.generateRetirosTardiosReport = function() {
+            const log = (appState.reasignaciones || []).filter(item => item.origen === 'retiro');
+            if (log.length === 0) return alert("⚠️ No hay retiros tardíos registrados todavía.");
+            let msg = '🐎 *RETIROS TARDÍOS DEL DÍA*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            for (let r = 1; r <= 6; r++) {
+                const items = log.filter(item => item.carrera === r).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                if (items.length === 0) continue;
+                msg += `\n*${r}ª VÁLIDA*\n`;
+                items.forEach(item => {
+                    if (item.tipo === 'reversion' && item.error) {
+                        msg += `*${item.jugador}*  — ⚠️ no se pudo revertir #${item.de} --> #${item.a}\n`;
+                    } else if (item.tipo === 'reversion') {
+                        msg += `*${item.jugador}*  — ↩️ #${item.de} --> #${item.a}\n`;
+                    } else if (item.error) {
+                        msg += `*${item.jugador}*  — ⚠️ #${item.de} sin sustituto\n`;
+                    } else {
+                        msg += `*${item.jugador}*  — #${item.de} --> #${item.a}\n`;
+                    }
+                });
+            }
+            msg += '\n━━━━━━━━━━━━━━━━━━━';
+
+            const preview = document.getElementById('retiros-report-preview');
+            preview.textContent = msg;
+            document.getElementById('retiros-report-container').classList.remove('hidden');
+            window.lastRetirosReport = msg;
+            actualizarContadorCaracteres(msg, 'retiros-report-counter', 'retiros-report-split');
+            document.getElementById('retiros-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyRetirosTardiosReport = async function() {
+            if (!window.lastRetirosReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastRetirosReport);
+                alert("✅ ¡Log de retiros copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastRetirosReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Log de retiros copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // ========== FIN LOG INDEPENDIENTE DE RETIROS TARDÍOS ==========
+
         window.toggleScratch = async function(race, horse) {
             const arr = appState.scratched[race];
             const idx = arr.indexOf(horse);
@@ -1116,6 +1215,7 @@
             renderAdminScratch();
             renderAdminEditList();
             renderReassignLog();
+            renderRetirosTardiosPorValida();
             if (appState.currentUser) renderUserBoard();
 
             if (cambios.length > 0) {
@@ -1773,11 +1873,12 @@
                 if (item && item.sustituciones && item.sustituciones.length > 0) {
                     const fecha = new Date().toISOString();
                     const nuevasEntradas = item.sustituciones.map(s => ({
-                        jugador: nombre, userId: docRef.id, carrera: s.carrera, de: s.de, a: s.a, fecha, error: false
+                        jugador: nombre, userId: docRef.id, carrera: s.carrera, de: s.de, a: s.a, fecha, error: false, origen: 'carga-rapida'
                     }));
                     appState.reasignaciones = [...nuevasEntradas, ...appState.reasignaciones];
                     await saveConfigToFirebase();
                     renderReassignLog();
+                    renderRetirosTardiosPorValida();
                 }
                 return nombre;
             } catch (error) {
@@ -2116,6 +2217,7 @@
                 renderAdminEditList();
                 renderHistorialAcumulados();
                 renderReassignLog();
+                renderRetirosTardiosPorValida();
                 
                 alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\nEl historial de acumulados y el monto por jugada se mantuvieron intactos. El listado de ejemplares y el historial de reasignaciones se reiniciaron para la nueva jornada.");
                 goHome();
