@@ -232,6 +232,14 @@
                         <i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Reasignaciones (Retiros Tardíos)
                     </h4>
                     <div id="reassign-log" class="space-y-1 max-h-52 overflow-y-auto pr-1 text-xs"></div>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <button onclick="limpiarLogsHuerfanos()" class="bg-yellow-600/80 hover:bg-yellow-500 text-white font-black py-2.5 rounded-xl transition-all text-xs">
+                            <i class="fa-solid fa-broom mr-1"></i>LIMPIAR HUÉRFANOS
+                        </button>
+                        <button onclick="vaciarTodoElHistorial()" class="bg-red-700/80 hover:bg-red-600 text-white font-black py-2.5 rounded-xl transition-all text-xs">
+                            <i class="fa-solid fa-trash mr-1"></i>VACIAR TODO
+                        </button>
+                    </div>
                     <button onclick="generateReassignReport()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-white font-black py-2.5 rounded-xl transition-all text-sm">
                         <i class="fa-solid fa-file-lines mr-2"></i>GENERAR REPORTE PARA WHATSAPP
                     </button>
@@ -1561,6 +1569,57 @@
                 console.error("❌ Error eliminando jugada:", error);
                 alert("⚠️ Error al eliminar la jugada.");
             }
+        }
+
+        // Elimina automáticamente las entradas del log cuyo jugador ya no existe
+        // (fue borrado antes de que el borrado limpiara también el log, o de pruebas viejas).
+        window.limpiarLogsHuerfanos = async function() {
+            const huerfanas = appState.reasignaciones.filter(r => {
+                const existe = r.userId
+                    ? appState.users.some(u => u.id === r.userId)
+                    : appState.users.some(u => u.name === r.jugador);
+                return !existe;
+            });
+
+            if (huerfanas.length === 0) {
+                alert("✅ No hay entradas huérfanas — el log está limpio.");
+                return;
+            }
+
+            const nombresUnicos = [...new Set(huerfanas.map(h => h.jugador))];
+            const confirmar = confirm(
+                `🧹 Se encontraron ${huerfanas.length} entrada(s) huérfana(s) de jugador(es) que ya no existen:\n\n` +
+                nombresUnicos.map(n => `• ${n}`).join('\n') +
+                `\n\n¿Eliminarlas del log?`
+            );
+            if (!confirmar) return;
+
+            appState.reasignaciones = appState.reasignaciones.filter(r => {
+                const existe = r.userId
+                    ? appState.users.some(u => u.id === r.userId)
+                    : appState.users.some(u => u.name === r.jugador);
+                return existe;
+            });
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+            alert(`✅ Se eliminaron ${huerfanas.length} entrada(s) huérfana(s) del log.`);
+        }
+
+        // Vacía por completo el historial de reasignaciones (ambos logs, ya que comparten los mismos datos).
+        window.vaciarTodoElHistorial = async function() {
+            if (appState.reasignaciones.length === 0) {
+                alert("✅ El historial ya está vacío.");
+                return;
+            }
+            if (!confirm(`⚠️ Esto eliminará PERMANENTEMENTE las ${appState.reasignaciones.length} entrada(s) de AMBOS logs (Historial general y Retiros Tardíos por Válida).\n\n¿Continuar?`)) return;
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nEsta acción no se puede deshacer.\n\n¿Vaciar todo el historial de reasignaciones?`)) return;
+
+            appState.reasignaciones = [];
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+            alert("✅ Historial vaciado por completo.");
         }
 
         function contarJugadasCompletas() {
