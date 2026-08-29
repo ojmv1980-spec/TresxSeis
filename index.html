@@ -678,7 +678,14 @@
                 totalPicks += userPicks.length;
                 let horsesHtml = '';
                 for (let i = 1; i <= totalHorses; i++) {
-                    if (scratched.includes(i)) continue;
+                    if (scratched.includes(i)) {
+                        const subs = appState.currentUser._scratchSubs || [];
+                        const activo = subs.find(s => s.race === race && s.de === i);
+                        const tieneActivo = !!(activo && userPicks.includes(activo.a));
+                        const isDisabledScratched = !tieneActivo && userPicks.length >= 3;
+                        horsesHtml += `<button onclick="window.togglePick(${race}, ${i})" title="Retirado — al tocarlo se asigna automáticamente el siguiente válido" class="horse-btn w-11 h-11 rounded-xl font-black text-sm border flex items-center justify-center bg-red-500/10 border-red-500/40 text-red-400/80 line-through ${tieneActivo ? 'ring-2 ring-brand-amber' : ''} ${isDisabledScratched ? 'opacity-30 cursor-not-allowed' : ''}">${i}</button>`;
+                        continue;
+                    }
                     const isSelected = userPicks.includes(i);
                     const isDisabled = !isSelected && userPicks.length >= 3;
                     horsesHtml += `<button onclick="window.togglePick(${race}, ${i})" class="horse-btn w-11 h-11 rounded-xl font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300'} ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}">${i}</button>`;
@@ -704,7 +711,29 @@
         }
 
         window.togglePick = function(race, horse) {
+            const scratchedSet = appState.scratched[race];
             const picks = appState.currentUser.picks[race];
+
+            if (scratchedSet.includes(horse)) {
+                if (!appState.currentUser._scratchSubs) appState.currentUser._scratchSubs = [];
+                const subs = appState.currentUser._scratchSubs;
+                const existente = subs.find(s => s.race === race && s.de === horse);
+
+                if (existente && picks.includes(existente.a)) {
+                    picks.splice(picks.indexOf(existente.a), 1);
+                    subs.splice(subs.indexOf(existente), 1);
+                } else if (picks.length < 3) {
+                    const total = appState.raceConfig[race];
+                    const sustituto = buscarSustitutoValido(race, horse, picks, scratchedSet, total);
+                    if (sustituto !== null) {
+                        picks.push(sustituto);
+                        subs.push({ race, de: horse, a: sustituto });
+                    }
+                }
+                renderUserBoard();
+                return;
+            }
+
             const index = picks.indexOf(horse);
             if (index > -1) picks.splice(index, 1);
             else if (picks.length < 3) picks.push(horse);
@@ -732,6 +761,19 @@
                     });
                     appState.currentUser.id = docRef.id;
                     appState.currentUser.originalPicks = originalPicksSnapshot;
+
+                    const subs = appState.currentUser._scratchSubs;
+                    if (subs && subs.length > 0) {
+                        const fecha = new Date().toISOString();
+                        const nuevasEntradas = subs.map(s => ({
+                            jugador: appState.currentUser.name, userId: docRef.id,
+                            carrera: s.race, de: s.de, a: s.a, fecha, error: false
+                        }));
+                        appState.reasignaciones = [...nuevasEntradas, ...appState.reasignaciones];
+                        await saveConfigToFirebase();
+                    }
+                    delete appState.currentUser._scratchSubs;
+
                     appState.users.push(appState.currentUser);
                     saveUsersToLocalStorage();
                     alert("✅ ¡Jugada enviada con éxito!");
@@ -1017,18 +1059,17 @@
             msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             [...log].reverse().forEach(item => {
-                const fecha = new Date(item.fecha).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                 if (item.tipo === 'reversion') {
                     msg += item.error
-                        ? `${item.carrera}ª V.: ⚠️ no se pudo revertir #${item.de}→#${item.a} — *${item.jugador}* (${fecha})\n`
-                        : `${item.carrera}ª V.: ↩️ #${item.de} → #${item.a} — *${item.jugador}* (${fecha})\n`;
+                        ? `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: no se pudo revertir #${item.de} --> #${item.a}\n\n`
+                        : `*${item.jugador}*  — ↩️ ${item.carrera}ª V.: #${item.de} --> #${item.a}\n\n`;
                 } else if (item.error) {
-                    msg += `${item.carrera}ª V.: ⚠️ #${item.de} sin sustituto — *${item.jugador}* (${fecha})\n`;
+                    msg += `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: #${item.de} sin sustituto\n\n`;
                 } else {
-                    msg += `${item.carrera}ª V.: #${item.de} → #${item.a} — *${item.jugador}* (${fecha})\n`;
+                    msg += `*${item.jugador}*  — ${item.carrera}ª V.: #${item.de} --> #${item.a}\n\n`;
                 }
             });
-            msg += '\n━━━━━━━━━━━━━━━━━━━';
+            msg += '━━━━━━━━━━━━━━━━━━━';
 
             const preview = document.getElementById('reassign-report-preview');
             preview.textContent = msg;
@@ -1656,6 +1697,7 @@
 
             window.__quickloadData = resultado;
             renderQuickloadPreview(resultado);
+            document.getElementById('quickload-input').value = '';
         }
 
         function renderQuickloadPreview(data) {
@@ -1885,7 +1927,12 @@
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
-            
+            // Si es el resultado final (6ª válida) SIN ganadores, el premio semanal de hoy
+            // ya quedó incluido dentro de acumuladoTotal (se sumó al guardar el resultado),
+            // así que el total a mostrar es acumuladoTotal tal cual, sin volver a sumarlo.
+            const noHuboGanadoresFinal = (currentRace === 6 && aliveUsers.length === 0);
+            const premioTotalMostrado = noHuboGanadoresFinal ? acumuladoTotal : premioTotal;
+
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1900,7 +1947,7 @@
                 msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
                 msg += `💰 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
                 msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
-                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotalMostrado)}\n\n`;
             } else {
                 msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
                 msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioSemanal)}\n\n`;
@@ -1969,7 +2016,7 @@
                     msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
                 } else {
                     msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
-                    msg += `El premio de *${formatearBs(premioTotal)}* queda acumulado para la próxima semana.\n\n`;
+                    msg += `El premio de *${formatearBs(premioTotalMostrado)}* queda acumulado para la próxima semana.\n\n`;
                     msg += '🐎 *¡Gracias por participar!* 🐎\n\n';
                     msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
                 }
