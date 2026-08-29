@@ -1544,6 +1544,17 @@
                 await deleteDoc(doc(db, "usuarios", userId));
                 await loadUsersFromFirebase();
                 saveUsersToLocalStorage();
+
+                const antes = appState.reasignaciones.length;
+                appState.reasignaciones = appState.reasignaciones.filter(r =>
+                    r.userId ? r.userId !== userId : r.jugador !== userName
+                );
+                if (appState.reasignaciones.length !== antes) {
+                    await saveConfigToFirebase();
+                    renderReassignLog();
+                    renderRetirosTardiosPorValida();
+                }
+
                 alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible.`);
                 renderAdminEditList();
             } catch (error) {
