@@ -217,6 +217,24 @@
                     <div id="horse-names-preview" class="mt-3 hidden"></div>
                 </div>
 
+                <div class="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-green-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-comment-dots mr-2"></i>MENSAJE DE BIENVENIDA
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Genera el mensaje de bienvenida de la jornada con válidas, ejemplares inscritos, retirados y el acumulado — listo para pegar en WhatsApp.</p>
+                    <button onclick="generateWelcomeMessage()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> GENERAR MENSAJE DE BIENVENIDA
+                    </button>
+                    <div id="welcome-report-container" class="hidden mt-3">
+                        <div id="welcome-report-preview" class="whatsapp-preview border border-green-500/30"></div>
+                        <div id="welcome-report-counter"></div>
+                        <div id="welcome-report-split"></div>
+                        <button onclick="copyWelcomeMessage()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR MENSAJE
+                        </button>
+                    </div>
+                </div>
+
                 <button onclick="saveRaceConfig()" class="w-full mt-6 bg-brand-amber text-black font-black py-3 rounded-xl active:scale-95 transition-transform">
                     <i class="fa-solid fa-save mr-2"></i>GUARDAR CONFIGURACIÓN
                 </button>
@@ -365,6 +383,17 @@
                         <i class="fa-solid fa-triangle-exclamation mr-1"></i>
                         ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
                     </p>
+                </div>
+
+                <div class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i>VERIFICAR DUPLICADOS
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Busca apodos exactamente iguales (no confundir con sufijos como "02", "03" que son distintos a propósito).</p>
+                    <button onclick="verificarNombresDuplicados()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> VERIFICAR DUPLICADOS
+                    </button>
+                    <div id="duplicados-resultado" class="mt-3 space-y-3"></div>
                 </div>
                 
                 <div class="mb-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
@@ -661,9 +690,9 @@
         }
 
         window.registerUser = async function() {
-            const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
+            let nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
             if (!nick) return alert("⚠️ Ingresa un apodo.");
-            
+
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
                 let suggestedName = nick;
@@ -672,12 +701,10 @@
                     suggestedName = `${nick} ${String(counter).padStart(2, '0')}`;
                     counter++;
                 }
-                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
-                if (useSuggested) {
-                    document.getElementById('reg-nickname').value = suggestedName;
-                    return;
-                }
-                return;
+                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar y CONTINUAR?`);
+                if (!useSuggested) return;
+                nick = suggestedName;
+                document.getElementById('reg-nickname').value = nick;
             }
 
             const newUser = { 
@@ -768,7 +795,11 @@
             renderUserBoard();
         }
 
+        let envioJugadaEnCurso = false;
+
         window.submitBet = async function() {
+            if (envioJugadaEnCurso) return; // ya hay un envío en curso — ignora toques adicionales
+
             let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
                 const picks = appState.currentUser.picks[r];
@@ -778,7 +809,27 @@
             resumen += '\n¿Confirmas el envío de estas selecciones?';
             
             if (confirm(resumen)) {
+                envioJugadaEnCurso = true;
+                const btn = document.getElementById('btn-submit');
+                const textoOriginalBtn = btn ? btn.innerHTML : '';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ENVIANDO...';
+                }
                 try {
+                    // Última verificación, justo antes de guardar: trae la lista más fresca posible
+                    // de Firebase (no la copia local, que puede estar desactualizada si otro celular
+                    // registró el mismo apodo hace unos segundos) y, si ya existe, asigna sufijo.
+                    await loadUsersFromFirebase();
+                    if (appState.users.some(u => u.name === appState.currentUser.name)) {
+                        let contador = 2;
+                        let candidato = `${appState.currentUser.name} ${String(contador).padStart(2, '0')}`;
+                        while (appState.users.some(u => u.name === candidato)) { contador++; candidato = `${appState.currentUser.name} ${String(contador).padStart(2, '0')}`; }
+                        alert(`⚠️ Justo ahora otra persona registró el apodo "${appState.currentUser.name}".\n\nPara evitar duplicados, tu jugada se guardará como "${candidato}".`);
+                        appState.currentUser.name = candidato;
+                        document.getElementById('display-nickname').textContent = candidato;
+                    }
+
                     const originalPicksSnapshot = JSON.parse(JSON.stringify(appState.currentUser.picks));
                     const docRef = await addDoc(collection(db, "usuarios"), {
                         name: appState.currentUser.name,
@@ -809,6 +860,12 @@
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
                     alert("⚠️ Error al guardar.");
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = textoOriginalBtn;
+                    }
+                } finally {
+                    envioJugadaEnCurso = false;
                 }
             }
         }
@@ -850,14 +907,22 @@
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
-            
+            // ¿Ya se empujó el acumulado de HOY al historial? (ocurre al guardar el resultado
+            // de la 6ª válida sin ganadores). Si ya ocurrió, acumuladoTotal YA incluye el premio
+            // de hoy y no hay que volver a sumarlo. Si aún no ocurrió (ej. quedan 0 vivos desde
+            // antes de la 6ª válida, pero el resultado final no se ha guardado), hay que mostrar
+            // la proyección completa: lo de hoy + lo acumulado previamente.
+            const hoyISO = new Date().toISOString().split('T')[0];
+            const yaAcumuladoHoy = appState.historialAcumulados.some(item => item.fecha === hoyISO);
+            const premioProyectado = yaAcumuladoHoy ? acumuladoTotal : premioTotal;
+
             if (currentRace > 0) {
                 const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `Ganadores: ${aliveUsers.length}` : `Vivos: ${aliveUsers.length}`;
                 let premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio Semanal: ${formatearBs(premioSemanal)}</p>`;
                 if (acumuladoTotal > 0) {
                     premioHtml += `<p class="text-xs text-amber-400 font-bold">🏆 Premio Acumulado: ${formatearBs(acumuladoTotal)}</p>`;
                 }
-                premioHtml += `<p class="text-xs text-blue-400 font-bold">🎯 Premio Total: ${formatearBs(premioTotal)}</p>`;
+                premioHtml += `<p class="text-xs text-blue-400 font-bold">🎯 Premio Total: ${formatearBs(aliveUsers.length === 0 ? premioProyectado : premioTotal)}</p>`;
                 
                 list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4">
                     <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
@@ -874,7 +939,7 @@
                             <span class="text-5xl block mb-3">🏆</span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
-                            <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(acumuladoTotal)}</p>
+                            <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premioProyectado)}</p>
                         </div>
                     </div>
                 `;
@@ -1622,6 +1687,95 @@
             alert("✅ Historial vaciado por completo.");
         }
 
+        // ================= VERIFICAR NOMBRES DUPLICADOS =================
+        function picksIguales(a, b) {
+            for (let r = 1; r <= 6; r++) {
+                const pa = [...(a.picks[r] || [])].sort((x, y) => x - y);
+                const pb = [...(b.picks[r] || [])].sort((x, y) => x - y);
+                if (JSON.stringify(pa) !== JSON.stringify(pb)) return false;
+            }
+            return true;
+        }
+
+        window.verificarNombresDuplicados = function() {
+            const grupos = {};
+            appState.users.forEach(u => {
+                if (!grupos[u.name]) grupos[u.name] = [];
+                grupos[u.name].push(u);
+            });
+            const duplicados = Object.entries(grupos).filter(([, arr]) => arr.length > 1);
+            const container = document.getElementById('duplicados-resultado');
+
+            if (duplicados.length === 0) {
+                container.innerHTML = '<p class="text-green-400 text-sm text-center py-3"><i class="fa-solid fa-circle-check mr-1"></i>No se encontraron apodos duplicados. Todo limpio.</p>';
+                return;
+            }
+
+            let html = `<p class="text-xs text-gray-400 mb-1">Se encontraron ${duplicados.length} apodo(s) con copias exactas. La copia más antigua queda premarcada para conservar — revisa antes de confirmar.</p>`;
+
+            duplicados.forEach(([name, arr]) => {
+                const ordenados = [...arr].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                const todasIguales = ordenados.every((u, i) => i === 0 || picksIguales(u, ordenados[0]));
+                html += `<div class="p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <p class="font-black text-white mb-2 text-sm">${name} ${todasIguales
+                        ? '<span class="text-red-400 text-[10px] font-black ml-1 block mt-1">⚠️ JUGADAS IDÉNTICAS EN LAS 6 VÁLIDAS — probable doble-toque</span>'
+                        : '<span class="text-yellow-400 text-[10px] font-black ml-1 block mt-1">⚠️ jugadas DISTINTAS — revisa cuál conservar antes de borrar</span>'}</p>
+                    <div class="space-y-1">`;
+                ordenados.forEach((u, i) => {
+                    const fecha = new Date(u.createdAt).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    html += `<label class="flex items-center gap-2 text-xs bg-black/20 p-2 rounded cursor-pointer">
+                        <input type="checkbox" class="dup-check w-4 h-4 accent-red-500 flex-shrink-0" data-userid="${u.id}" data-username="${u.name}" ${i === 0 ? '' : 'checked'}>
+                        <span class="${i === 0 ? 'text-green-400 font-bold' : 'text-gray-300'}">${i === 0 ? '✅ CONSERVAR — creado' : '🗑️ Eliminar — creado'} ${fecha}</span>
+                    </label>`;
+                });
+                html += `</div></div>`;
+            });
+
+            html += `<button onclick="eliminarDuplicadosSeleccionados()" class="w-full mt-2 bg-red-700 hover:bg-red-600 text-white font-black py-3 rounded-xl transition-all">
+                <i class="fa-solid fa-trash mr-2"></i>ELIMINAR SELECCIONADOS
+            </button>`;
+
+            container.innerHTML = html;
+        }
+
+        window.eliminarDuplicadosSeleccionados = async function() {
+            const checks = Array.from(document.querySelectorAll('.dup-check:checked'));
+            if (checks.length === 0) return alert('⚠️ No seleccionaste ninguna copia para eliminar.');
+
+            const nombres = checks.map(c => c.dataset.username);
+            if (!confirm(`⚠️ Se eliminarán ${checks.length} jugada(s) duplicada(s):\n\n${nombres.map(n => '• ' + n).join('\n')}\n\n¿Continuar?`)) return;
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nEsta acción no se puede deshacer.\n\n¿Eliminar las ${checks.length} jugada(s) seleccionada(s)?`)) return;
+
+            let eliminadas = 0;
+            const idsEliminados = new Set();
+            const nombresEliminados = new Set();
+            for (const chk of checks) {
+                const userId = chk.dataset.userid;
+                try {
+                    await deleteDoc(doc(db, "usuarios", userId));
+                    idsEliminados.add(userId);
+                    nombresEliminados.add(chk.dataset.username);
+                    eliminadas++;
+                } catch (error) {
+                    console.error('❌ Error eliminando duplicado:', error);
+                }
+            }
+            await loadUsersFromFirebase();
+            saveUsersToLocalStorage();
+
+            appState.reasignaciones = appState.reasignaciones.filter(r =>
+                r.userId ? !idsEliminados.has(r.userId) : !nombresEliminados.has(r.jugador)
+            );
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+
+            alert(`✅ Se eliminaron ${eliminadas} jugada(s) duplicada(s).`);
+            renderAdminEditList();
+            verificarNombresDuplicados();
+        }
+        // =============== FIN VERIFICAR NOMBRES DUPLICADOS ================
+
         function contarJugadasCompletas() {
             return appState.users.filter(u => {
                 let total = 0;
@@ -1776,6 +1930,92 @@
             document.getElementById('horse-names-input').value = '';
         }
 
+        // ===================== MENSAJE DE BIENVENIDA DE LA JORNADA =====================
+        function proximoDomingoDesde(fecha) {
+            const d = new Date(fecha);
+            const dia = d.getDay(); // 0 = domingo
+            const diasHastaProximoDomingo = dia === 0 ? 7 : (7 - dia);
+            d.setDate(d.getDate() + diasHastaProximoDomingo);
+            return d;
+        }
+
+        window.generateWelcomeMessage = function() {
+            const hoy = new Date();
+            const fechaHoyStr = hoy.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const proximoDomingo = proximoDomingoDesde(hoy);
+            const fechaProximoStr = proximoDomingo.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+            let msg = '🐎 *3 x 6 ACTIVO* 🐎\n';
+            msg += `📅 ${fechaHoyStr.charAt(0).toUpperCase() + fechaHoyStr.slice(1)}\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '¡Buenos días, comunidad hípica! Hoy es día de jornada 🏇\n\n';
+
+            msg += '📋 *CARRERAS VÁLIDAS DE HOY*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            for (let r = 1; r <= 6; r++) {
+                const total = appState.raceConfig[r] || 0;
+                msg += `${r}ª V. — ${total} ejemplar(es) inscrito(s)\n`;
+            }
+
+            const hayRetirados = [1, 2, 3, 4, 5, 6].some(r => (appState.scratched[r] || []).length > 0);
+            msg += '\n⚠️ *EJEMPLARES RETIRADOS*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            if (hayRetirados) {
+                for (let r = 1; r <= 6; r++) {
+                    const retirados = appState.scratched[r] || [];
+                    if (retirados.length === 0) continue;
+                    const lista = retirados.slice().sort((a, b) => a - b).map(n => nombreCaballo(r, n)).join(', ');
+                    msg += `${r}ª V.: ${lista}\n`;
+                }
+            } else {
+                msg += 'Sin retiros informados hasta el momento.\n';
+            }
+
+            const historial = appState.historialAcumulados || [];
+            const acumuladoTotal = historial.reduce((sum, item) => sum + item.monto, 0);
+            msg += '\n🏆 *PREMIO ACUMULADO*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            if (historial.length > 0) {
+                historial.forEach(item => {
+                    const partes = item.fecha.split('-');
+                    const fechaCorta = partes.length === 3 ? `${partes[2]}/${partes[1]}` : item.fecha;
+                    msg += `• ${fechaCorta}: ${formatearBs(item.monto)}\n`;
+                });
+                msg += `💰 *TOTAL ACUMULADO: ${formatearBs(acumuladoTotal)}*\n`;
+            } else {
+                msg += 'Sin acumulado pendiente — arrancamos de cero esta jornada.\n';
+            }
+
+            msg += '\n¡Mucho éxito a todos los participantes en la jornada de hoy! 🍀🐎\n';
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += `📅 Nos vemos el próximo domingo ${fechaProximoStr} para una nueva jornada.\n`;
+            msg += '¡Los esperamos a todos! 🎉';
+
+            const preview = document.getElementById('welcome-report-preview');
+            preview.textContent = msg;
+            document.getElementById('welcome-report-container').classList.remove('hidden');
+            window.lastWelcomeMessage = msg;
+            actualizarContadorCaracteres(msg, 'welcome-report-counter', 'welcome-report-split');
+            document.getElementById('welcome-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyWelcomeMessage = async function() {
+            if (!window.lastWelcomeMessage) return alert("⚠️ Primero genera el mensaje.");
+            try {
+                await navigator.clipboard.writeText(window.lastWelcomeMessage);
+                alert("✅ ¡Mensaje de bienvenida copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastWelcomeMessage;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Mensaje de bienvenida copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // ================= FIN MENSAJE DE BIENVENIDA DE LA JORNADA =================
+
         // ===================== CARGA RÁPIDA POR BLOQUES =====================
         function limpiarLineaANumeros(linea) {
             const matches = (linea || '').match(/\d+/g);
@@ -1914,6 +2154,10 @@
             let nombre = nameInput.value.trim().toUpperCase();
             if (!nombre) { alert('⚠️ El bloque no tiene nombre, no se puede cargar.'); return null; }
 
+            // Última verificación, justo antes de guardar: trae la lista más fresca de Firebase
+            // (por si un jugador se autoregistró con este mismo apodo mientras cargabas el lote).
+            await loadUsersFromFirebase();
+
             if (appState.users.some(u => u.name === nombre)) {
                 let contador = 2;
                 let candidato = `${nombre} ${String(contador).padStart(2, '0')}`;
@@ -1959,39 +2203,56 @@
         }
 
         window.cargarBloqueIndividual = async function(idx) {
-            const nombre = await guardarJugadaCargaRapida(idx);
-            if (!nombre) return;
             const block = document.getElementById(`ql-block-${idx}`);
-            block.dataset.cargado = '1';
+            if (block && block.dataset.cargado === '1') return; // ya cargado o en curso — ignora toques adicionales
+            if (block) block.dataset.cargado = '1';
+            const btn = block ? block.querySelector('button') : null;
+            if (btn) { btn.disabled = true; btn.textContent = 'Cargando...'; }
+
+            const nombre = await guardarJugadaCargaRapida(idx);
+            if (!nombre) {
+                if (block) block.dataset.cargado = '0'; // no se pudo guardar — permite reintentar
+                if (btn) { btn.disabled = false; btn.textContent = 'Cargar solo éste'; }
+                return;
+            }
             block.style.opacity = '0.4';
             block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
             renderAdminEditList();
             alert(`✅ Jugada de "${nombre}" cargada con éxito.`);
         }
 
+        let cargaRapidaLoteEnCurso = false;
+
         window.confirmarCargaRapidaLote = async function() {
+            if (cargaRapidaLoteEnCurso) return; // ya hay un lote en proceso — ignora toques adicionales
             const total = window.__quickloadData ? window.__quickloadData.length : 0;
             if (total === 0) return alert("⚠️ Primero procesa un lote de bloques.");
-            const cargados = [];
-            const saltados = [];
-            for (let i = 0; i < total; i++) {
-                const chk = document.getElementById(`ql-check-${i}`);
-                const block = document.getElementById(`ql-block-${i}`);
-                if (!chk || !chk.checked || !block || block.dataset.cargado === '1') continue;
-                const nombre = await guardarJugadaCargaRapida(i);
-                if (nombre) {
-                    cargados.push(nombre);
-                    block.dataset.cargado = '1';
-                    block.style.opacity = '0.4';
-                    block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
-                } else {
-                    saltados.push(i);
+            cargaRapidaLoteEnCurso = true;
+            try {
+                const cargados = [];
+                const saltados = [];
+                for (let i = 0; i < total; i++) {
+                    const chk = document.getElementById(`ql-check-${i}`);
+                    const block = document.getElementById(`ql-block-${i}`);
+                    if (!chk || !chk.checked || !block || block.dataset.cargado === '1') continue;
+                    block.dataset.cargado = '1'; // marcar de una vez, antes del await, para que no se reprocese
+                    const nombre = await guardarJugadaCargaRapida(i);
+                    if (nombre) {
+                        cargados.push(nombre);
+                        block.style.opacity = '0.4';
+                        block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
+                    } else {
+                        block.dataset.cargado = '0'; // no se pudo guardar — permite reintentar
+                        saltados.push(i);
+                    }
                 }
+                renderAdminEditList();
+                let msg = `✅ Lote procesado.\n\nCargados (${cargados.length}):\n${cargados.map(n => '• ' + n).join('\n')}`;
+                if (saltados.length > 0) msg += `\n\n⚠️ ${saltados.length} bloque(s) quedaron sin cargar (corrígelos o usa "Cargar solo éste" de nuevo).`;
+                alert(msg);
+            } finally {
+                cargaRapidaLoteEnCurso = false;
             }
-            renderAdminEditList();
-            let msg = `✅ Lote procesado.\n\nCargados (${cargados.length}):\n${cargados.map(n => '• ' + n).join('\n')}`;
-            if (saltados.length > 0) msg += `\n\n⚠️ ${saltados.length} bloque(s) quedaron sin cargar (corrígelos o usa "Cargar solo éste" de nuevo).`;
-            alert(msg);
         }
         // =================== FIN CARGA RÁPIDA POR BLOQUES ===================
 
@@ -2098,11 +2359,11 @@
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
-            // Si es el resultado final (6ª válida) SIN ganadores, el premio semanal de hoy
-            // ya quedó incluido dentro de acumuladoTotal (se sumó al guardar el resultado),
-            // así que el total a mostrar es acumuladoTotal tal cual, sin volver a sumarlo.
-            const noHuboGanadoresFinal = (currentRace === 6 && aliveUsers.length === 0);
-            const premioTotalMostrado = noHuboGanadoresFinal ? acumuladoTotal : premioTotal;
+            // ¿Ya se empujó el acumulado de HOY al historial? Si no, hay que proyectar
+            // el total completo (premio de hoy + lo acumulado previamente).
+            const hoyISO = new Date().toISOString().split('T')[0];
+            const yaAcumuladoHoy = appState.historialAcumulados.some(item => item.fecha === hoyISO);
+            const premioTotalMostrado = (aliveUsers.length === 0) ? (yaAcumuladoHoy ? acumuladoTotal : premioTotal) : premioTotal;
 
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
