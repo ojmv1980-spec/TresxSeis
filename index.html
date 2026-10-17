@@ -55,6 +55,7 @@
             max-height: 400px; overflow-y: auto;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
 
@@ -148,6 +149,7 @@
             <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
             <button onclick="switchAdminTab('adm-edicion'); renderAdminEditList();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">5. Edición</button>
             <button onclick="switchAdminTab('adm-cargarapida')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">6. Carga Rápida</button>
+            <button onclick="switchAdminTab('adm-inscritos'); renderInscritos();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">7. Inscritos</button>
         </div>
 
         <div class="glass-panel rounded-2xl rounded-tl-none p-6 min-h-[400px]">
@@ -462,6 +464,16 @@
             <div id="adm-cargarapida" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">⚡ Carga Rápida por Bloques</h3>
                 <p class="text-xs text-gray-400 mb-4">Pega uno o varios mensajes de WhatsApp tal cual te llegaron (nombre + 6 líneas de números, separados como sea). El sistema los interpreta automáticamente.</p>
+                <div class="flex gap-2 mb-3">
+                    <input type="file" id="ocr-image-input" accept="image/*" class="hidden" onchange="procesarImagenOCR(event)">
+                    <button onclick="document.getElementById('ocr-image-input').click()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera"></i> SUBIR IMAGEN (capturas de WhatsApp)
+                    </button>
+                </div>
+                <div id="ocr-status" class="hidden mb-3 p-2 bg-purple-500/10 border border-purple-500/30 rounded-lg text-xs text-purple-300 text-center"></div>
+                <p class="text-[10px] text-gray-500 mb-3">
+                    <i class="fa-solid fa-circle-info mr-1"></i>El reconocimiento funciona bien con <b>capturas de pantalla de texto de WhatsApp</b>. Para <b>fotos de hojas escritas a mano</b>, no es confiable — revisa y corrige el texto extraído con mucho cuidado antes de procesar.
+                </p>
                 <textarea id="quickload-input" rows="10" placeholder="LUIS F&#10;3/5/8&#10;2/7/8&#10;1/5/7&#10;1/9/10&#10;1/4/6&#10;2/6/8&#10;&#10;GUARO&#10;3,5,8&#10;2,3,7&#10;1,5,6&#10;1,4,9&#10;2,3,6&#10;2,9,12" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-mono mb-3" style="min-height: 220px;"></textarea>
                 <button onclick="procesarCargaRapida()" class="w-full bg-brand-orange hover:bg-brand-amber text-brand-dark font-black py-3 rounded-xl shadow-lg active:scale-95 transition-transform">
                     <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>PROCESAR BLOQUES
@@ -476,6 +488,54 @@
                     <button onclick="confirmarCargaRapidaLote()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform mt-2">
                         <i class="fa-solid fa-check-double mr-2"></i>CONFIRMAR LOTE COMPLETO (<span id="quickload-selected-count">0</span>)
                     </button>
+                </div>
+            </div>
+
+            <div id="adm-inscritos" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">📋 Ejemplares Inscritos</h3>
+                <p class="text-xs text-gray-400 mb-4">Vista completa de los inscritos por válida, con el número real de carrera del programa del hipódromo.</p>
+
+                <div class="mb-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Número de carrera de la 1ª Válida</label>
+                    <input type="number" id="numero-carrera-1v" min="1" class="w-full glass-input rounded-lg px-3 py-2 text-sm mb-3" placeholder="Ej: 8">
+
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-1">¿Las 6 válidas son carreras consecutivas?</label>
+                    <div class="flex gap-3 mb-3">
+                        <label class="flex items-center gap-2 text-sm text-gray-300"><input type="radio" name="consecutivas" value="si" checked onchange="toggleCamposCarrerasNoConsecutivas()"> Sí</label>
+                        <label class="flex items-center gap-2 text-sm text-gray-300"><input type="radio" name="consecutivas" value="no" onchange="toggleCamposCarrerasNoConsecutivas()"> No</label>
+                    </div>
+
+                    <div id="campos-carreras-no-consecutivas" class="hidden grid grid-cols-3 gap-2 mb-3">
+                        <div><label class="block text-[10px] text-gray-500 mb-1">2ª V.</label><input type="number" id="numero-carrera-2v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">3ª V.</label><input type="number" id="numero-carrera-3v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">4ª V.</label><input type="number" id="numero-carrera-4v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">5ª V.</label><input type="number" id="numero-carrera-5v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">6ª V.</label><input type="number" id="numero-carrera-6v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                    </div>
+
+                    <button onclick="guardarNumerosCarreraReal()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl transition-all">
+                        <i class="fa-solid fa-save mr-2"></i>GUARDAR NÚMEROS DE CARRERA
+                    </button>
+                </div>
+
+                <div id="inscritos-listado" class="space-y-4"></div>
+
+                <div class="mt-6 p-4 bg-brand-amber/10 border border-brand-amber/30 rounded-xl">
+                    <h4 class="text-sm font-black text-brand-amber uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-list-ol mr-2"></i>RESUMEN DE GANADORES (EN VIVO)
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Se arma solo, directo de los resultados ya cargados — se actualiza hasta la última válida que tenga resultado.</p>
+                    <button onclick="generateResumenGanadoresEnVivo()" class="w-full bg-brand-amber hover:bg-yellow-500 text-brand-dark font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>GENERAR RESUMEN
+                    </button>
+                    <div id="resumen-ganadores-container" class="hidden mt-3">
+                        <div id="resumen-ganadores-preview" class="whatsapp-preview border border-brand-amber/30"></div>
+                        <div id="resumen-ganadores-counter"></div>
+                        <div id="resumen-ganadores-split"></div>
+                        <button onclick="copyResumenGanadoresEnVivo()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR RESUMEN
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -549,6 +609,7 @@
             modoSoloRanking: false,
             reasignaciones: [],
             horaPrimeraValida: null,
+            numeroCarreraReal: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
             isAdmin: false
         };
 
@@ -565,6 +626,7 @@
                     modoSoloRanking: appState.modoSoloRanking,
                     reasignaciones: appState.reasignaciones,
                     horaPrimeraValida: appState.horaPrimeraValida,
+                    numeroCarreraReal: appState.numeroCarreraReal,
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
@@ -579,7 +641,8 @@
                 historialAcumulados: appState.historialAcumulados,
                 modoSoloRanking: appState.modoSoloRanking,
                 reasignaciones: appState.reasignaciones,
-                horaPrimeraValida: appState.horaPrimeraValida
+                horaPrimeraValida: appState.horaPrimeraValida,
+                numeroCarreraReal: appState.numeroCarreraReal
             }));
         }
 
@@ -598,6 +661,7 @@
                     appState.modoSoloRanking = data.modoSoloRanking || false;
                     appState.reasignaciones = data.reasignaciones || [];
                     appState.horaPrimeraValida = data.horaPrimeraValida || null;
+                    appState.numeroCarreraReal = data.numeroCarreraReal || { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
                     if (appState.horaPrimeraValida) {
                         const horaInputEl = document.getElementById('hora-primera-valida-input');
                         const panelEl = document.getElementById('contador-panel');
@@ -2201,6 +2265,61 @@
             return matches ? matches.map(Number) : [];
         }
 
+        // Intenta partir una cadena de dígitos pegados (ej. "369", "3109") en exactamente
+        // 3 números válidos (entre 1 y totalInscritos). Si hay más de una forma válida de
+        // partirla (ambigüedad real), devuelve null en vez de adivinar — nunca a ciegas.
+        function desambiguarPegados(cadena, totalInscritos) {
+            const n = cadena.length;
+            if (n < 3) return null;
+            const candidatos = new Set();
+            for (let i = 1; i < n - 1; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const sa = cadena.slice(0, i), sb = cadena.slice(i, j), sc = cadena.slice(j);
+                    if ((sa.length > 1 && sa[0] === '0') || (sb.length > 1 && sb[0] === '0') || (sc.length > 1 && sc[0] === '0')) continue;
+                    const a = parseInt(sa, 10), b = parseInt(sb, 10), c = parseInt(sc, 10);
+                    if (a >= 1 && a <= totalInscritos && b >= 1 && b <= totalInscritos && c >= 1 && c <= totalInscritos) {
+                        candidatos.add(JSON.stringify([a, b, c]));
+                    }
+                }
+            }
+            if (candidatos.size === 1) return JSON.parse([...candidatos][0]);
+            return null;
+        }
+
+        // PASADA 1 (clasificación): ¿esta línea TIENE PINTA de ser una línea de 3 selecciones
+        // (con o sin identificador de válida al inicio, con o sin separadores)? No requiere
+        // saber todavía a qué válida pertenece ni cuántos inscritos tiene esa carrera.
+        function pareceLineaDeNumeros(linea) {
+            const grupos = (linea || '').match(/\d+/g) || [];
+            if (grupos.length === 3) return true;
+            if (grupos.length === 4) return true; // prefijo + 3 ya separados, ej. "1 3-5-4"
+            if (grupos.length === 2 && grupos[1].length >= 2 && grupos[1].length <= 6) return true; // prefijo + pegados, ej. "1V 369"
+            if (grupos.length === 1 && grupos[0].length >= 3 && grupos[0].length <= 7) return true; // todo pegado, ej. "1369"
+            return false;
+        }
+
+        // PASADA 2 (extracción real): ya sabiendo a qué válida pertenece la línea (y por lo
+        // tanto cuántos inscritos tiene esa carrera), extrae las 3 selecciones reales,
+        // descartando cualquier identificador de válida al inicio ("1V", "1", etc.).
+        function extraerNumerosDeLinea(linea, totalInscritos) {
+            const grupos = (linea || '').match(/\d+/g) || [];
+            if (grupos.length === 3) return grupos.map(Number);
+            if (grupos.length === 4) return grupos.slice(1).map(Number);
+            if (grupos.length === 2) {
+                const candidato = desambiguarPegados(grupos[1], totalInscritos);
+                if (candidato) return candidato;
+            }
+            if (grupos.length === 1) {
+                const candidato1 = desambiguarPegados(grupos[0].slice(1), totalInscritos);
+                if (candidato1) return candidato1;
+                if (grupos[0].length >= 5) {
+                    const candidato2 = desambiguarPegados(grupos[0].slice(2), totalInscritos);
+                    if (candidato2) return candidato2;
+                }
+            }
+            return null; // no se pudo interpretar con confianza
+        }
+
         function resolverNombreUnico(nombreBase, nombresUsadosLote) {
             const yaExiste = (n) => appState.users.some(u => u.name === n) || nombresUsadosLote.has(n);
             if (!yaExiste(nombreBase)) { nombresUsadosLote.add(nombreBase); return nombreBase; }
@@ -2230,18 +2349,56 @@
 
             return bloques.map(bloque => {
                 if (bloque.length < 7) {
-                    return { incompleto: true, nombre: bloque[0] || '', races: [[], [], [], [], [], []] };
+                    return { incompleto: true, nombre: bloque[0] || '', racesRaw: [] };
                 }
-                const analizadas = bloque.map(l => ({ texto: l, numeros: limpiarLineaANumeros(l) }));
-                const candidatasNombre = analizadas.filter(a => a.numeros.length !== 3);
+                const candidatasNombre = bloque.filter(l => !pareceLineaDeNumeros(l));
                 if (candidatasNombre.length !== 1) {
-                    return { incompleto: true, nombre: bloque[0] || '', races: analizadas.slice(1).map(a => a.numeros) };
+                    return { incompleto: true, nombre: bloque[0] || '', racesRaw: bloque.slice(1) };
                 }
                 const nombreLinea = candidatasNombre[0];
-                const races = analizadas.filter(a => a !== nombreLinea).map(a => a.numeros);
-                return { incompleto: false, nombre: nombreLinea.texto, races };
+                const racesRaw = bloque.filter(l => l !== nombreLinea); // las 6 líneas de números, en orden
+                return { incompleto: false, nombre: nombreLinea, racesRaw };
             });
         }
+
+        // ===================== OCR DE IMÁGENES (CAPTURAS DE WHATSAPP) =====================
+        window.procesarImagenOCR = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('ocr-status');
+            statusEl.classList.remove('hidden');
+            statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Leyendo imagen, puede tardar unos segundos...';
+
+            try {
+                if (typeof Tesseract === 'undefined') {
+                    statusEl.innerHTML = '⚠️ No se pudo cargar el motor de reconocimiento (sin conexión a internet). Escribe el texto manualmente.';
+                    event.target.value = '';
+                    return;
+                }
+                const resultado = await Tesseract.recognize(file, 'spa', {
+                    logger: info => {
+                        if (info.status === 'recognizing text') {
+                            statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Leyendo imagen... ${Math.round(info.progress * 100)}%`;
+                        }
+                    }
+                });
+                const textoExtraido = (resultado.data.text || '').trim();
+                if (!textoExtraido) {
+                    statusEl.innerHTML = '⚠️ No se pudo extraer texto de esa imagen. Intenta con otra foto más nítida, o escribe el texto manualmente.';
+                    event.target.value = '';
+                    return;
+                }
+                const textarea = document.getElementById('quickload-input');
+                textarea.value = (textarea.value ? textarea.value + '\n\n' : '') + textoExtraido;
+                statusEl.innerHTML = '✅ Texto extraído y agregado a la caja de abajo. <b>Revísalo con cuidado</b> antes de darle a "Procesar Bloques" — el reconocimiento automático puede tener errores, especialmente en letra manuscrita.';
+            } catch (error) {
+                console.error("❌ Error en OCR:", error);
+                statusEl.innerHTML = '⚠️ Ocurrió un error leyendo la imagen. Intenta de nuevo o escribe el texto manualmente.';
+            } finally {
+                event.target.value = ''; // permite volver a subir la misma imagen si hace falta reintentar
+            }
+        }
+        // =================== FIN OCR DE IMÁGENES (CAPTURAS DE WHATSAPP) ===================
 
         window.procesarCargaRapida = function() {
             const text = document.getElementById('quickload-input').value;
@@ -2259,7 +2416,12 @@
                 for (let r = 1; r <= 6; r++) {
                     const total = appState.raceConfig[r];
                     const scratchedSet = appState.scratched[r];
-                    let picks = (bloque.races[r - 1] || []).slice(0, 3);
+                    const lineaCruda = bloque.racesRaw[r - 1] || '';
+                    const extraidos = extraerNumerosDeLinea(lineaCruda, total);
+                    if (extraidos === null && lineaCruda) {
+                        avisos.push(`${r}ª V.: no se pudo interpretar la línea "${lineaCruda}" con confianza — revisar manualmente`);
+                    }
+                    let picks = (extraidos || []).slice(0, 3);
                     while (picks.length < 3) picks.push(null);
                     const finalesRace = [];
                     for (const valor of picks) {
@@ -2726,6 +2888,146 @@
             }
         }
         // =============== FIN REPORTE SEPARADO: GANADORES DE LA JORNADA ===============
+
+        // ===================== PESTAÑA INSCRITOS =====================
+        const ORDINALES_CARRERA = {
+            1: '1era', 2: '2da', 3: '3era', 4: '4ta', 5: '5ta', 6: '6ta', 7: '7ma', 8: '8va', 9: '9na', 10: '10ma',
+            11: '11va', 12: '12va', 13: '13ra', 14: '14ta', 15: '15ta', 16: '16ta', 17: '17ma', 18: '18va', 19: '19na', 20: '20ma'
+        };
+        function ordinalCarrera(n) {
+            if (!n) return '?';
+            return ORDINALES_CARRERA[n] || `${n}ta`;
+        }
+
+        window.toggleCamposCarrerasNoConsecutivas = function() {
+            const esConsecutivas = document.querySelector('input[name="consecutivas"]:checked').value === 'si';
+            document.getElementById('campos-carreras-no-consecutivas').classList.toggle('hidden', esConsecutivas);
+        }
+
+        window.guardarNumerosCarreraReal = async function() {
+            const primeraCarrera = parseInt(document.getElementById('numero-carrera-1v').value);
+            if (!primeraCarrera || primeraCarrera < 1) return alert("⚠️ Ingresa el número de carrera de la 1ª Válida.");
+
+            const esConsecutivas = document.querySelector('input[name="consecutivas"]:checked').value === 'si';
+            const nuevo = { 1: primeraCarrera };
+
+            if (esConsecutivas) {
+                for (let r = 2; r <= 6; r++) nuevo[r] = primeraCarrera + (r - 1);
+            } else {
+                for (let r = 2; r <= 6; r++) {
+                    const val = parseInt(document.getElementById(`numero-carrera-${r}v`).value);
+                    if (!val || val < 1) return alert(`⚠️ Ingresa el número de carrera real de la ${r}ª Válida.`);
+                    nuevo[r] = val;
+                }
+            }
+
+            appState.numeroCarreraReal = nuevo;
+            await saveConfigToFirebase();
+            alert("✅ Números de carrera guardados.");
+            renderInscritos();
+        }
+
+        window.renderInscritos = function() {
+            // Rellenar los campos con lo ya guardado, si existe
+            if (appState.numeroCarreraReal && appState.numeroCarreraReal[1]) {
+                const input1v = document.getElementById('numero-carrera-1v');
+                if (input1v && !input1v.value) input1v.value = appState.numeroCarreraReal[1];
+            }
+
+            const container = document.getElementById('inscritos-listado');
+            if (!container) return;
+
+            let hayDatos = false;
+            let html = '';
+            for (let r = 1; r <= 6; r++) {
+                const nombres = appState.horseNames[r] || {};
+                const entradas = Object.entries(nombres).sort((a, b) => a[0] - b[0]);
+                if (entradas.length === 0) continue;
+                hayDatos = true;
+                const numeroReal = appState.numeroCarreraReal ? appState.numeroCarreraReal[r] : null;
+                const titulo = numeroReal ? `${ordinalCarrera(numeroReal)}. — ${r}ª V.` : `${r}ª V. (número de carrera sin asignar)`;
+
+                html += `<div class="p-3 bg-white/5 border border-white/10 rounded-xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="font-black text-brand-amber text-sm">${titulo}</p>
+                        <button onclick="copiarInscritosValida(${r})" class="bg-brand-orange/20 hover:bg-brand-orange/40 text-brand-orange text-[10px] font-black px-2 py-1.5 rounded-lg whitespace-nowrap">
+                            <i class="fa-solid fa-copy mr-1"></i>Copiar
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-300 space-y-0.5">
+                        ${entradas.map(([num, nombre]) => `<p>#${num} ${nombre}</p>`).join('')}
+                    </div>
+                </div>`;
+            }
+            container.innerHTML = hayDatos ? html : '<p class="text-gray-500 text-sm text-center py-4">Aún no hay listado de ejemplares cargado — pégalo en la pestaña "1. Carreras".</p>';
+        }
+
+        window.copiarInscritosValida = async function(race) {
+            const nombres = appState.horseNames[race] || {};
+            const entradas = Object.entries(nombres).sort((a, b) => a[0] - b[0]);
+            if (entradas.length === 0) return alert("⚠️ No hay ejemplares cargados para esta válida.");
+
+            const numeroReal = appState.numeroCarreraReal ? appState.numeroCarreraReal[race] : null;
+            const titulo = numeroReal ? `${ordinalCarrera(numeroReal)}. — ${race}ª V.` : `${race}ª V.`;
+
+            let msg = `🐎 *${titulo}*\n━━━━━━━━━━━━━━━━━━━\n`;
+            entradas.forEach(([num, nombre]) => { msg += `#${num} ${nombre}\n`; });
+
+            try {
+                await navigator.clipboard.writeText(msg);
+                alert(`✅ ¡Ejemplares de la ${race}ª Válida copiados!`);
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = msg;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(`✅ ¡Ejemplares de la ${race}ª Válida copiados!`);
+            }
+        }
+
+        window.generateResumenGanadoresEnVivo = function() {
+            let hayResultados = false;
+            let msg = '📋 *RESUMEN DE GANADORES — EN VIVO*\n';
+            msg += '📅 ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+
+            for (let r = 1; r <= 6; r++) {
+                const ganador = appState.results[r];
+                if (ganador === null || ganador === undefined) break; // se detiene en la última válida con resultado
+                hayResultados = true;
+                msg += `${r}ª V.: ganó el *${nombreCaballo(r, ganador)}*\n`;
+            }
+
+            if (!hayResultados) return alert("⚠️ Todavía no hay ningún resultado cargado.");
+
+            msg += '\n━━━━━━━━━━━━━━━━━━━';
+
+            const preview = document.getElementById('resumen-ganadores-preview');
+            preview.textContent = msg;
+            document.getElementById('resumen-ganadores-container').classList.remove('hidden');
+            window.lastResumenGanadores = msg;
+            actualizarContadorCaracteres(msg, 'resumen-ganadores-counter', 'resumen-ganadores-split');
+            document.getElementById('resumen-ganadores-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyResumenGanadoresEnVivo = async function() {
+            if (!window.lastResumenGanadores) return alert("⚠️ Primero genera el resumen.");
+            try {
+                await navigator.clipboard.writeText(window.lastResumenGanadores);
+                alert("✅ ¡Resumen copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastResumenGanadores;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Resumen copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // =================== FIN PESTAÑA INSCRITOS ===================
 
         window.renderAdminPayments = async function() {
             await loadUsersFromFirebase();
