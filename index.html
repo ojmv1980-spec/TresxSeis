@@ -3,49 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#070B1A">
     <title>Tres x Seis Activo - Quiniela Hípica</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { brand: { orange: '#C9A227', amber: '#E8C468', dark: '#0D1F17' } },
-                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Fraunces', 'serif'] }
+                    colors: { brand: { orange: '#F0306F', amber: '#38E1FF', dark: '#070B1A' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Chakra Petch', 'sans-serif'] }
                 }
             }
         }
     </script>
     <style>
-        .bg-hipodromo {
-            background-image: linear-gradient(rgba(6, 20, 14, 0.82), rgba(6, 20, 14, 0.92)), 
-                              url('https://cdn-images.bloodhorse.com/i/bloodhorse-images/2024/04/d27c631ac73647fe962e797170fb56db.jpg');
-            background-size: cover; background-position: center center; 
-            background-attachment: fixed; background-repeat: no-repeat; min-height: 100vh;
+        /* ===== PISTA NOCTURNA CON SEDAS — todo en CSS, sin imágenes (0 KB) ===== */
+        .bg-hipodromo { background-color: #070B1A; min-height: 100vh; }
+        body { background-color: #070B1A; }
+        #fx-bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #070B1A; }
+        #fx-bg .fx-silk {
+            position: absolute; top: 0; bottom: 0; left: -120px; right: -120px; will-change: transform;
+            background: repeating-linear-gradient(45deg, rgba(56,225,255,.11) 0 22px, transparent 22px 44px),
+                        repeating-linear-gradient(-45deg, rgba(255,61,129,.11) 0 22px, transparent 22px 44px);
+            animation: fxSilk 16s linear infinite;
         }
-        body { background-color: #0D1F17; }
+        @keyframes fxSilk { to { transform: translateX(62.2254px); } }
+        #fx-bg .fx-lane {
+            position: absolute; left: -96px; right: -96px; height: 2px; will-change: transform;
+            background: repeating-linear-gradient(90deg, rgba(56,225,255,.55) 0 24px, transparent 24px 48px);
+            animation: fxRun 3s linear infinite;
+        }
+        #fx-bg .fx-l1 { top: 14%; opacity: .5; }
+        #fx-bg .fx-l2 { top: 42%; opacity: .35; animation-duration: 5s;
+            background: repeating-linear-gradient(90deg, rgba(255,61,129,.6) 0 24px, transparent 24px 48px); }
+        #fx-bg .fx-l3 { top: 78%; opacity: .4; animation-duration: 4s; }
+        @keyframes fxRun { to { transform: translateX(96px); } }
+        #fx-bg .fx-beam {
+            position: absolute; top: -10%; left: -60%; width: 50%; height: 120%; will-change: transform;
+            background: linear-gradient(100deg, transparent, rgba(56,225,255,.12), transparent);
+            animation: fxSweep 8s linear infinite;
+        }
+        @keyframes fxSweep { to { transform: translateX(320%); } }
+        #fx-bg .fx-check {
+            position: absolute; left: -56px; right: -56px; bottom: 0; height: 14px; opacity: .85; will-change: transform;
+            background: repeating-conic-gradient(rgba(56,225,255,.7) 0 25%, rgba(255,61,129,.7) 0 50%) 0 0 / 28px 28px;
+            animation: fxChk 3s linear infinite;
+        }
+        @keyframes fxChk { to { transform: translateX(28px); } }
+        @media (prefers-reduced-motion: reduce) { #fx-bg *, header.glass-panel::after, .horse-btn.selected { animation: none !important; } }
+
         .glass-panel {
-            background: rgba(13, 31, 23, 0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(201, 162, 39, 0.22); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+            background: rgba(10, 16, 40, 0.58); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(120, 200, 255, 0.26); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
             position: relative;
         }
         .glass-panel::before {
             content: ''; position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.55), transparent);
+            background: linear-gradient(90deg, transparent, rgba(56, 225, 255, 0.6), transparent);
             pointer-events: none;
         }
+        header.glass-panel::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none;
+            background: linear-gradient(90deg, transparent, #38E1FF, #FF3D81, transparent);
+            background-size: 50% 100%; background-repeat: no-repeat;
+            animation: fxThread 3.5s ease-in-out infinite;
+        }
+        @keyframes fxThread { from { background-position: -50% 0; } to { background-position: 150% 0; } }
         .glass-input {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white;
         }
-        .glass-input:focus { border-color: #C9A227; outline: none; background: rgba(255, 255, 255, 0.1); }
+        .glass-input:focus { border-color: #38E1FF; outline: none; background: rgba(255, 255, 255, 0.1); }
         .horse-btn { transition: all 0.2s; border-radius: 50% !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
         .horse-btn.selected {
-            background: linear-gradient(135deg, #C9A227, #E8C468);
-            color: #0D1F17; font-weight: 900; border-color: transparent;
-            box-shadow: 0 0 16px rgba(201, 162, 39, 0.55), inset 0 0 0 2px rgba(255,255,255,0.25); transform: scale(1.08);
+            background: #38E1FF;
+            color: #04121F; font-weight: 900; border-color: transparent;
+            box-shadow: 0 0 16px rgba(56, 225, 255, 0.6), inset 0 0 0 2px rgba(255,255,255,0.25); transform: scale(1.08);
+            animation: fxGlow 2.4s ease-in-out infinite;
+        }
+        @keyframes fxGlow {
+            0%, 100% { box-shadow: 0 0 12px rgba(56,225,255,.45), inset 0 0 0 2px rgba(255,255,255,.25); }
+            50% { box-shadow: 0 0 22px rgba(56,225,255,.85), inset 0 0 0 2px rgba(255,255,255,.25); }
         }
         .horse-btn.scratched { display: none !important; }
+        /* ajustes de contraste y hover para la nueva paleta (sin tocar las clases del HTML/JS) */
+        .hover\:bg-orange-600:hover { background-color: #C41E5D !important; }
+        .bg-brand-orange.text-white { color: #070B1A; }
+        .from-brand-orange.to-brand-amber.text-white { color: #070B1A; }
+        .bg-brand-amber.hover\:bg-yellow-500:hover { background-color: #7AEBFF !important; }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .whatsapp-preview {
@@ -58,6 +104,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
+<div id="fx-bg" aria-hidden="true"><div class="fx-silk"></div><div class="fx-lane fx-l1"></div><div class="fx-lane fx-l2"></div><div class="fx-lane fx-l3"></div><div class="fx-beam"></div><div class="fx-check"></div></div>
 
     <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-brand-orange/30">
         <div class="flex items-center gap-2">
