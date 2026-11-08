@@ -167,8 +167,8 @@
             <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
             <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
             <button onclick="switchAdminTab('adm-edicion'); renderAdminEditList();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">5. Edición</button>
-            <button onclick="switchAdminTab('adm-cargarapida')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">6. Carga Rápida</button>
-            <button onclick="switchAdminTab('adm-inscritos'); renderInscritos();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">7. Inscritos</button>
+            <button onclick="switchAdminTab('adm-inscritos'); renderInscritos();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">6. Inscritos</button>
+            <button onclick="switchAdminTab('adm-cargarapida')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">7. Carga Rápida</button>
         </div>
 
         <div class="glass-panel rounded-2xl rounded-tl-none p-6 min-h-[400px]">
@@ -234,7 +234,7 @@
                     <textarea id="horse-names-input" rows="8" class="w-full glass-input rounded-lg px-3 py-2 text-xs font-mono" placeholder="Pega aquí el listado completo de las 6 válidas..."></textarea>
 
                     <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mt-3 mb-1">
-                        <i class="fa-solid fa-clock mr-1"></i>Hora de la 1ª Válida (obligatorio)
+                        <i class="fa-solid fa-clock mr-1"></i>Hora de la 1ª Válida, hora de Venezuela (obligatorio)
                     </label>
                     <input type="time" id="hora-primera-valida-input" class="w-full glass-input rounded-lg px-3 py-2 text-sm">
 
@@ -252,7 +252,7 @@
                     <button onclick="activarAvisosSonoros()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl transition-all">
                         <i class="fa-solid fa-bell mr-2"></i>🔔 ACTIVAR AVISOS SONOROS
                     </button>
-                    <p class="text-[10px] text-gray-500 mt-2 text-center">Recibirás un aviso con sonido cada 5 min desde los 40 min restantes — mientras esta pestaña siga abierta.</p>
+                    <p class="text-[10px] text-gray-500 mt-2 text-center">Recibirás un aviso con sonido cada 5 min desde los 40 min restantes — solo los domingos (hora de Venezuela) y mientras esta pestaña siga abierta.</p>
                 </div>
 
                 <div class="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
@@ -428,6 +428,26 @@
                         <div id="payment-report-preview" class="whatsapp-preview border border-green-500/30"></div>
                         <div id="payment-report-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
                         <div id="payment-report-split" class="hidden mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <button onclick="generateJugadasDelDiaReport()" class="w-full bg-brand-amber hover:brightness-110 text-brand-dark font-black py-3 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                        <span>📊 REPORTE DE JUGADAS DEL DÍA</span>
+                    </button>
+                    <div id="jugadas-dia-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-brand-amber uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyJugadasDelDiaReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="jugadas-dia-preview" class="whatsapp-preview border border-brand-amber/30"></div>
+                        <div id="jugadas-dia-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="jugadas-dia-split" class="hidden mt-2"></div>
                     </div>
                 </div>
             </div>
@@ -770,6 +790,7 @@
             if (pass === "111180") {
                 appState.isAdmin = true;
                 showView('view-admin');
+                purgarJugadasIncompletas();
             } else if (pass !== null) {
                 alert("❌ Clave incorrecta.");
             }
@@ -1263,15 +1284,15 @@
             container.innerHTML = log.slice(0, 40).map(item => {
                 const fecha = new Date(item.fecha).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                 if (item.tipo === 'reversion' && item.error) {
-                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — ⚠️ no se pudo revertir #${item.de}→#${item.a} (choque)</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — ⚠️ no se pudo revertir N° ${item.de} → N° ${item.a} (choque)</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
                 }
                 if (item.tipo === 'reversion') {
-                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ ${item.carrera}ª V. — #${item.de} → #${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ ${item.carrera}ª V. — N° ${item.de} → N° ${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
                 }
                 if (item.error) {
-                    return `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — #${item.de} → ⚠️ sin sustituto</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                    return `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — N° ${item.de} → ⚠️ sin sustituto</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
                 }
-                return `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">${item.carrera}ª V. — #${item.de} → #${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                return `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">${item.carrera}ª V. — N° ${item.de} → N° ${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
             }).join('');
         }
 
@@ -1284,12 +1305,12 @@
             [...log].reverse().forEach(item => {
                 if (item.tipo === 'reversion') {
                     msg += item.error
-                        ? `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: no se pudo revertir #${item.de} --> #${item.a}\n\n`
-                        : `*${item.jugador}*  — ↩️ ${item.carrera}ª V.: #${item.de} --> #${item.a}\n\n`;
+                        ? `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: no se pudo revertir N° ${item.de} --> N° ${item.a}\n\n`
+                        : `*${item.jugador}*  — ↩️ ${item.carrera}ª V.: N° ${item.de} --> N° ${item.a}\n\n`;
                 } else if (item.error) {
-                    msg += `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: #${item.de} sin sustituto\n\n`;
+                    msg += `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: N° ${item.de} sin sustituto\n\n`;
                 } else {
-                    msg += `*${item.jugador}*  — ${item.carrera}ª V.: #${item.de} --> #${item.a}\n\n`;
+                    msg += `*${item.jugador}*  — ${item.carrera}ª V.: N° ${item.de} --> N° ${item.a}\n\n`;
                 }
             });
             msg += '━━━━━━━━━━━━━━━━━━━';
@@ -1334,13 +1355,13 @@
                 html += `<div><p class="font-black text-brand-amber mb-1">${r}ª VÁLIDA</p><div class="space-y-1">`;
                 items.forEach(item => {
                     if (item.tipo === 'reversion' && item.error) {
-                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">⚠️ no se pudo revertir #${item.de}→#${item.a}</span></div>`;
+                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">⚠️ no se pudo revertir N° ${item.de} → N° ${item.a}</span></div>`;
                     } else if (item.tipo === 'reversion') {
-                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ #${item.de} → #${item.a}</span></div>`;
+                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ N° ${item.de} → N° ${item.a}</span></div>`;
                     } else if (item.error) {
-                        html += `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">#${item.de} → ⚠️ sin sustituto</span></div>`;
+                        html += `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">N° ${item.de} → ⚠️ sin sustituto</span></div>`;
                     } else {
-                        html += `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">#${item.de} → #${item.a}</span></div>`;
+                        html += `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">N° ${item.de} → N° ${item.a}</span></div>`;
                     }
                 });
                 html += `</div></div>`;
@@ -1360,13 +1381,13 @@
                 msg += `\n*${r}ª VÁLIDA*\n`;
                 items.forEach(item => {
                     if (item.tipo === 'reversion' && item.error) {
-                        msg += `*${item.jugador}*  — ⚠️ no se pudo revertir #${item.de} --> #${item.a}\n`;
+                        msg += `*${item.jugador}*  — ⚠️ no se pudo revertir N° ${item.de} --> N° ${item.a}\n`;
                     } else if (item.tipo === 'reversion') {
-                        msg += `*${item.jugador}*  — ↩️ #${item.de} --> #${item.a}\n`;
+                        msg += `*${item.jugador}*  — ↩️ N° ${item.de} --> N° ${item.a}\n`;
                     } else if (item.error) {
-                        msg += `*${item.jugador}*  — ⚠️ #${item.de} sin sustituto\n`;
+                        msg += `*${item.jugador}*  — ⚠️ N° ${item.de} sin sustituto\n`;
                     } else {
-                        msg += `*${item.jugador}*  — #${item.de} --> #${item.a}\n`;
+                        msg += `*${item.jugador}*  — N° ${item.de} --> N° ${item.a}\n`;
                     }
                 });
             }
@@ -1424,10 +1445,10 @@
             if (cambios.length > 0) {
                 const exitosas = cambios.filter(c => !c.error);
                 const fallidas = cambios.filter(c => c.error);
-                let msg = `🔄 Retiro tardío procesado: #${horse} en la ${race}ª Válida.\n\n`;
+                let msg = `🔄 Retiro tardío procesado: N° ${horse} en la ${race}ª Válida.\n\n`;
                 if (exitosas.length > 0) {
                     msg += `✅ Reasignaciones automáticas:\n`;
-                    exitosas.forEach(c => msg += `• ${c.jugador}: #${c.de} → #${c.a}\n`);
+                    exitosas.forEach(c => msg += `• ${c.jugador}: N° ${c.de} → N° ${c.a}\n`);
                 }
                 if (fallidas.length > 0) {
                     msg += `\n⚠️ No se encontró sustituto válido para (requiere revisión manual):\n`;
@@ -1439,10 +1460,10 @@
             if (reversiones.length > 0) {
                 const exitosas = reversiones.filter(r => !r.error);
                 const fallidas = reversiones.filter(r => r.error);
-                let msg = `↩️ Retiro desmarcado: #${horse} en la ${race}ª Válida.\n\n`;
+                let msg = `↩️ Retiro desmarcado: N° ${horse} en la ${race}ª Válida.\n\n`;
                 if (exitosas.length > 0) {
                     msg += `✅ Jugadas restauradas a su selección original:\n`;
-                    exitosas.forEach(r => msg += `• ${r.jugador}: #${r.de} → #${r.a}\n`);
+                    exitosas.forEach(r => msg += `• ${r.jugador}: N° ${r.de} → N° ${r.a}\n`);
                 }
                 if (fallidas.length > 0) {
                     msg += `\n⚠️ No se pudo restaurar automáticamente (choca con otra selección o retiro vigente) — revisa manualmente:\n`;
@@ -1718,8 +1739,8 @@
             
             let totalPicks = 0;
             for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
-            if (totalPicks !== 18) {
-                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) return;
+            if (totalPicks !== 18 || [1, 2, 3, 4, 5, 6].some(r => appState.editingPicks[r].length !== 3)) {
+                return alert(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\nNo se puede guardar incompleta: cada válida necesita exactamente 3 selecciones.`);
             }
             
             try {
@@ -2027,7 +2048,7 @@
 
         function nombreCaballo(race, num) {
             const nombre = appState.horseNames[race] && appState.horseNames[race][num];
-            return nombre ? `#${num} ${nombre}` : `#${num}`;
+            return nombre ? `N° ${num} ${nombre}` : `N° ${num}`;
         }
 
         function parsearListadoEjemplares(texto) {
@@ -2068,7 +2089,7 @@
                 if (count === 0) continue;
                 preview += `<div class="bg-white/5 p-2 rounded border border-white/10"><p class="font-black text-brand-amber mb-1">${r}ª V. (${count} ejemplares inscritos)</p>`;
                 Object.entries(nombres).sort((a, b) => a[0] - b[0]).forEach(([num, nombre]) => {
-                    preview += `<p class="text-gray-300">#${num} ${nombre}</p>`;
+                    preview += `<p class="text-gray-300">N° ${num} ${nombre}</p>`;
                 });
                 preview += `</div>`;
             }
@@ -2147,6 +2168,13 @@
             mostrarBannerAviso(texto);
         }
 
+        // Hora y día actuales en Venezuela (America/Caracas, UTC-4 todo el año), sin importar la zona del teléfono
+        function ahoraCaracas() {
+            const partes = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Caracas', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+            const get = t => partes.find(p => p.type === t).value;
+            return { dia: get('weekday'), h: parseInt(get('hour'), 10), m: parseInt(get('minute'), 10), s: parseInt(get('second'), 10) };
+        }
+
         let intervaloContadorCarrera = null;
 
         window.iniciarContadorCarrera = function() {
@@ -2158,19 +2186,20 @@
             function tick() {
                 const display = document.getElementById('contador-primera-valida');
                 if (!appState.horaPrimeraValida) return;
-                const ahora = new Date();
+                const ahora = ahoraCaracas();
                 const [h, m] = appState.horaPrimeraValida.split(':').map(Number);
-                const horaCarrera = new Date(ahora);
-                horaCarrera.setHours(h, m, 0, 0);
-                const minutosRestantes = Math.round((horaCarrera - ahora) / 60000);
+                const segundosAhora = ahora.h * 3600 + ahora.m * 60 + ahora.s;
+                const minutosRestantes = Math.round((h * 3600 + m * 60 - segundosAhora) / 60);
+                const esDomingo = ahora.dia === 'Sun';
 
                 if (display) {
-                    if (minutosRestantes > 0) display.textContent = `⏳ Faltan ${minutosRestantes} min para la 1ª Válida (${appState.horaPrimeraValida})`;
+                    if (!esDomingo) display.textContent = `⏸ Los avisos solo se activan los domingos (hora de Venezuela). 1ª Válida guardada: ${appState.horaPrimeraValida}`;
+                    else if (minutosRestantes > 0) display.textContent = `⏳ Faltan ${minutosRestantes} min para la 1ª Válida (${appState.horaPrimeraValida})`;
                     else if (minutosRestantes === 0) display.textContent = `🏇 ¡La 1ª Válida comienza ahora!`;
                     else display.textContent = `✅ La 1ª Válida ya inició (${appState.horaPrimeraValida})`;
                 }
 
-                if (hitos.includes(minutosRestantes) && !appState.avisosDisparados.has(minutosRestantes)) {
+                if (esDomingo && hitos.includes(minutosRestantes) && !appState.avisosDisparados.has(minutosRestantes)) {
                     appState.avisosDisparados.add(minutosRestantes);
                     mostrarAvisoCarrera(minutosRestantes);
                 }
@@ -2188,7 +2217,7 @@
                 Notification.requestPermission();
             }
             reproducirBeep();
-            alert("🔔 ¡Avisos sonoros activados!\n\nMientras esta pestaña siga abierta, recibirás un aviso con sonido cada 5 minutos desde los 40 restantes para la 1ª Válida.");
+            alert("🔔 ¡Avisos sonoros activados!\n\nMientras esta pestaña siga abierta, recibirás un aviso con sonido cada 5 minutos desde los 40 restantes para la 1ª Válida. Solo los domingos, hora de Venezuela.");
         }
         // =================== FIN CONTADOR DE LA 1ª VÁLIDA CON AVISOS ===================
 
@@ -2449,11 +2478,11 @@
                             const base = valor === null ? 0 : valor;
                             const sustituto = buscarSustitutoValido(r, base, finalesRace, scratchedSet, total);
                             if (sustituto !== null) {
-                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : '#' + valor + ' inválido/retirado'} → se asignó #${sustituto} automáticamente`);
+                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : 'N° ' + valor + ' inválido/retirado'} → se asignó N° ${sustituto} automáticamente`);
                                 sustituciones.push({ carrera: r, de: valor === null ? 0 : valor, a: sustituto });
                                 finalesRace.push(sustituto);
                             } else {
-                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : '#' + valor} sin sustituto disponible — revisar manualmente`);
+                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : 'N° ' + valor} sin sustituto disponible — revisar manualmente`);
                                 finalesRace.push(valor || 0);
                             }
                         } else {
@@ -2974,7 +3003,7 @@
                         </button>
                     </div>
                     <div class="text-xs text-gray-300 space-y-0.5">
-                        ${entradas.map(([num, nombre]) => `<p>#${num} ${nombre}</p>`).join('')}
+                        ${entradas.map(([num, nombre]) => `<p>N° ${num} ${nombre}</p>`).join('')}
                     </div>
                 </div>`;
             }
@@ -2990,7 +3019,7 @@
             const titulo = numeroReal ? `${ordinalCarrera(numeroReal)}. — ${race}ª V.` : `${race}ª V.`;
 
             let msg = `🐎 *${titulo}*\n━━━━━━━━━━━━━━━━━━━\n`;
-            entradas.forEach(([num, nombre]) => { msg += `#${num} ${nombre}\n`; });
+            entradas.forEach(([num, nombre]) => { msg += `N° ${num} ${nombre}\n`; });
 
             try {
                 await navigator.clipboard.writeText(msg);
@@ -3071,8 +3100,54 @@
             } catch (error) { alert("⚠️ Error actualizando pago."); }
         }
 
+        // Elimina por completo (base de datos, listas y logs) cualquier jugada que no tenga sus 18 selecciones.
+        async function purgarJugadasIncompletas() {
+            await loadUsersFromFirebase();
+            const incompletas = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += ((u.picks && u.picks[r]) || []).length;
+                return total !== 18;
+            });
+            if (incompletas.length === 0) return 0;
+            const nombres = incompletas.map(u => u.name).join(', ');
+            if (!confirm(`🧹 Se encontraron ${incompletas.length} jugada(s) incompleta(s): ${nombres}.\n\nSe eliminarán por completo, sin dejar rastro. ¿Continuar?`)) return 0;
+            for (const u of incompletas) {
+                try { await deleteDoc(doc(db, "usuarios", u.id)); } catch (e) { console.error("❌ Error eliminando jugada incompleta:", e); }
+            }
+            const ids = new Set(incompletas.map(u => u.id));
+            const nombresSet = new Set(incompletas.map(u => u.name));
+            appState.users = appState.users.filter(u => !ids.has(u.id));
+            appState.reasignaciones = appState.reasignaciones.filter(r => r.userId ? !ids.has(r.userId) : !nombresSet.has(r.jugador));
+            saveUsersToLocalStorage();
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+            renderAdminEditList();
+            return incompletas.length;
+        }
+
+        // Cantidad de ganadores finales (acertaron las 6 válidas). 0 si aún no hay resultado de la 6ª.
+        function contarGanadoresFinales() {
+            if (appState.results[6] === null || appState.results[6] === undefined) return 0;
+            return appState.users.filter(user => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += ((user.picks && user.picks[r]) || []).length;
+                if (total !== 18) return false;
+                for (let r = 1; r <= 6; r++) {
+                    const w = appState.results[r];
+                    if (!w || !user.picks[r].includes(w)) return false;
+                }
+                return true;
+            }).length;
+        }
+
         window.resetAllData = async function() {
-            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n• El listado de nombres de ejemplares\n• El historial de reasignaciones (retiros tardíos)\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El historial de acumulados\n\n¿Estás seguro de que deseas continuar?");
+            const ganadoresFinales = contarGanadoresFinales();
+            const acumuladoPrevio = appState.historialAcumulados.reduce((s, i) => s + i.monto, 0);
+            const liquidarAcumulado = ganadoresFinales > 0 && acumuladoPrevio > 0;
+            const lineaAcum = liquidarAcumulado ? `• El acumulado de ${formatearBs(acumuladoPrevio)} (hubo ${ganadoresFinales} ganador(es): ya se pagó dentro del premio total)\n` : '';
+            const noSeBorra = liquidarAcumulado ? '• El monto por jugada' : '• El monto por jugada\n• El historial de acumulados';
+            const confirm1 = confirm(`⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n• El listado de nombres de ejemplares\n• El historial de reasignaciones (retiros tardíos)\n${lineaAcum}\n⚠️ NO se borrará:\n${noSeBorra}\n\n¿Estás seguro de que deseas continuar?`);
             if (!confirm1) return;
             
             const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
@@ -3093,9 +3168,11 @@
                     results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
                     horseNames: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} },
                     precioJugada: appState.precioJugada,
-                    historialAcumulados: appState.historialAcumulados,
+                    historialAcumulados: liquidarAcumulado ? [] : appState.historialAcumulados,
                     modoSoloRanking: appState.modoSoloRanking,
                     reasignaciones: [],
+                    horaPrimeraValida: null,
+                    numeroCarreraReal: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
                     updatedAt: new Date().toISOString()
                 });
                 
@@ -3106,6 +3183,15 @@
                 appState.reasignaciones = [];
                 appState.users = [];
                 appState.currentUser = null;
+                if (liquidarAcumulado) appState.historialAcumulados = [];
+                // nueva jornada: la hora de la 1ª válida y los números de carrera se vuelven a pedir
+                appState.horaPrimeraValida = null;
+                appState.numeroCarreraReal = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+                if (intervaloContadorCarrera) { clearInterval(intervaloContadorCarrera); intervaloContadorCarrera = null; }
+                const panelContador = document.getElementById('contador-panel');
+                if (panelContador) panelContador.classList.add('hidden');
+                const horaInputReset = document.getElementById('hora-primera-valida-input');
+                if (horaInputReset) horaInputReset.value = '';
                 
                 localStorage.removeItem('tresXSeisActivo_Config');
                 localStorage.removeItem('tresXSeisActivo_Users');
@@ -3118,11 +3204,93 @@
                 renderReassignLog();
                 renderRetirosTardiosPorValida();
                 
-                alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\nEl historial de acumulados y el monto por jugada se mantuvieron intactos. El listado de ejemplares y el historial de reasignaciones se reiniciaron para la nueva jornada.");
+                alert(`✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\n${liquidarAcumulado ? 'El acumulado se liquidó porque hubo ganadores. El monto por jugada se mantuvo intacto.' : 'El historial de acumulados y el monto por jugada se mantuvieron intactos.'} El listado de ejemplares y el historial de reasignaciones se reiniciaron para la nueva jornada.`);
                 goHome();
             } catch (error) {
                 console.error("❌ Error al vaciar la base de datos:", error);
                 alert("⚠️ Ocurrió un error al vaciar la base de datos. Intenta de nuevo.");
+            }
+        }
+
+        // Agrupa las jugadas por persona: GABRIEL, GABRIEL 02, GABRIEL 03 son un mismo participante.
+        // "GABRIEL D" y "GABRIEL H" son personas distintas. Un apodo con número propio va pegado (PICHO22 03).
+        function agruparJugadasPorParticipante(nombres) {
+            const patron = /^(.*\S) (\d{2})$/;
+            const setNombres = new Set(nombres);
+            const usosBase = {};
+            nombres.forEach(n => { const m = n.match(patron); const k = m ? m[1] : n; usosBase[k] = (usosBase[k] || 0) + 1; });
+            const grupos = {};
+            nombres.forEach(n => {
+                const m = n.match(patron);
+                let clave = n;
+                if (m && (setNombres.has(m[1]) || usosBase[m[1]] >= 2)) clave = m[1];
+                grupos[clave] = (grupos[clave] || 0) + 1;
+            });
+            return Object.entries(grupos).sort((a, b) => a[0].localeCompare(b[0], 'es'));
+        }
+
+        window.generateJugadasDelDiaReport = async function() {
+            await loadUsersFromFirebase();
+            await purgarJugadasIncompletas();
+            const completas = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += ((u.picks && u.picks[r]) || []).length;
+                return total === 18;
+            });
+            if (completas.length === 0) return alert("⚠️ Aún no hay jugadas registradas.");
+
+            const totalJugadas = completas.length;
+            const precio = appState.precioJugada;
+            const montoGeneral = totalJugadas * precio;
+            const porcCasa = Math.round((1 - PORCENTAJE_PREMIO) * 100) / 100;
+            const casa = Math.round(montoGeneral * porcCasa * 100) / 100;
+            const administrador = Math.round(casa * 0.6 * 100) / 100;
+            const sistema = Math.round((casa - administrador) * 100) / 100;
+            const lista = agruparJugadasPorParticipante(completas.map(u => u.name));
+            const sumaListada = lista.reduce((s, [, n]) => s + n, 0);
+            const cuadra = sumaListada === totalJugadas;
+            const pct = x => Math.round(x * 100);
+
+            let msg = '📊 *REPORTE DE JUGADAS DEL DÍA*\n';
+            msg += '📅 ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '💰 *VENTAS DEL DÍA*\n';
+            msg += `Total de jugadas: *${totalJugadas}*\n`;
+            msg += `Monto por jugada: *${formatearBs(precio)}*\n`;
+            msg += `Monto general (total): *${formatearBs(montoGeneral)}*\n\n`;
+            msg += `🏠 *PORCENTAJE DE LA CASA (${pct(porcCasa)}%)*\n`;
+            msg += `Monto: *${formatearBs(casa)}*\n`;
+            msg += `• Administrador (60%): *${formatearBs(administrador)}*\n`;
+            msg += `• Sistema (40%): *${formatearBs(sistema)}*\n\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            msg += `👥 *PARTICIPANTES Y JUGADAS* (${lista.length})\n\n`;
+            lista.forEach(([nombre, n], i) => { msg += `${i + 1}. *${nombre}* — ${n} jugada${n === 1 ? '' : 's'}\n`; });
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += cuadra
+                ? `✅ *CONTROL:* ${sumaListada} jugadas listadas = ${totalJugadas} jugadas del día. Todo cuadra.`
+                : `⚠️ *CONTROL: NO CUADRA* — listadas ${sumaListada}, jugadas del día ${totalJugadas}. Revisa antes de usar este reporte.`;
+
+            document.getElementById('jugadas-dia-preview').textContent = msg;
+            document.getElementById('jugadas-dia-container').classList.remove('hidden');
+            window.lastJugadasDiaReport = msg;
+            actualizarContadorCaracteres(msg, 'jugadas-dia-counter', 'jugadas-dia-split');
+            document.getElementById('jugadas-dia-container').scrollIntoView({ behavior: 'smooth' });
+            if (!cuadra) alert("⚠️ El control no cuadra: " + sumaListada + " listadas vs " + totalJugadas + " jugadas del día.");
+        }
+
+        window.copyJugadasDelDiaReport = async function() {
+            if (!window.lastJugadasDiaReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastJugadasDiaReport);
+                alert("✅ ¡Reporte copiado!");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastJugadasDiaReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte copiado!");
             }
         }
 
