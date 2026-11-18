@@ -1,1228 +1,1526 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0A1128">
-<meta name="description" content="3×6 Activo — Quiniela hípica de supervivencia progresiva. 3 caballos por válida, 6 válidas, 18 selecciones.">
-<title>3×6 ACTIVO · Quiniela Hípica</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230A1128'/%3E%3Cpath d='M12 3.5c-4.6 0-7 3.6-7 7.6 0 3.4 1.9 6.3 4.4 7.4l1-2.4c-1.7-.9-2.9-2.7-2.9-5 0-2.9 1.6-5.2 4.5-5.2s4.5 2.3 4.5 5.2c0 2.3-1.2 4.1-2.9 5l1 2.4c2.5-1.1 4.4-4 4.4-7.4 0-4-2.4-7.6-7-7.6z' fill='%23F5B301'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-/* ================= TOKENS ================= */
-:root{
-  --navy-950:#070D1F;--navy-900:#0A1128;--navy-800:#101A3C;--navy-700:#16224E;--navy-600:#1E2C60;
-  --fuchsia:#FF2E88;--purple:#8B5CF6;--gold:#F5B301;--gold-soft:#FFD34D;
-  --turf:#2DD4A0;--danger:#FF5A6E;--info:#38BDF8;--ember:#FF6B4A;
-  --cream:#F4F0E6;--muted:#9AA3C7;--dim:#5A6491;
-  --line:rgba(139,92,246,.22);--line-strong:rgba(139,92,246,.45);--scrim:rgba(4,8,20,.74);
-  --r-lg:20px;--r-md:14px;--shadow:0 18px 50px -18px rgba(0,0,0,.65);
-  --font-d:'Unbounded',system-ui,sans-serif;--font-b:'Space Grotesk',system-ui,sans-serif;
-  --nav-h:64px;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-[hidden]{display:none!important}
-html{scroll-behavior:smooth}
-body{font-family:var(--font-b);background:var(--navy-900);color:var(--cream);min-height:100vh;overflow-x:hidden;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-::selection{background:var(--fuchsia);color:#fff}
-::-webkit-scrollbar{width:11px;height:8px}
-::-webkit-scrollbar-track{background:var(--navy-950)}
-::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--fuchsia),var(--purple));border-radius:8px;border:2px solid var(--navy-950)}
-::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--gold),var(--fuchsia))}
-*{scrollbar-width:thin;scrollbar-color:var(--purple) var(--navy-950)}
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input,select,textarea{font-family:inherit;color:var(--cream)}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
-h1,h2,h3,h4{font-family:var(--font-d);letter-spacing:.01em}
-.num{font-variant-numeric:tabular-nums}
-
-/* ================= FONDO ================= */
-#bg{position:fixed;inset:0;z-index:-2;overflow:hidden;background:
-  radial-gradient(1200px 700px at 85% -10%,rgba(139,92,246,.16),transparent 60%),
-  radial-gradient(900px 600px at -10% 110%,rgba(255,46,136,.12),transparent 60%),
-  linear-gradient(180deg,var(--navy-950),var(--navy-900) 40%,#0B1330)}
-.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;will-change:transform}
-.blob.b1{width:520px;height:520px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(255,46,136,.35),transparent 70%);animation:drift1 26s ease-in-out infinite alternate}
-.blob.b2{width:620px;height:620px;right:-180px;top:20%;background:radial-gradient(circle,rgba(139,92,246,.32),transparent 70%);animation:drift2 32s ease-in-out infinite alternate}
-.blob.b3{width:420px;height:420px;left:30%;bottom:-160px;background:radial-gradient(circle,rgba(245,179,1,.14),transparent 70%);animation:drift1 38s ease-in-out infinite alternate-reverse}
-@keyframes drift1{to{transform:translate(70px,50px) scale(1.12)}}
-@keyframes drift2{to{transform:translate(-60px,-70px) scale(.92)}}
-#bg::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 90px,rgba(139,92,246,.045) 90px 92px)}
-#bg::after{content:"";position:absolute;inset:0;opacity:.05;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
-
-/* ================= NAV ================= */
-nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:60;display:flex;align-items:center;gap:14px;padding:0 clamp(12px,3vw,28px);background:rgba(7,13,31,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:900;font-size:1.05rem;white-space:nowrap;flex:none}
-.brand svg{width:28px;height:28px;flex:none}
-.brand em{font-style:normal;color:var(--gold)}
-.brand small{font-family:var(--font-b);font-weight:700;font-size:.6rem;letter-spacing:.28em;color:var(--fuchsia);display:block;line-height:1}
-.nav-tabs{display:flex;gap:4px;background:var(--navy-800);border:1px solid var(--line);border-radius:999px;padding:4px;margin-left:auto}
-.nav-tabs button{padding:8px 16px;border-radius:999px;font-weight:700;font-size:.78rem;letter-spacing:.12em;color:var(--muted);transition:.2s}
-.nav-tabs button:hover{color:var(--cream)}
-.nav-tabs button.on{background:linear-gradient(120deg,var(--fuchsia),var(--purple));color:#fff;box-shadow:0 4px 18px -4px rgba(255,46,136,.55)}
-.nav-right{display:flex;align-items:center;gap:10px;flex:none}
-.pot-badge{display:flex;align-items:center;gap:6px;background:rgba(245,179,1,.12);border:1px solid rgba(245,179,1,.4);color:var(--gold-soft);padding:6px 12px;border-radius:999px;font-weight:700;font-size:.8rem;white-space:nowrap}
-.snd{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--navy-800);font-size:1.05rem;display:grid;place-items:center;transition:.2s}
-.snd:hover{border-color:var(--gold);transform:translateY(-1px)}
-.snd.off{opacity:.55}
-
-/* ================= LAYOUT ================= */
-main{max-width:1200px;margin:0 auto;padding:calc(var(--nav-h) + 26px) clamp(12px,3vw,28px) 90px}
-.view-head{margin-bottom:22px}
-.kicker{font-size:.68rem;font-weight:700;letter-spacing:.34em;color:var(--fuchsia);text-transform:uppercase;display:flex;align-items:center;gap:10px}
-.kicker::before{content:"";width:26px;height:2px;background:linear-gradient(90deg,var(--fuchsia),var(--purple))}
-.view-head h1{font-size:clamp(1.5rem,3.6vw,2.3rem);font-weight:900;margin:6px 0 4px;background:linear-gradient(100deg,var(--cream) 30%,var(--gold-soft) 70%,var(--fuchsia));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.view-head p{color:var(--muted);max-width:640px}
-.card{background:linear-gradient(160deg,var(--navy-800),var(--navy-700));border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
-.stagger{opacity:0}
-.animate .stagger{animation:rise .5s cubic-bezier(.2,.8,.25,1) forwards}
-.animate .stagger:nth-child(2){animation-delay:.06s}.animate .stagger:nth-child(3){animation-delay:.12s}
-.animate .stagger:nth-child(4){animation-delay:.18s}.animate .stagger:nth-child(5){animation-delay:.24s}
-@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-
-/* ================= BOTONES / FORM ================= */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:700;letter-spacing:.1em;font-size:.8rem;padding:13px 22px;border-radius:var(--r-md);transition:transform .15s,box-shadow .2s,filter .2s;text-transform:uppercase}
-.btn:active{transform:scale(.97)}
-.btn-gold{background:linear-gradient(120deg,var(--gold),#FFC93C);color:#1A1400;box-shadow:0 8px 26px -8px rgba(245,179,1,.6)}
-.btn-gold:hover{filter:brightness(1.08);transform:translateY(-2px)}
-.btn:disabled{background:var(--navy-600);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:none;filter:none}
-.btn-fuch{background:linear-gradient(120deg,var(--fuchsia),var(--purple));color:#fff;box-shadow:0 8px 26px -8px rgba(255,46,136,.55)}
-.btn-fuch:hover{filter:brightness(1.1);transform:translateY(-2px)}
-.btn-ghost{border:1px solid var(--line-strong);color:var(--cream);background:rgba(139,92,246,.08)}
-.btn-ghost:hover{border-color:var(--purple);background:rgba(139,92,246,.16)}
-.btn-danger{background:linear-gradient(120deg,#E23A52,var(--danger));color:#fff;box-shadow:0 8px 26px -8px rgba(255,90,110,.5)}
-.btn-danger:hover{filter:brightness(1.1)}
-.btn-sm{padding:8px 14px;font-size:.68rem;border-radius:10px}
-.btn-block{width:100%}
-.field label{display:block;font-size:.66rem;font-weight:700;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
-.inp{width:100%;background:var(--navy-950);border:1px solid var(--line-strong);border-radius:var(--r-md);padding:13px 16px;font-size:1rem;transition:.2s}
-.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,179,1,.15);outline:none}
-.inp::placeholder{color:var(--dim)}
-.inp:disabled{opacity:.45;cursor:not-allowed}
-textarea.inp{min-height:190px;resize:vertical;font-size:.82rem;line-height:1.55;white-space:pre;font-family:ui-monospace,'Cascadia Mono',Consolas,monospace}
-select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23F5B301' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
-
-/* ================= ACTIVO ================= */
-.hero-rules{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 24px}
-.rule-chip{display:flex;align-items:center;gap:8px;background:rgba(16,26,60,.8);border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-size:.8rem;color:var(--muted)}
-.rule-chip b{color:var(--gold-soft)}
-.reg-card{max-width:560px;padding:clamp(22px,4vw,36px);position:relative;overflow:hidden}
-.reg-card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--fuchsia),var(--purple),var(--gold))}
-.reg-card h2{font-size:1.25rem;margin-bottom:4px}
-.reg-card>p{color:var(--muted);font-size:.9rem;margin-bottom:20px}
-.reg-card .btn{margin-top:18px}
-.jornada-tag{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;letter-spacing:.14em;color:var(--info);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.35);padding:6px 13px;border-radius:999px;margin-bottom:14px;text-transform:uppercase}
-.sel-layout{display:grid;grid-template-columns:1fr 330px;gap:22px;align-items:start}
-.sel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.sel-head .who{font-family:var(--font-d);font-weight:700;font-size:1.1rem}
-.sel-head .who small{display:block;font-family:var(--font-b);font-size:.64rem;letter-spacing:.26em;color:var(--turf);font-weight:700}
-.race-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.race-card{padding:18px;position:relative;overflow:hidden;transition:border-color .2s}
-.race-card.full{border-color:rgba(45,212,160,.55)}
-.race-card::before{content:"";position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--silk,var(--purple))}
-.rc-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px}
-.rc-top h3{font-size:.86rem;font-weight:700;letter-spacing:.06em}
-.rc-top h3 span{color:var(--silk,var(--purple))}
-.rc-count{font-size:.72rem;font-weight:700;color:var(--muted);background:var(--navy-950);padding:4px 10px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
-.rc-count.ok{color:var(--turf);border-color:rgba(45,212,160,.5)}
-.rc-note{font-size:.68rem;color:var(--danger);margin-top:10px;opacity:.9}
-.horse-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:8px}
-.horse{position:relative;aspect-ratio:1;border-radius:11px;background:var(--navy-950);border:1.5px solid var(--line);font-weight:700;font-size:1.02rem;color:var(--cream);display:grid;place-items:center;transition:transform .12s,border-color .15s,background .15s,box-shadow .2s;font-variant-numeric:tabular-nums}
-.horse::before{content:"";position:absolute;top:0;left:8px;right:8px;height:3.5px;border-radius:0 0 4px 4px;background:var(--silk)}
-.horse:hover{transform:translateY(-2px);border-color:var(--silk)}
-.horse.sel{background:linear-gradient(150deg,rgba(245,179,1,.18),rgba(255,46,136,.12));border-color:var(--gold);color:var(--gold-soft);box-shadow:0 0 0 1px var(--gold),0 6px 18px -6px rgba(245,179,1,.5)}
-.horse.sel::after{content:"✓";position:absolute;top:2px;right:5px;font-size:.6rem;color:var(--gold)}
-.horse.wd{border-color:rgba(255,90,110,.6);color:var(--danger);background:rgba(255,90,110,.08);text-decoration:line-through}
-.horse.wd::before{background:var(--danger)}
-.shake{animation:shake .4s}
-@keyframes shake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
-.play-panel{position:sticky;top:calc(var(--nav-h) + 18px);padding:22px;z-index:5}
-.pp-label{font-size:.64rem;font-weight:700;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
-.pp-count{font-family:var(--font-d);font-weight:900;font-size:2.1rem;line-height:1.1;margin:2px 0 14px}
-.pp-count b{color:var(--gold)}
-.track{position:relative;height:58px;border-radius:12px;background:linear-gradient(180deg,#0D1530,#0A1128);border:1px solid var(--line-strong);overflow:hidden;margin-bottom:14px}
-.track::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dashed rgba(154,163,199,.3)}
-.track::after{content:"";position:absolute;right:6px;top:6px;bottom:6px;width:10px;background:repeating-conic-gradient(var(--cream) 0 25%,var(--navy-950) 0 50%) 0 0/5px 5px;opacity:.85;border-radius:2px}
-.track .flag{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:1rem}
-.track .pony{position:absolute;top:50%;left:4%;transform:translate(-50%,-58%) scaleX(-1);font-size:1.7rem;transition:left .55s cubic-bezier(.34,1.4,.4,1);filter:drop-shadow(0 4px 8px rgba(255,46,136,.4));will-change:left}
-.pips{display:flex;gap:6px;margin-bottom:16px}
-.pip{flex:1;text-align:center;font-size:.6rem;font-weight:700;color:var(--muted);background:var(--navy-950);border:1px solid var(--line);border-radius:8px;padding:5px 0;transition:.2s}
-.pip b{display:block;font-size:.78rem;color:var(--cream)}
-.pip.ok{border-color:rgba(45,212,160,.55);color:var(--turf)}.pip.ok b{color:var(--turf)}
-.pp-help{font-size:.76rem;color:var(--muted);margin-top:10px;text-align:center}
-.ticket{max-width:640px;padding:26px;position:relative;overflow:hidden}
-.ticket::before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,var(--turf),var(--gold),var(--fuchsia))}
-.tk-head{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.tk-head h2{font-size:1.35rem;word-break:break-word}
-.tk-head small{display:block;font-family:var(--font-b);font-size:.64rem;letter-spacing:.28em;color:var(--turf);font-weight:700;margin-bottom:2px}
-.badge{display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;letter-spacing:.1em;padding:6px 12px;border-radius:999px;text-transform:uppercase;white-space:nowrap}
-.badge.paid,.badge.alive{background:rgba(45,212,160,.14);color:var(--turf);border:1px solid rgba(45,212,160,.45)}
-.badge.unpaid{background:rgba(245,179,1,.12);color:var(--gold-soft);border:1px solid rgba(245,179,1,.4)}
-.badge.out{background:rgba(255,90,110,.12);color:var(--danger);border:1px solid rgba(255,90,110,.4)}
-.badge.champ{background:linear-gradient(120deg,rgba(245,179,1,.25),rgba(255,46,136,.2));color:var(--gold-soft);border:1px solid var(--gold)}
-.tk-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line)}
-.tk-row:last-of-type{border-bottom:none}
-.tk-row .vlab{font-size:.68rem;font-weight:700;letter-spacing:.14em;color:var(--muted);width:64px;flex:none}
-.tk-nums{display:flex;gap:8px}
-.tk-num{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-weight:700;background:var(--navy-950);border:1px solid var(--line-strong);font-variant-numeric:tabular-nums}
-.tk-num.hit{border-color:var(--turf);color:var(--turf);box-shadow:0 0 12px -2px rgba(45,212,160,.5)}
-.tk-win{margin-left:auto;font-size:.7rem;color:var(--muted);text-align:right}
-.tk-win b{color:var(--gold-soft)}
-.tk-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
-
-/* ================= RANKING ================= */
-.pot-hero{padding:clamp(22px,4vw,34px);position:relative;overflow:hidden;margin-bottom:18px;background:linear-gradient(130deg,var(--navy-800) 20%,#241448 55%,#3A1040 90%)}
-.pot-hero::before{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(245,179,1,.28),transparent 70%);filter:blur(10px)}
-.pot-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:18px;position:relative}
-.pot-main .pp-label{color:var(--gold-soft)}
-.pot-val{font-family:var(--font-d);font-weight:900;font-size:clamp(1.7rem,4.4vw,2.7rem);color:var(--gold);text-shadow:0 0 34px rgba(245,179,1,.4);line-height:1.15}
-.pot-sub{font-size:.78rem;color:var(--muted);margin-top:4px}
-.pot-stat b{display:block;font-family:var(--font-d);font-size:1.5rem;font-weight:700;margin-top:4px}
-.pot-stat.alive b{color:var(--turf)}.pot-stat.plays b{color:var(--info)}.pot-stat.res b{color:var(--fuchsia)}
-.results-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
-.res-slot{padding:12px 8px;text-align:center;border-radius:var(--r-md);background:var(--navy-800);border:1px solid var(--line)}
-.res-slot small{display:block;font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--muted)}
-.res-slot b{font-family:var(--font-d);font-size:1.35rem;font-weight:700;color:var(--dim)}
-.res-slot.done{border-color:rgba(245,179,1,.5);background:linear-gradient(160deg,rgba(245,179,1,.1),var(--navy-800))}
-.res-slot.done b{color:var(--gold)}
-.rank-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.rank-controls .inp{width:auto;flex:1;min-width:170px;padding:10px 14px;font-size:.88rem}
-.rank-controls select.inp{flex:0 0 auto;min-width:158px}
-.fchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.fchip{padding:7px 14px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.06em;border:1px solid var(--line-strong);color:var(--muted);transition:.15s;display:inline-flex;align-items:center;gap:7px}
-.fchip:hover{color:var(--cream);border-color:var(--purple)}
-.fchip.on{background:linear-gradient(120deg,var(--fuchsia),var(--purple));color:#fff;border-color:transparent}
-.fchip .x{opacity:.7;font-size:.85rem;line-height:1}
-.fchip .x:hover{color:var(--gold)}
-.saved-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.saved-row .fchip{border-style:dashed}
-.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.pod{padding:14px 16px;border-radius:var(--r-md);background:var(--navy-800);border:1px solid var(--line);display:flex;align-items:center;gap:12px}
-.pod .medal{font-size:1.5rem}
-.pod b{display:block;font-size:.95rem;word-break:break-word}
-.pod small{color:var(--muted);font-size:.7rem}
-.pod.g1{border-color:rgba(245,179,1,.6);background:linear-gradient(150deg,rgba(245,179,1,.12),var(--navy-800))}
-.pod.g2{border-color:rgba(154,163,199,.5)}
-.pod.g3{border-color:rgba(255,107,74,.45)}
-.rtable{overflow:hidden}
-.rrow{display:grid;grid-template-columns:44px 1.3fr repeat(6,40px) 66px 116px 92px;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
-.rrow:last-child{border-bottom:none}
-.rrow:hover{background:rgba(139,92,246,.08)}
-.rrow.head{cursor:default;font-size:.6rem;font-weight:700;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;background:var(--navy-950)}
-.rrow.head:hover{background:var(--navy-950)}
-.rpos{font-family:var(--font-d);font-weight:700;color:var(--muted);font-size:.9rem}
-.rrow.top .rpos{color:var(--gold)}
-.rname{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rdots{display:contents}
-.dot{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:.72rem;font-weight:700;margin:0 auto}
-.dot.hit{background:rgba(45,212,160,.16);color:var(--turf);border:1px solid rgba(45,212,160,.5)}
-.dot.miss{background:rgba(255,90,110,.12);color:var(--danger);border:1px solid rgba(255,90,110,.4)}
-.dot.pend{background:var(--navy-950);color:var(--dim);border:1px solid var(--line)}
-.rhits{font-family:var(--font-d);font-weight:700;text-align:center;color:var(--gold-soft)}
-.rpay{font-size:.66rem;font-weight:700;text-align:right}
-.rpay.p{color:var(--turf)}.rpay.u{color:var(--gold-soft)}
-.empty{padding:36px;text-align:center;color:var(--muted);font-size:.9rem}
-
-/* ================= ADMIN ================= */
-.asubnav{position:sticky;top:var(--nav-h);z-index:45;margin:0 0 22px;padding:12px 0 8px;background:linear-gradient(180deg,rgba(7,13,31,.96) 70%,rgba(7,13,31,0));backdrop-filter:blur(10px)}
-.atabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
-.atab{flex:none;display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:13px;font-weight:700;font-size:.78rem;color:var(--muted);border:1px solid var(--line);background:var(--navy-800);transition:.18s;white-space:nowrap}
-.atab:hover{color:var(--cream);border-color:var(--purple);transform:translateY(-1px)}
-.atab .n{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-family:var(--font-d);font-size:.64rem;background:rgba(139,92,246,.18);color:var(--cream)}
-.atab .bdg{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--navy-950);border:1px solid var(--line);color:var(--muted);font-variant-numeric:tabular-nums}
-.atab.on{background:linear-gradient(120deg,var(--fuchsia),var(--purple));color:#fff;border-color:transparent;box-shadow:0 8px 24px -8px rgba(255,46,136,.6)}
-.atab.on .n,.atab.on .bdg{background:rgba(0,0,0,.28);border-color:transparent;color:#fff}
-.apanel{display:grid;gap:18px}
-.page-head{display:flex;align-items:flex-start;gap:16px;padding-bottom:4px}
-.page-head .step{font-family:var(--font-d);font-size:2rem;font-weight:900;color:transparent;-webkit-text-stroke:1.5px var(--tabhue,var(--purple));line-height:1;flex:none}
-.page-head h2{font-size:clamp(1.05rem,2.4vw,1.35rem);margin-bottom:3px}
-.page-head p{color:var(--muted);font-size:.85rem;max-width:62ch}
-.acard{padding:clamp(18px,3vw,26px)}
-.acard h3{font-size:.95rem;margin-bottom:4px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.acard .sub{font-size:.8rem;color:var(--muted);margin-bottom:18px}
-.acard h3 .tag{font-family:var(--font-b);font-size:.6rem;letter-spacing:.2em;color:var(--fuchsia);font-weight:700}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:4px}
-.pager .btn{flex:1;min-width:200px}
-.stepper{display:flex;align-items:center;gap:10px}
-.stepper .inp{width:92px;text-align:center;font-family:var(--font-d);font-weight:700;font-size:1.1rem}
-.step-btn{width:46px;height:46px;border-radius:12px;background:var(--navy-950);border:1px solid var(--line-strong);font-size:1.3rem;font-weight:700;color:var(--gold);transition:.15s;flex:none}
-.step-btn:hover{border-color:var(--gold);transform:translateY(-1px)}
-.money-wrap{position:relative}
-.money-wrap .cur{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--gold);font-size:.9rem}
-.money-wrap .inp{padding-left:48px}
-.accum-total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;background:var(--navy-950);border:1px solid rgba(245,179,1,.35);border-radius:var(--r-md);padding:14px 18px;margin-bottom:14px}
-.accum-total small{font-size:.66rem;font-weight:700;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
-.accum-total b{font-family:var(--font-d);font-size:1.4rem;color:var(--gold)}
-.acc-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:.88rem}
-.acc-row:last-child{border-bottom:none}
-.acc-row b{margin-left:auto;color:var(--gold-soft);font-variant-numeric:tabular-nums}
-.acc-x{width:28px;height:28px;border-radius:8px;color:var(--danger);border:1px solid rgba(255,90,110,.3);font-size:.8rem;flex:none}
-.acc-x:hover{background:rgba(255,90,110,.12)}
-.acc-add{display:grid;grid-template-columns:1fr 130px auto;gap:10px;margin-top:14px}
-.wd-block{padding:16px;border-radius:var(--r-md);background:var(--navy-950);border:1px solid var(--line);margin-bottom:12px}
-.wd-block:last-child{margin-bottom:0}
-.wd-block .rc-top h3{font-size:.78rem}
-.lock-banner{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:var(--r-md);margin-bottom:18px;font-size:.84rem;border:1px solid}
-.lock-banner.locked{background:rgba(245,179,1,.08);border-color:rgba(245,179,1,.4)}
-.lock-banner.open{background:rgba(45,212,160,.07);border-color:rgba(45,212,160,.4)}
-.lock-banner .ico{font-size:1.3rem;line-height:1.2}
-.lock-banner b{display:block;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:3px}
-.lock-banner.locked b{color:var(--gold-soft)}.lock-banner.open b{color:var(--turf)}
-.lock-banner p{color:var(--muted)}
-.report-box{border:1px solid var(--line);border-radius:var(--r-md);padding:16px;background:var(--navy-950);margin-top:12px}
-.report-box .rb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.report-box .rb-head small{font-size:.62rem;font-weight:700;letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
-.tip{font-size:.76rem;color:var(--info);margin-top:14px;display:flex;gap:8px;align-items:center}
-.res-row{display:grid;grid-template-columns:96px 1fr auto auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line)}
-.res-row:last-child{border-bottom:none}
-.res-row .vlab{font-weight:700;font-size:.8rem;letter-spacing:.08em}
-.res-row .vlab small{display:block;color:var(--muted);font-weight:400;font-size:.66rem;letter-spacing:0}
-.res-winner{font-family:var(--font-d);font-weight:700;color:var(--gold);font-size:1.05rem;min-width:74px;text-align:center}
-.danger-zone{border:1px solid rgba(255,90,110,.5);background:linear-gradient(150deg,rgba(255,90,110,.07),var(--navy-800));border-radius:var(--r-lg);padding:22px}
-.danger-zone h3{color:var(--danger);font-size:.9rem;letter-spacing:.14em}
-.danger-zone p{color:var(--muted);font-size:.82rem;margin:6px 0 16px}
-.pay-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.ps{padding:14px 16px;border-radius:var(--r-md);background:var(--navy-950);border:1px solid var(--line)}
-.ps small{font-size:.6rem;font-weight:700;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;display:block}
-.ps b{font-family:var(--font-d);font-size:1.15rem}
-.ps.ok b{color:var(--turf)}.ps.warn b{color:var(--gold-soft)}.ps.info b{color:var(--info)}
-.bulk-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(139,92,246,.14);border:1px solid var(--line-strong);border-radius:var(--r-md);padding:10px 14px;margin-bottom:12px;font-size:.82rem;font-weight:700}
-.pay-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px dashed var(--line)}
-.pay-row:last-child{border-bottom:none}
-.chk{width:20px;height:20px;accent-color:var(--fuchsia);cursor:pointer;flex:none}
-.pay-name{font-weight:700;cursor:pointer;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pay-name:hover{color:var(--gold-soft)}
-.pay-amt{color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums}
-.pill-toggle{padding:7px 14px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.08em;transition:.15s;border:1px solid;flex:none}
-.pill-toggle.p{background:rgba(45,212,160,.14);color:var(--turf);border-color:rgba(45,212,160,.5)}
-.pill-toggle.u{background:rgba(245,179,1,.1);color:var(--gold-soft);border-color:rgba(245,179,1,.4)}
-.pill-toggle:hover{filter:brightness(1.2);transform:translateY(-1px)}
-.warn-line{display:flex;gap:9px;align-items:center;font-size:.78rem;color:var(--gold-soft);background:rgba(245,179,1,.07);border:1px solid rgba(245,179,1,.3);border-radius:10px;padding:10px 14px;margin-bottom:14px}
-.edi-row{display:flex;align-items:center;gap:10px;padding:11px 6px;border-bottom:1px dashed var(--line);border-radius:8px;transition:background .15s}
-.edi-row:last-child{border-bottom:none}
-.edi-row.dragging{opacity:.4;background:rgba(139,92,246,.15)}
-.edi-row.dragover{box-shadow:inset 0 2px 0 var(--gold)}
-.grip{cursor:grab;color:var(--dim);font-size:1rem;padding:4px;flex:none;user-select:none}
-.grip:active{cursor:grabbing}
-.edi-pos{font-family:var(--font-d);font-size:.78rem;color:var(--muted);width:24px;flex:none;text-align:center}
-.edi-name{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
-.edi-name:hover{color:var(--gold-soft)}
-.edi-meta{font-size:.68rem;color:var(--muted);flex:none}
-.icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);display:grid;place-items:center;font-size:.85rem;transition:.15s;flex:none}
-.icon-btn:hover{border-color:var(--purple);background:rgba(139,92,246,.12);transform:translateY(-1px)}
-.icon-btn.del:hover{border-color:var(--danger);background:rgba(255,90,110,.12)}
-.move-btns{display:none;gap:4px}
-@media(hover:none){.move-btns{display:flex}.grip{display:none}}
-.stat-race{margin-bottom:18px}
-.stat-race h4{font-size:.72rem;font-weight:700;letter-spacing:.18em;color:var(--muted);margin-bottom:9px;text-transform:uppercase}
-.bar-row{display:grid;grid-template-columns:56px 1fr 88px;gap:10px;align-items:center;margin-bottom:6px;font-size:.8rem}
-.bar-row .bn{font-weight:700;font-variant-numeric:tabular-nums}
-.bar-track{height:16px;background:var(--navy-950);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
-.bar-fill{height:100%;border-radius:6px;background:var(--bc);box-shadow:0 0 12px -2px var(--bc);min-width:3px;animation:grow .7s cubic-bezier(.2,.8,.25,1)}
-@keyframes grow{from{width:0!important}}
-.bar-row .bv{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;font-size:.72rem}
-
-/* ================= DRAWER / MODAL / TOAST ================= */
-#scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(3px);z-index:70;opacity:0;pointer-events:none;transition:opacity .25s}
-#scrim.on{opacity:1;pointer-events:auto}
-#drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,100%);z-index:80;background:linear-gradient(170deg,var(--navy-800),var(--navy-900));border-left:1px solid var(--line-strong);transform:translateX(105%);transition:transform .32s cubic-bezier(.2,.8,.25,1);overflow-y:auto;padding:24px;box-shadow:-30px 0 60px rgba(0,0,0,.5)}
-#drawer.on{transform:none}
-.dw-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
-.dw-head h2{font-size:1.35rem;word-break:break-word}
-.dw-head small{display:block;font-family:var(--font-b);font-size:.62rem;letter-spacing:.28em;color:var(--fuchsia);font-weight:700;margin-bottom:3px}
-.dw-badges{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
-.dw-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
-.dw-actions .btn{padding:11px 10px;font-size:.7rem}
-#modalWrap{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:16px;background:var(--scrim);backdrop-filter:blur(4px)}
-#modalWrap.on{display:grid}
-.modal{width:min(680px,100%);max-height:88vh;overflow-y:auto;background:linear-gradient(165deg,var(--navy-700),var(--navy-900));border:1px solid var(--line-strong);border-radius:var(--r-lg);padding:clamp(18px,3vw,28px);box-shadow:var(--shadow);animation:pop .28s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes pop{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:none}}
-.modal h2{font-size:1.15rem;margin-bottom:4px}
-.modal .sub{color:var(--muted);font-size:.82rem;margin-bottom:18px}
-.modal .mrace{margin-bottom:14px}
-.modal .mrace .rc-top{margin-bottom:8px}
-.modal .horse-grid{grid-template-columns:repeat(auto-fill,minmax(44px,1fr))}
-.modal .horse{font-size:.9rem;border-radius:9px}
-.m-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap;position:sticky;bottom:-28px;background:linear-gradient(180deg,transparent,var(--navy-900) 32%);padding-top:14px}
-.m-count{font-family:var(--font-d);font-weight:700;color:var(--gold);margin-right:auto;align-self:center;font-size:.95rem}
-.confirm-body{font-size:.9rem;color:var(--muted);line-height:1.6}
-.confirm-body b{color:var(--danger)}
-#toasts{position:fixed;left:16px;bottom:16px;z-index:100;display:flex;flex-direction:column;gap:10px;max-width:min(380px,calc(100vw - 32px))}
-.toast{display:flex;align-items:center;gap:12px;background:linear-gradient(150deg,var(--navy-700),var(--navy-800));border:1px solid var(--line-strong);border-left:4px solid var(--info);border-radius:14px;padding:13px 16px;font-size:.84rem;box-shadow:var(--shadow);animation:tin .3s cubic-bezier(.2,.9,.3,1.15)}
-.toast.ok{border-left-color:var(--turf)}.toast.warn{border-left-color:var(--gold)}.toast.err{border-left-color:var(--danger)}
-.toast span{flex:1}
-.toast .undo-btn{flex:none;font-weight:700;font-size:.7rem;letter-spacing:.1em;color:var(--gold);border:1px solid rgba(245,179,1,.5);padding:6px 12px;border-radius:9px;text-transform:uppercase}
-.toast .undo-btn:hover{background:rgba(245,179,1,.12)}
-.toast .tx{flex:none;color:var(--muted);font-size:1rem;padding:2px}
-.toast.bye{animation:tout .25s forwards}
-@keyframes tin{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
-@keyframes tout{to{opacity:0;transform:translateX(-24px)}}
-#confetti{position:fixed;inset:0;z-index:110;pointer-events:none;overflow:hidden}
-.cf{position:absolute;top:-16px;width:9px;height:14px;border-radius:2px;background:var(--c);left:var(--x);animation:fall var(--d) cubic-bezier(.2,.6,.4,1) forwards;transform:rotate(var(--r))}
-@keyframes fall{to{transform:translateY(108vh) rotate(calc(var(--r) + 560deg)) translateX(var(--sw));opacity:.15}}
-footer{border-top:1px solid var(--line);padding:26px clamp(12px,3vw,28px) 40px;text-align:center;color:var(--muted);font-size:.76rem}
-footer .fdemo{color:var(--purple);text-decoration:underline dotted;font-weight:700;margin-top:8px;display:inline-block;font-size:.72rem}
-footer .fdemo:hover{color:var(--fuchsia)}
-
-/* ================= RESPONSIVE ================= */
-@media(max-width:1000px){.two-col{grid-template-columns:1fr}}
-@media(max-width:920px){
-  .pot-grid{grid-template-columns:1fr 1fr}
-  .rrow{grid-template-columns:34px 1fr 116px;grid-template-areas:"pos name status" "pos dots pay";row-gap:8px}
-  .rrow.head{display:none}
-  .rpos{grid-area:pos}.rname{grid-area:name}.rstatus{grid-area:status;text-align:right}
-  .rdots{display:flex;grid-area:dots;gap:6px}.rdots .dot{margin:0}
-  .rhits{display:none}.rpay{grid-area:pay;text-align:left}
-  .podium{grid-template-columns:1fr}
-}
-@media(max-width:900px){
-  .sel-layout{grid-template-columns:1fr}
-  .race-grid{grid-template-columns:1fr}
-  .play-panel{position:fixed;left:0;right:0;bottom:0;top:auto;border-radius:20px 20px 0 0;z-index:50;padding:14px 16px calc(14px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;background:rgba(10,17,40,.95);backdrop-filter:blur(14px);border:1px solid var(--line-strong);border-bottom:none}
-  .play-panel .pp-label{display:none}
-  .pp-count{font-size:1.3rem;margin:0;grid-column:1}
-  .track{grid-column:1/-1;height:40px;margin:0;order:3}
-  .track .pony{font-size:1.3rem}
-  .pips,.pp-help{display:none}
-  .play-panel .btn{grid-column:2;grid-row:1;padding:12px 18px;font-size:.7rem}
-  #stage-selecting{padding-bottom:160px}
-}
-@media(max-width:640px){
-  nav{gap:8px;padding:0 10px}
-  .brand{font-size:.95rem;gap:8px}.brand svg{width:24px;height:24px}.brand .bword,.brand small{display:none}
-  .nav-tabs{padding:3px;gap:2px}
-  .nav-tabs button{padding:7px 11px;font-size:.64rem;letter-spacing:.06em}
-  .snd{width:34px;height:34px;font-size:.9rem;border-radius:10px}
-  .pot-badge{display:none}
-  .results-strip{grid-template-columns:repeat(3,1fr)}
-  .pot-main{grid-column:1/-1}
-  .pay-summary{grid-template-columns:1fr}
-  .acc-add{grid-template-columns:1fr 1fr}.acc-add .btn{grid-column:1/-1}
-  .res-row{grid-template-columns:1fr auto;row-gap:8px}
-  .res-row select{grid-column:1/-1;order:3}
-  .res-row .acts{grid-column:1/-1;order:4;display:flex}
-  .res-row .acts .btn{flex:1}
-  .page-head .step{font-size:1.5rem}
-  .dw-actions{grid-template-columns:1fr}
-  .pager .btn{min-width:0;flex:1 1 100%}
-}
-@media(max-width:360px){.brand div{display:none}.nav-tabs button{padding:7px 8px;font-size:.6rem}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}.stagger{opacity:1}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tres x Seis Activo - Quiniela Hípica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { orange: '#f97316', amber: '#f59e0b', dark: '#0f172a' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bg-hipodromo {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), 
+                              url('https://cdn-images.bloodhorse.com/i/bloodhorse-images/2024/04/d27c631ac73647fe962e797170fb56db.jpg');
+            background-size: cover; background-position: center center; 
+            background-attachment: fixed; background-repeat: no-repeat; min-height: 100vh;
+        }
+        body { background-color: #0f172a; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(249, 115, 22, 0.2); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white;
+        }
+        .glass-input:focus { border-color: #f97316; outline: none; background: rgba(255, 255, 255, 0.1); }
+        .horse-btn { transition: all 0.2s; }
+        .horse-btn.selected {
+            background: linear-gradient(135deg, #f97316, #f59e0b);
+            color: white; font-weight: 900; border-color: transparent;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.6); transform: scale(1.05);
+        }
+        .horse-btn.scratched { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .whatsapp-preview {
+            background: #0b141a; border-radius: 12px; padding: 16px;
+            font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5;
+            color: #e9edef; white-space: pre-wrap; word-wrap: break-word;
+            max-height: 400px; overflow-y: auto;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
 
-<div id="bg" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
-
-<nav>
-  <div class="brand">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c-5.2 0-8 4.1-8 8.6 0 3.9 2.2 7.2 5 8.4l1.2-2.8c-1.9-1-3.2-3-3.2-5.6 0-3.3 1.8-5.9 5-5.9s5 2.6 5 5.9c0 2.6-1.3 4.6-3.2 5.6l1.2 2.8c2.8-1.2 5-4.5 5-8.4 0-4.5-2.8-8.6-8-8.6z" fill="#F5B301"/><circle cx="6.2" cy="9" r=".9" fill="#0A1128"/><circle cx="17.8" cy="9" r=".9" fill="#0A1128"/><circle cx="7" cy="14" r=".9" fill="#0A1128"/><circle cx="17" cy="14" r=".9" fill="#0A1128"/></svg>
-    <div>3×6 <em class="bword">ACTIVO</em><small>QUINIELA HÍPICA</small></div>
-  </div>
-  <div class="nav-tabs" role="tablist" aria-label="Secciones principales">
-    <button data-action="nav" data-view="activo" class="on" role="tab" aria-selected="true">ACTIVO</button>
-    <button data-action="nav" data-view="ranking" role="tab" aria-selected="false">RANKING</button>
-    <button data-action="nav" data-view="admin" role="tab" aria-selected="false">ADMIN</button>
-  </div>
-  <div class="nav-right">
-    <div class="pot-badge num">🏆 <span>Pozo</span> <b id="navPot">—</b></div>
-    <button class="snd" id="sndBtn" data-action="sound" aria-pressed="true" title="Sonido activado">🔊</button>
-  </div>
-</nav>
-
-<main>
-<!-- ============ ACTIVO ============ -->
-<section id="view-activo" role="tabpanel">
-  <div class="view-head stagger">
-    <div class="kicker">Jornada dominical</div>
-    <h1>Bienvenido a la nueva experiencia hípica</h1>
-    <p>Tres caballos por válida. Seis válidas. Sobrevive a cada resultado o quedas fuera. El último en pie se lleva el pozo.</p>
-    <div class="hero-rules">
-      <span class="rule-chip">🏇 Elige <b>3 caballos</b> por cada una de las <b>6 carreras</b></span>
-      <span class="rule-chip">🚫 Los ejemplares <b>"Retirados"</b> no aparecerán</span>
-      <span class="rule-chip">✅ Debes completar las <b>18 selecciones</b> para enviar</span>
-    </div>
-  </div>
-
-  <div id="stage-register" class="card reg-card stagger">
-    <span class="jornada-tag">📅 <span id="jornadaLabel">—</span></span>
-    <h2>Registro de Jugador</h2>
-    <p>Ingresa tu apodo para activar tu jugada. Si ya tienes una, la cargaremos para que la revises o modifiques.</p>
-    <form id="regForm">
-      <div class="field"><label for="regName">Apodo del participante</label>
-        <input class="inp" id="regName" maxlength="24" placeholder="Ej: El Catire" autocomplete="off" required></div>
-      <button type="submit" class="btn btn-gold btn-block">⚡ ACTIVAR MI JUGADA</button>
-    </form>
-  </div>
-
-  <div id="stage-selecting" hidden>
-    <div class="sel-head">
-      <div class="who"><small>JUGADOR ACTIVO</small><span id="selName">—</span></div>
-      <button class="btn btn-ghost btn-sm" data-action="back-register">← Cambiar apodo</button>
-    </div>
-    <div class="sel-layout">
-      <div class="race-grid" id="raceGrid"></div>
-      <aside class="card play-panel" id="playPanel">
-        <div><div class="pp-label">Progreso</div><div class="pp-count num"><b id="ppCount">0</b>/18</div></div>
-        <div class="track" aria-hidden="true"><span class="flag">🏁</span><span class="pony" id="pony">🏇</span></div>
-        <div class="pips" id="pips"></div>
-        <button class="btn btn-gold btn-block" id="submitBtn" data-action="submit-play" disabled>ENVIAR TU JUGADA</button>
-        <p class="pp-help" id="ppHelp">Selecciona 3 caballos en cada carrera para habilitar</p>
-      </aside>
-    </div>
-  </div>
-
-  <div id="stage-done" hidden><div class="card ticket" id="ticketCard"></div></div>
-</section>
-
-<!-- ============ RANKING ============ -->
-<section id="view-ranking" role="tabpanel" hidden>
-  <div class="view-head stagger">
-    <div class="kicker">Supervivencia progresiva</div>
-    <h1>Tabla de Posiciones</h1>
-    <p>Cada válida cargada elimina a quien no acertó. Toca cualquier participante para ver su jugada completa.</p>
-  </div>
-
-  <div class="card pot-hero stagger">
-    <div class="pot-grid">
-      <div class="pot-main"><div class="pp-label">Pozo de la jornada</div><div class="pot-val num" id="potVal">—</div><div class="pot-sub" id="potSub">—</div></div>
-      <div class="pot-stat alive"><div class="pp-label">Vivos 🔥</div><b class="num" id="stAlive">0</b></div>
-      <div class="pot-stat plays"><div class="pp-label">Jugadas</div><b class="num" id="stPlays">0</b></div>
-      <div class="pot-stat res"><div class="pp-label">Resultados</div><b class="num" id="stRes">0/6</b></div>
-    </div>
-  </div>
-
-  <div class="results-strip stagger" id="resultsStrip"></div>
-
-  <div class="stagger">
-    <div class="rank-controls">
-      <input class="inp" id="rankSearch" placeholder="🔍 Buscar participante…" autocomplete="off">
-      <select class="inp" id="rankSort"><option value="hits">Orden: Aciertos</option><option value="name">Orden: Nombre</option><option value="pay">Orden: Pago</option></select>
-      <button class="btn btn-ghost btn-sm" data-action="refresh-ranking">↻ Actualizar Vista</button>
-    </div>
-    <div class="fchips" id="rankFilters">
-      <button class="fchip on" data-action="rank-filter" data-f="all">Todos</button>
-      <button class="fchip" data-action="rank-filter" data-f="alive">Vivos 🔥</button>
-      <button class="fchip" data-action="rank-filter" data-f="out">Eliminados</button>
-      <button class="fchip" data-action="rank-filter" data-f="paid">Pagados</button>
-      <button class="fchip" data-action="rank-filter" data-f="unpaid">Por cobrar 💰</button>
-    </div>
-    <div class="saved-row" id="savedViews"></div>
-  </div>
-
-  <div class="podium stagger" id="podium"></div>
-  <div class="card rtable stagger" id="rankTable"></div>
-</section>
-
-<!-- ============ ADMIN ============ -->
-<section id="view-admin" role="tabpanel" hidden>
-  <div class="view-head">
-    <div class="kicker">Modo administrador</div>
-    <h1>Panel de Administración</h1>
-    <p>Gestión completa del sistema: configuración, retirados, resultados, cobranza y edición.</p>
-  </div>
-
-  <div class="asubnav">
-    <div class="atabs" id="adminTabs" role="tablist" aria-label="Pestañas de administración">
-      <button class="atab on" data-action="atab" data-t="1" role="tab" aria-selected="true"><span class="n">1</span>Carreras<span class="bdg num" id="bdg1">14</span></button>
-      <button class="atab" data-action="atab" data-t="2" role="tab" aria-selected="false"><span class="n">2</span>Retirados<span class="bdg num" id="bdg2">0</span></button>
-      <button class="atab" data-action="atab" data-t="3" role="tab" aria-selected="false"><span class="n">3</span>Resultados<span class="bdg num" id="bdg3">0/6</span></button>
-      <button class="atab" data-action="atab" data-t="4" role="tab" aria-selected="false"><span class="n">4</span>Cobranza<span class="bdg num" id="bdg4">0</span></button>
-      <button class="atab" data-action="atab" data-t="5" role="tab" aria-selected="false"><span class="n">5</span>Edición<span class="bdg num" id="bdg5">0</span></button>
-    </div>
-  </div>
-
-  <div class="apanel" id="apanel-1" role="tabpanel" style="--tabhue:#FF2E88">
-    <div class="page-head stagger"><span class="step">01</span><div><h2>Carreras y configuración</h2><p>Define cuántos ejemplares corren por válida, el precio de la participación y el pozo acumulado de jornadas anteriores.</p></div></div>
-    <div class="two-col stagger">
-      <div class="card acard">
-        <h3><span class="tag">CONFIG</span> Cantidad de Ejemplares por Válida</h3>
-        <p class="sub">Números disponibles en cada carrera (8 a 20). Al reducir, se depuran las selecciones fuera de rango.</p>
-        <div class="stepper">
-          <button class="step-btn" data-action="horses-step" data-d="-1" aria-label="Menos ejemplares">−</button>
-          <input class="inp num" id="cfgHorses" type="number" min="8" max="20" value="14" aria-label="Ejemplares por válida">
-          <button class="step-btn" data-action="horses-step" data-d="1" aria-label="Más ejemplares">+</button>
+    <header class="glass-panel sticky top-0 z-50 px-4 py-3 flex justify-between items-center border-b border-brand-orange/30">
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-horse-head text-2xl text-brand-orange"></i>
+                <div>
+                    <h1 class="text-lg font-black tracking-tight text-white leading-none">3 x 6</h1>
+                    <span class="text-[10px] font-black text-brand-amber tracking-[0.2em] uppercase">Activo</span>
+                </div>
+            </div>
+            <button onclick="goHome()" class="p-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold transition-all" title="Inicio">
+                <i class="fa-solid fa-house text-sm"></i>
+            </button>
+            <button onclick="showView('view-ranking')" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-orange/20 hover:bg-brand-orange/30 border border-brand-orange/30 text-brand-orange font-bold text-sm transition-all">
+                <i class="fa-solid fa-trophy"></i><span>RANKING</span>
+            </button>
         </div>
-        <div class="field" style="margin-top:20px"><label for="cfgPrice">Monto por jugada</label>
-          <div class="money-wrap"><span class="cur">Bs.</span><input class="inp num" id="cfgPrice" type="number" min="0.5" step="0.5" value="20"></div></div>
-        <p class="sub" style="margin:10px 0 16px">Define el precio de cada participación para esta jornada.</p>
-        <button class="btn btn-gold btn-block" data-action="config-save">GUARDAR CONFIGURACIÓN</button>
-      </div>
-      <div class="card acard">
-        <h3><span class="tag">POZO</span> Historial de Acumulados</h3>
-        <p class="sub">Gestiona los montos acumulados de jornadas sin ganadores.</p>
-        <div class="accum-total"><small>Total Acumulado Actual</small><b class="num" id="accumTotal">—</b></div>
-        <div id="accumList"></div>
-        <div class="acc-add">
-          <input class="inp" id="accLabel" placeholder="Jornada (ej: Dom 22/11)" maxlength="24" aria-label="Etiqueta de jornada">
-          <input class="inp num" id="accAmount" type="number" min="0.5" step="0.5" placeholder="Bs." aria-label="Monto acumulado">
-          <button class="btn btn-fuch btn-sm" data-action="accum-add">＋ AGREGAR MANUAL</button>
+        <div class="flex items-center gap-2">
+            <button onclick="showView('view-ranking')" class="md:hidden p-2 rounded-lg bg-brand-orange/20 text-brand-orange">
+                <i class="fa-solid fa-trophy"></i>
+            </button>
+            <button onclick="openAdmin()" class="text-xs font-bold text-gray-500 hover:text-brand-orange transition-colors flex items-center gap-1 border border-white/10 px-2 py-1 rounded">
+                <i class="fa-solid fa-lock"></i> <span class="hidden sm:inline">ADMIN</span>
+            </button>
         </div>
-        <button class="btn btn-ghost btn-block" style="margin-top:14px" data-action="accum-liquid">💸 LIQUIDAR TODOS</button>
-      </div>
+    </header>
+
+    <div id="view-register" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
+        <div class="glass-panel rounded-3xl p-6 w-full max-w-md text-center">
+            <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
+            <p class="text-sm text-gray-400 mb-4">Bienvenido a la nueva experiencia hípica</p>
+            <div class="text-left bg-brand-orange/10 p-4 rounded-xl text-xs text-gray-300 space-y-2 border border-brand-orange/20 mb-4">
+                <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Elige <b>3 caballos</b> por cada una de las 6 carreras.</p>
+                <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Los ejemplares "Retirados" no aparecerán.</p>
+                <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Debes completar las 18 selecciones para enviar.</p>
+            </div>
+            <input type="text" id="reg-nickname" placeholder="TU APODO ÚNICO" 
+                class="w-full glass-input rounded-xl px-4 py-4 text-lg font-black text-center placeholder-gray-600 mb-4 uppercase tracking-wider">
+            <button onclick="registerUser()" class="w-full bg-gradient-to-r from-brand-orange to-brand-amber text-white font-black text-lg py-4 rounded-xl shadow-lg shadow-orange-500/40 active:scale-95 transition-transform">
+                ACTIVAR MI JUGADA
+            </button>
+        </div>
     </div>
-    <div class="pager stagger"><span></span><button class="btn btn-ghost" data-action="atab" data-t="2">Siguiente · 2. Retirados →</button></div>
-  </div>
 
-  <div class="apanel" id="apanel-2" role="tabpanel" hidden style="--tabhue:#FF5A6E">
-    <div class="page-head stagger"><span class="step">02</span><div><h2>Marcar Ejemplares Retirados</h2><p>Toca un número para retirarlo. Desaparece al instante de la vista del jugador, de las jugadas y de los resultados disponibles.</p></div></div>
-    <div class="card acard stagger">
-      <h3><span class="tag">RETIROS</span> Estado de la pista por válida</h3>
-      <p class="sub">Se conserva siempre un mínimo de 3 ejemplares disponibles por carrera.</p>
-      <div id="wdGrids"></div>
+    <div id="view-play" class="hidden flex-1 p-4 pb-28 fade-in max-w-3xl mx-auto w-full">
+        <div class="glass-panel rounded-2xl p-4 mb-4 flex justify-between items-center border-l-4 border-l-brand-orange sticky top-20 z-30">
+            <div>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Jugador Activo</p>
+                <p class="text-xl font-black text-white" id="display-nickname">---</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Progreso</p>
+                <p class="text-3xl font-black text-brand-amber"><span id="picks-count">0</span><span class="text-gray-500 text-lg">/18</span></p>
+            </div>
+        </div>
+        <div id="races-container" class="space-y-5"></div>
+        <div class="fixed bottom-0 left-0 right-0 p-4 glass-panel border-t border-brand-orange/30 bg-brand-dark/95 backdrop-blur-xl z-40">
+            <button id="btn-submit" onclick="submitBet()" disabled 
+                class="w-full bg-gray-800 text-gray-500 font-black text-lg py-4 rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
+                <i class="fa-solid fa-paper-plane"></i> ENVIAR TU JUGADA
+            </button>
+            <p id="submit-hint" class="text-center text-xs text-gray-500 mt-2 font-medium">Selecciona 3 caballos en cada carrera para habilitar</p>
+        </div>
     </div>
-    <div class="pager stagger"><button class="btn btn-ghost" data-action="atab" data-t="1">← 1. Carreras</button><button class="btn btn-ghost" data-action="atab" data-t="3">Siguiente · 3. Resultados →</button></div>
-  </div>
 
-  <div class="apanel" id="apanel-3" role="tabpanel" hidden style="--tabhue:#F5B301">
-    <div class="page-head stagger"><span class="step">03</span><div><h2>Cargar Resultados Carrera por Carrera</h2><p>El reporte de jugadas es obligatorio antes del primer resultado. Después, cada válida cargada elimina participantes en vivo.</p></div></div>
-    <div class="card acard stagger">
-      <div class="lock-banner locked" id="lockBanner"></div>
-      <h3><span class="tag">PASO 1</span> Reporte de jugadas</h3>
-      <p class="sub">Genera el reporte completo de todas las jugadas para compartir en el grupo ANTES de cargar el primer resultado.</p>
-      <button class="btn btn-fuch" data-action="report-gen" data-kind="jugadas">📋 GENERAR REPORTE DE JUGADAS</button>
-      <div class="report-box"><div class="rb-head"><small>Vista Previa · Jugadas</small><button class="btn btn-ghost btn-sm" data-action="report-copy" data-kind="jugadas">COPIAR</button></div>
-        <textarea class="inp" id="prev-jugadas" readonly placeholder="Genera el reporte para ver la vista previa…"></textarea></div>
-      <h3 style="margin-top:26px"><span class="tag">PASO 2</span> Ganadores oficiales</h3>
-      <p class="sub">Selecciona el número ganador de cada válida y cárgalo. Puedes quitarlo y volver a cargarlo.</p>
-      <div id="resultRows"></div>
-      <h3 style="margin-top:26px"><span class="tag">PASO 3</span> Reporte de resultados</h3>
-      <p class="sub">Comparte el avance de la jornada: ganadores por válida y sobrevivientes.</p>
-      <button class="btn btn-fuch" data-action="report-gen" data-kind="resultados">📋 GENERAR REPORTE DE RESULTADOS</button>
-      <div class="report-box"><div class="rb-head"><small>Vista Previa · Resultados</small><button class="btn btn-ghost btn-sm" data-action="report-copy" data-kind="resultados">COPIAR</button></div>
-        <textarea class="inp" id="prev-resultados" readonly placeholder="Genera el reporte para ver la vista previa…"></textarea></div>
-      <p class="tip">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+    <div id="view-ranking" class="hidden flex-1 p-4 fade-in max-w-3xl mx-auto w-full pb-10">
+        <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-amber/40 bg-brand-amber/5">
+            <i class="fa-solid fa-trophy text-4xl text-brand-amber mb-2 drop-shadow-lg"></i>
+            <h2 class="text-2xl font-black text-white">Tabla de Posiciones</h2>
+            <p class="text-xs text-gray-400 mt-1">Sistema de supervivencia progresiva</p>
+        </div>
+        <div id="ranking-list" class="space-y-4"></div>
+        <button onclick="location.reload()" class="w-full mt-6 glass-input text-brand-orange font-bold py-3 rounded-xl active:scale-95 transition-transform">
+            <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar Vista
+        </button>
     </div>
-    <div class="danger-zone stagger">
-      <h3>⚠️ ZONA PELIGROSA</h3>
-      <p>Vacía toda la base de datos para iniciar una nueva jornada dominical. Se eliminan jugadas, resultados y retirados. El acumulado y la configuración se conservan.</p>
-      <button class="btn btn-danger" data-action="jornada-new">🗑️ INICIAR NUEVA JORNADA</button>
+
+    <div id="view-admin" class="hidden flex-1 p-4 fade-in max-w-4xl mx-auto w-full pb-10">
+        <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-orange/40 bg-brand-orange/5">
+            <i class="fa-solid fa-shield-halved text-4xl text-brand-orange mb-2 drop-shadow-lg"></i>
+            <h2 class="text-2xl font-black text-white">Panel de Administración</h2>
+            <p class="text-xs text-gray-400 mt-1">Gestión completa del sistema</p>
+        </div>
+        
+        <div class="flex border-b border-white/10 mb-6 overflow-x-auto no-scrollbar sticky top-20 z-40 glass-panel rounded-t-xl">
+            <button onclick="switchAdminTab('adm-config')" class="adm-tab flex-1 py-3 text-xs font-black text-brand-orange border-b-2 border-brand-orange bg-white/5 whitespace-nowrap px-2">1. Carreras</button>
+            <button onclick="switchAdminTab('adm-retirados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">2. Retirados</button>
+            <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
+            <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
+            <button onclick="switchAdminTab('adm-edicion'); renderAdminEditList();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">5. Edición</button>
+        </div>
+
+        <div class="glass-panel rounded-2xl rounded-tl-none p-6 min-h-[400px]">
+            <div id="adm-config" class="adm-content block">
+                <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Cantidad de Ejemplares por Válida</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="admin-race-inputs"></div>
+                
+                <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-blue-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-coins mr-2"></i>MONTO POR JUGADA
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Define el precio de cada participación para esta jornada.</p>
+                    <div class="flex gap-2">
+                        <input type="number" id="config-precio" value="800" min="100" step="100" 
+                            class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg">
+                        <span class="flex items-center text-gray-400 font-bold">Bs.</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-amber-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-trophy mr-2"></i>HISTORIAL DE ACUMULADOS
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Gestiona los montos acumulados de jornadas sin ganadores.</p>
+                    
+                    <div class="mb-3 p-3 bg-brand-dark/50 rounded-lg border border-white/10 text-center">
+                        <p class="text-[10px] text-gray-400 uppercase">Total Acumulado Actual</p>
+                        <p class="text-2xl font-black text-green-400" id="display-total-acumulado">Bs. 0,00</p>
+                    </div>
+
+                    <div id="lista-historial-acumulados" class="space-y-2 mb-3 max-h-40 overflow-y-auto pr-1"></div>
+
+                    <div class="flex gap-2">
+                        <button onclick="agregarAcumuladoManual()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-plus"></i> AGREGAR MANUAL
+                        </button>
+                        <button onclick="liquidarAcumulados()" class="flex-1 bg-red-600 hover:bg-red-500 text-white text-xs font-black py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> LIQUIDAR TODOS
+                        </button>
+                    </div>
+                </div>
+                
+                <button onclick="saveRaceConfig()" class="w-full mt-6 bg-brand-amber text-black font-black py-3 rounded-xl active:scale-95 transition-transform">
+                    <i class="fa-solid fa-save mr-2"></i>GUARDAR CONFIGURACIÓN
+                </button>
+            </div>
+            
+            <div id="adm-retirados" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">Marcar Ejemplares Retirados</h3>
+                <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo.</p>
+                <div id="admin-scratch-container" class="space-y-4"></div>
+            </div>
+            
+            <div id="adm-resultados" class="adm-content hidden">
+                <h3 class="text-sm font-black text-brand-amber mb-4 uppercase tracking-wider">Cargar Resultados Carrera por Carrera</h3>
+                <div id="initial-report-section" class="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-blue-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-clipboard-list mr-2"></i>REPORTE OBLIGATORIO ANTES DE INICIAR
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Genera el reporte completo de todas las jugadas para compartir en el grupo ANTES de cargar el primer resultado.</p>
+                    <button onclick="generateInitialReport()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl shadow-lg shadow-blue-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        <span>📋 GENERAR REPORTE DE JUGADAS</span>
+                    </button>
+                    <div id="initial-report-preview-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-blue-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyInitialReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="initial-report-preview" class="whatsapp-preview border border-blue-500/30"></div>
+                    </div>
+                </div>
+                <div id="admin-results-container" class="space-y-3"></div>
+                <div id="whatsapp-section" class="hidden mt-6 space-y-3">
+                    <button onclick="generateWhatsAppReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        <span>📋 GENERAR REPORTE DE RESULTADOS</span>
+                    </button>
+                    <div id="whatsapp-preview-container" class="hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-xs font-black text-green-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h4>
+                            <button onclick="copyWhatsAppReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
+                        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+                    </div>
+                </div>
+                
+                <div id="reset-section" class="mt-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>ZONA PELIGROSA
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Vacía toda la base de datos para iniciar una nueva jornada dominical.</p>
+                    <button onclick="resetAllData()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trash-can text-xl"></i>
+                        <span>🗑️ INICIAR NUEVA JORNADA</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="adm-cobranza" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-4 uppercase tracking-wider">Control de Pagos (Bs.)</h3>
+                <div id="admin-payment-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
+                
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <button onclick="generatePaymentReport()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        <span>📋 GENERAR LOG DE COBRANZA</span>
+                    </button>
+                    <div id="payment-report-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-green-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyPaymentReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="payment-report-preview" class="whatsapp-preview border border-green-500/30"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="adm-edicion" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">✏️ Edición de Jugadas</h3>
+                <p class="text-xs text-gray-400 mb-4">Modifica o elimina las jugadas de los participantes.</p>
+                <div class="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                    <p class="text-xs text-yellow-400 font-bold">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                        ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
+                    </p>
+                </div>
+                
+                <div class="mb-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-purple-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-chart-simple mr-2"></i>ANÁLISIS ESTADÍSTICO
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Muestra los 5 números más elegidos por carrera.</p>
+                    <button onclick="generateAveragesReport()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl shadow-lg shadow-purple-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-bar text-xl"></i>
+                        <span>📊 GENERAR PROMEDIOS</span>
+                    </button>
+                    <div id="averages-report-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-purple-400 uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyAveragesReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="averages-report-preview" class="whatsapp-preview border border-purple-500/30"></div>
+                    </div>
+                </div>
+
+                <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+            </div>
+        </div>
     </div>
-    <div class="pager stagger"><button class="btn btn-ghost" data-action="atab" data-t="2">← 2. Retirados</button><button class="btn btn-ghost" data-action="atab" data-t="4">Siguiente · 4. Cobranza →</button></div>
-  </div>
 
-  <div class="apanel" id="apanel-4" role="tabpanel" hidden style="--tabhue:#2DD4A0">
-    <div class="page-head stagger"><span class="step">04</span><div><h2>Control de Pagos (Bs.)</h2><p>Marca pagos individuales o usa selección múltiple. Cada cambio se puede deshacer y el log se copia listo para el grupo.</p></div></div>
-    <div class="card acard stagger">
-      <div class="pay-summary">
-        <div class="ps ok"><small>Recaudado</small><b class="num" id="psPaid">—</b></div>
-        <div class="ps warn"><small>Pendiente</small><b class="num" id="psUnpaid">—</b></div>
-        <div class="ps info"><small>Jugadas</small><b class="num" id="psCount">—</b></div>
-      </div>
-      <div class="bulk-bar" id="bulkBar" hidden><span id="bulkCount">0 seleccionados</span>
-        <button class="btn btn-gold btn-sm" data-action="bulk-pay" data-v="1">✓ Marcar pagados</button>
-        <button class="btn btn-ghost btn-sm" data-action="bulk-pay" data-v="0">Marcar pendientes</button></div>
-      <div class="pay-row" style="border-bottom:1px solid var(--line-strong)">
-        <input type="checkbox" class="chk" id="bulkAll" aria-label="Seleccionar todos">
-        <span style="font-size:.66rem;font-weight:700;letter-spacing:.18em;color:var(--muted)">PARTICIPANTE</span>
-        <span style="margin-left:auto;font-size:.66rem;font-weight:700;letter-spacing:.18em;color:var(--muted)">ESTADO</span></div>
-      <div id="payList"></div>
-      <div style="margin-top:20px">
-        <button class="btn btn-fuch" data-action="report-gen" data-kind="cobranza">📋 GENERAR LOG DE COBRANZA</button>
-        <div class="report-box"><div class="rb-head"><small>Vista Previa · Cobranza</small><button class="btn btn-ghost btn-sm" data-action="report-copy" data-kind="cobranza">COPIAR</button></div>
-          <textarea class="inp" id="prev-cobranza" readonly placeholder="Genera el log para ver la vista previa…"></textarea></div>
-      </div>
+    <div id="modal-edit-bet" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
+                <h2 class="text-lg font-black text-brand-orange">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i>
+                    Editar Jugada
+                </h2>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white p-2">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <div class="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                    <label class="text-xs font-black text-blue-400 uppercase tracking-wider mb-2 block">
+                        <i class="fa-solid fa-user mr-1"></i>APODO DEL PARTICIPANTE
+                    </label>
+                    <input type="text" id="edit-user-name-input" 
+                        class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg uppercase"
+                        placeholder="INGRESA EL NUEVO APODO">
+                </div>
+                
+                <p class="text-xs text-gray-400 mb-4">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>
+                <div id="edit-races-container" class="space-y-4"></div>
+                <div class="mt-6 flex gap-3">
+                    <button onclick="saveEditedBet()" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        <i class="fa-solid fa-save mr-2"></i>GUARDAR CAMBIOS
+                    </button>
+                    <button onclick="closeEditModal()" class="px-6 bg-gray-700 hover:bg-gray-600 text-white font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        CANCELAR
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="pager stagger"><button class="btn btn-ghost" data-action="atab" data-t="3">← 3. Resultados</button><button class="btn btn-ghost" data-action="atab" data-t="5">Siguiente · 5. Edición →</button></div>
-  </div>
 
-  <div class="apanel" id="apanel-5" role="tabpanel" hidden style="--tabhue:#8B5CF6">
-    <div class="page-head stagger"><span class="step">05</span><div><h2>Edición de Jugadas y Estadística</h2><p>Modifica o elimina las jugadas de los participantes y descubre los números más elegidos por carrera.</p></div></div>
-    <div class="card acard stagger">
-      <h3><span class="tag">✏️</span> Edición de Jugadas</h3>
-      <p class="sub">Arrastra ⠿ para cambiar el orden en que aparecen en los reportes. En móvil usa las flechas ↑ ↓.</p>
-      <div class="warn-line">⚠️ Los cambios se aplican inmediatamente. Usa con precaución.</div>
-      <input class="inp" id="ediSearch" placeholder="🔍 Buscar jugada…" autocomplete="off" style="margin-bottom:12px">
-      <div id="ediList"></div>
-    </div>
-    <div class="card acard stagger">
-      <h3><span class="tag">📊</span> Análisis Estadístico</h3>
-      <p class="sub">Muestra los 5 números más elegidos por carrera.</p>
-      <button class="btn btn-fuch" data-action="report-gen" data-kind="promedios">📊 GENERAR PROMEDIOS</button>
-      <div id="statsViz" style="margin-top:18px"></div>
-      <div class="report-box"><div class="rb-head"><small>Vista Previa · Promedios</small><button class="btn btn-ghost btn-sm" data-action="report-copy" data-kind="promedios">COPIAR</button></div>
-        <textarea class="inp" id="prev-promedios" readonly placeholder="Genera los promedios para ver la vista previa…"></textarea></div>
-    </div>
-    <div class="pager stagger"><button class="btn btn-ghost" data-action="atab" data-t="4">← 4. Cobranza</button><button class="btn btn-ghost" data-action="nav" data-view="ranking">Ver tabla de posiciones →</button></div>
-  </div>
-</section>
-</main>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-<footer>
-  <div><b style="color:var(--gold)">3×6 ACTIVO</b> · Quiniela hípica de supervivencia · Hecho para la jornada dominical 🏇</div>
-  <div style="margin-top:4px">Los retirados no aparecen · 18 selecciones obligatorias · Juega con responsabilidad</div>
-  <button class="fdemo" data-action="restore-demo">Restaurar datos de demostración</button>
-</footer>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqxEkSUcSTx1iYFdfCC4WhCjAl_3d4dBY",
+            authDomain: "tres-x-seis-activo.firebaseapp.com",
+            projectId: "tres-x-seis-activo",
+            storageBucket: "tres-x-seis-activo.firebasestorage.app",
+            messagingSenderId: "993946546247",
+            appId: "1:993946546247:web:3f2b7269f5435cc6144162"
+        };
 
-<div id="scrim" data-action="drawer-close"></div>
-<aside id="drawer" aria-label="Detalle de jugada"></aside>
-<div id="modalWrap" role="dialog" aria-modal="true"><div class="modal" id="modalBox"></div></div>
-<div id="toasts" aria-live="polite"></div>
-<div id="confetti" aria-hidden="true"></div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-<script>
-'use strict';
-/* ============ UTILS ============ */
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const pad2=n=>String(n).padStart(2,'0');
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmtBs=n=>'Bs. '+Number(n||0).toLocaleString('es-VE',{minimumFractionDigits:2,maximumFractionDigits:2});
-const clone=o=>JSON.parse(JSON.stringify(o));
-const SILKS=['#FF2E88','#8B5CF6','#F5B301','#2DD4A0','#38BDF8','#FF6B4A'];
-const silk=n=>SILKS[(n-1)%6];
-const RACES=6,PER=3,TOTAL=18;
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function nextSundayDate(){const d=new Date();d.setDate(d.getDate()+((7-d.getDay())%7||7));return d;}
-function nextSunday(){const d=nextSundayDate();const s=d.toLocaleDateString('es-VE',{weekday:'long',day:'numeric',month:'long'});return (s.charAt(0).toUpperCase()+s.slice(1))+' · '+d.getFullYear();}
-function shortSunday(){const d=nextSundayDate();return 'Dom '+pad2(d.getDate())+'/'+pad2(d.getMonth()+1);}
-const emptyPicks=()=>Array.from({length:RACES},()=>[]);
+        const PORCENTAJE_PREMIO = 0.80;
 
-/* ============ ESTADO ============ */
-const LS='tresx6_v4',LS_PREV='tresx6_v3';
-let store=null,storageOK=true;
-function seed(){
-  const rng=mulberry32(20261122);
-  const names=['El Catire','Yorge Luis','La Doña','Papu','Chelito','El Profe','Kiko','Morena','Tío Simón','La Negra','Beto 507','Rafa El Grande'];
-  const withdrawn=[[],[],[4,11],[],[2],[]];
-  const force7=new Set([0,3,5,9]);
-  const players=names.map((name,i)=>{
-    const picks=[];
-    for(let r=0;r<RACES;r++){
-      const pool=[];for(let n=1;n<=14;n++)if(!withdrawn[r].includes(n))pool.push(n);
-      for(let j=pool.length-1;j>0;j--){const k=Math.floor(rng()*(j+1));[pool[j],pool[k]]=[pool[k],pool[j]];}
-      const three=pool.slice(0,3);
-      if(r===0){
-        if(force7.has(i)&&!three.includes(7))three[0]=7;
-        if(!force7.has(i)&&three.includes(7)){const alt=pool.find(n=>n!==7&&!three.includes(n));three[three.indexOf(7)]=alt;}
-      }
-      picks.push(three.sort((a,b)=>a-b));
-    }
-    return {id:'p'+(i+1),name,picks,paid:i<8,ts:Date.now()-(names.length-i)*60000};
-  });
-  return {config:{horses:14,price:20},players,withdrawn,results:[7,null,null,null,null,null],
-    accum:[{id:'a1',label:'Dom 08/11',amount:200},{id:'a2',label:'Dom 15/11',amount:250}],
-    reportGenerated:true,sound:true,savedViews:[]};
-}
-function normalize(s){
-  delete s.agenda;delete s.agViews;
-  s.config=s.config||{horses:14,price:20};
-  s.players=Array.isArray(s.players)?s.players:[];
-  s.players.forEach(p=>{p.picks=Array.isArray(p.picks)&&p.picks.length===RACES?p.picks:emptyPicks();p.paid=!!p.paid;});
-  s.withdrawn=Array.isArray(s.withdrawn)&&s.withdrawn.length===RACES?s.withdrawn:Array.from({length:RACES},()=>[]);
-  s.results=Array.isArray(s.results)&&s.results.length===RACES?s.results:Array(RACES).fill(null);
-  s.accum=Array.isArray(s.accum)?s.accum:[];
-  s.savedViews=Array.isArray(s.savedViews)?s.savedViews:[];
-  s.sound=s.sound!==false;s.reportGenerated=!!s.reportGenerated;
-  return s;
-}
-function load(){
-  try{
-    let raw=localStorage.getItem(LS);
-    if(!raw)raw=localStorage.getItem(LS_PREV);
-    if(raw){store=normalize(JSON.parse(raw));save();return;}
-  }catch(e){storageOK=false;}
-  store=seed();save();
-}
-function save(){if(!storageOK)return;try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){storageOK=false;toast('Sin almacenamiento local: los cambios vivirán solo en esta sesión.','warn');}}
-const ui={view:'activo',stage:'register',name:'',draft:emptyPicks(),editingId:null,adminTab:1,
-  rankFilter:'all',rankSearch:'',rankSort:'hits',drawerId:null,bulk:new Set(),modalPicks:null,modalId:null,confirmFn:null};
-const accumTotal=()=>store.accum.reduce((s,a)=>s+a.amount,0);
-const pot=()=>store.players.length*store.config.price+accumTotal();
-const loadedResults=()=>store.results.filter(r=>r!==null).length;
-const byId=id=>store.players.find(p=>p.id===id);
-const draftCount=()=>ui.draft.reduce((s,a)=>s+a.length,0);
-const available=r=>{const o=[];for(let n=1;n<=store.config.horses;n++)if(!store.withdrawn[r].includes(n))o.push(n);return o;};
-function status(p){let hits=0;for(let r=0;r<RACES;r++){const w=store.results[r];if(w===null)continue;if(p.picks[r].includes(w))hits++;else return{alive:false,outAt:r+1,hits,champ:false};}return{alive:true,outAt:null,hits,champ:loadedResults()===RACES};}
+        const appState = {
+            currentUser: null,
+            raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
+            scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+            results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
+            users: [],
+            editingUser: null,
+            editingPicks: null,
+            precioJugada: 800,
+            historialAcumulados: [],
+            isAdmin: false
+        };
 
-/* ============ SONIDO ============ */
-let actx=null;
-function ac(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(actx&&actx.state==='suspended')actx.resume();return actx;}
-function tone(f,dur,type,g,when){const c=ac();if(!c||!store.sound)return;const o=c.createOscillator(),v=c.createGain(),t=c.currentTime+(when||0);o.type=type||'triangle';o.frequency.value=f;v.gain.setValueAtTime(.0001,t);v.gain.exponentialRampToValueAtTime(g||.12,t+.012);v.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(v).connect(c.destination);o.start(t);o.stop(t+dur+.05);}
-const sfx={pick(){tone(880,.09,'triangle',.1);},unpick(){tone(440,.09,'triangle',.08);},err(){tone(170,.16,'sawtooth',.07);tone(140,.16,'sawtooth',.05,.02);},submit(){[523,659,784,1047].forEach((f,i)=>tone(f,.16,'triangle',.11,i*.09));},cash(){tone(1180,.07,'square',.06);tone(1580,.1,'square',.06,.07);},out(){tone(220,.22,'sawtooth',.08);tone(160,.3,'sawtooth',.07,.12);},ok(){tone(700,.1,'triangle',.09);tone(940,.12,'triangle',.09,.08);},tab(){tone(620,.06,'sine',.06);}};
-document.addEventListener('pointerdown',()=>ac(),{once:true});
-function syncSound(){const b=$('#sndBtn');b.textContent=store.sound?'🔊':'🔇';b.classList.toggle('off',!store.sound);b.setAttribute('aria-pressed',String(store.sound));b.title=store.sound?'Sonido activado — toca para silenciar':'Sonido silenciado — toca para activar';}
+        async function saveConfigToFirebase() {
+            try {
+                const configDoc = doc(db, "global_config", "main");
+                await setDoc(configDoc, {
+                    raceConfig: appState.raceConfig,
+                    scratched: appState.scratched,
+                    results: appState.results,
+                    precioJugada: appState.precioJugada,
+                    historialAcumulados: appState.historialAcumulados,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error("❌ Error guardando configuración:", error);
+            }
+            localStorage.setItem('tresXSeisActivo_Config', JSON.stringify({
+                raceConfig: appState.raceConfig,
+                scratched: appState.scratched,
+                results: appState.results,
+                precioJugada: appState.precioJugada,
+                historialAcumulados: appState.historialAcumulados
+            }));
+        }
 
-/* ============ TOAST / UNDO / CONFETTI ============ */
-function toast(msg,type,undo,dur){
-  const box=$('#toasts');if(box.children.length>=4)box.firstChild.remove();
-  const el=document.createElement('div');el.className='toast '+(type||'');
-  const s=document.createElement('span');s.textContent=msg;el.appendChild(s);
-  const t=setTimeout(kill,dur||(undo?8000:3600));
-  if(undo){const b=document.createElement('button');b.className='undo-btn';b.textContent=undo.label||'Deshacer';b.onclick=()=>{undo.fn();kill();};el.appendChild(b);}
-  const x=document.createElement('button');x.className='tx';x.textContent='✕';x.setAttribute('aria-label','Cerrar');x.onclick=kill;el.appendChild(x);
-  box.appendChild(el);
-  function kill(){clearTimeout(t);if(!el.parentNode)return;el.classList.add('bye');setTimeout(()=>el.remove(),240);}
-}
-function snapshot(){return clone({players:store.players,results:store.results,withdrawn:store.withdrawn,accum:store.accum,reportGenerated:store.reportGenerated});}
-function restore(s){Object.assign(store,clone(s));ui.bulk.clear();save();refreshAll();}
-function undoable(label,s){toast(label,'ok',{label:'Deshacer',fn(){restore(s);toast('Restaurado ✓','ok');}});}
-let cfTimer=null;
-function confetti(){if(reduced)return;const box=$('#confetti');box.innerHTML='';clearTimeout(cfTimer);
-  for(let i=0;i<42;i++){const s=document.createElement('span');s.className='cf';s.style.setProperty('--c',SILKS[i%6]);s.style.setProperty('--x',(4+Math.random()*92)+'vw');s.style.setProperty('--d',(1.1+Math.random()*.9)+'s');s.style.setProperty('--r',(Math.random()*360)+'deg');s.style.setProperty('--sw',((Math.random()*2-1)*120)+'px');s.style.animationDelay=(Math.random()*.25)+'s';box.appendChild(s);}
-  cfTimer=setTimeout(()=>{box.innerHTML='';},2400);}
+        async function loadConfigFromFirebase() {
+            try {
+                const configDoc = doc(db, "global_config", "main");
+                const docSnap = await getDoc(configDoc);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    appState.raceConfig = data.raceConfig || appState.raceConfig;
+                    appState.scratched = data.scratched || appState.scratched;
+                    appState.results = data.results || appState.results;
+                    appState.precioJugada = data.precioJugada || 800;
+                    appState.historialAcumulados = data.historialAcumulados || [];
+                    return true;
+                }
+            } catch (error) {
+                console.warn("⚠️ Error cargando configuración:", error);
+            }
+            return false;
+        }
 
-/* ============ RUTAS ============ */
-const VIEWS=['activo','ranking','admin'];
-function go(view,tab){const t=(tab>=1&&tab<=5)?tab:ui.adminTab;const hash=view==='admin'?'#/admin/'+t:'#/'+view;if(location.hash!==hash)location.hash=hash;else applyRoute();}
-function applyRoute(){
-  const parts=location.hash.replace(/^#\/?/,'').split('/').filter(Boolean);
-  const v=VIEWS.includes(parts[0])?parts[0]:'activo';
-  let t=parseInt(parts[1],10);if(!(t>=1&&t<=5))t=ui.adminTab||1;
-  showView(v);if(v==='admin')showATab(t);
-}
-function showView(v){
-  const changed=ui.view!==v;ui.view=v;
-  $$('.nav-tabs button').forEach(b=>{const on=b.dataset.view===v;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));});
-  VIEWS.forEach(k=>{const s=$('#view-'+k);s.hidden=k!==v;if(k===v){s.classList.remove('animate');void s.offsetWidth;s.classList.add('animate');}});
-  closeDrawer();
-  if(changed)window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});
-  refreshAll();
-}
-function showATab(t){
-  const changed=ui.adminTab!==t;ui.adminTab=t;
-  $$('#adminTabs .atab').forEach(b=>{const on=+b.dataset.t===t;b.classList.toggle('on',on);b.setAttribute('aria-selected',String(on));});
-  for(let i=1;i<=5;i++)$('#apanel-'+i).hidden=i!==t;
-  const p=$('#apanel-'+t);p.classList.remove('animate');void p.offsetWidth;p.classList.add('animate');
-  const a=$('#adminTabs .atab.on');if(a&&a.scrollIntoView)a.scrollIntoView({block:'nearest',inline:'center',behavior:reduced?'auto':'smooth'});
-  if(changed){sfx.tab();window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});}
-  refreshAdmin();
-}
-window.addEventListener('hashchange',applyRoute);
+        async function loadUsersFromFirebase() {
+            try {
+                const usersSnapshot = await getDocs(collection(db, "usuarios"));
+                const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                appState.users = users;
+                return true;
+            } catch (error) {
+                console.warn("⚠️ Error cargando usuarios:", error);
+            }
+            return false;
+        }
 
-/* ============ ACTIVO ============ */
-function setStage(st){
-  ui.stage=st;
-  $('#stage-register').hidden=st!=='register';$('#stage-selecting').hidden=st!=='selecting';$('#stage-done').hidden=st!=='done';
-  if(st==='selecting'){renderRaceGrid();updatePanel();}
-  if(st==='done')renderTicket();
-  if(st==='register'){$('#regName').value='';setTimeout(()=>{if(ui.view==='activo')$('#regName').focus();},80);}
-}
-function horseBtn(n,r,sel,scope){return '<button class="horse'+(sel?' sel':'')+'" style="--silk:'+silk(n)+'" data-action="chip" data-scope="'+scope+'" data-r="'+r+'" data-n="'+n+'" aria-pressed="'+sel+'" aria-label="Ejemplar '+pad2(n)+' válida '+(r+1)+'">'+pad2(n)+'</button>';}
-function renderRaceGrid(){
-  $('#selName').textContent=ui.name;
-  $('#raceGrid').innerHTML=Array.from({length:RACES},(_,r)=>{
-    const av=available(r),sel=ui.draft[r],wd=store.withdrawn[r];
-    return '<div class="card race-card'+(sel.length===PER?' full':'')+'" style="--silk:'+SILKS[r%6]+'" id="rc-'+r+'">'+
-      '<div class="rc-top"><h3>VÁLIDA <span>'+(r+1)+'</span></h3><span class="rc-count num'+(sel.length===PER?' ok':'')+'" id="rcc-'+r+'">'+sel.length+'/3</span></div>'+
-      '<div class="horse-grid">'+av.map(n=>horseBtn(n,r,sel.includes(n),'draft')).join('')+'</div>'+
-      (wd.length?'<div class="rc-note">🚫 Retirados: '+wd.map(pad2).join(' · ')+'</div>':'')+'</div>';
-  }).join('');
-}
-function updatePanel(){
-  const c=draftCount();$('#ppCount').textContent=c;$('#pony').style.left=(4+(c/TOTAL)*90)+'%';
-  $('#pips').innerHTML=Array.from({length:RACES},(_,r)=>{const n=ui.draft[r].length;return '<div class="pip'+(n===PER?' ok':'')+'">V'+(r+1)+'<b class="num">'+n+'/3</b></div>';}).join('');
-  $('#submitBtn').disabled=c!==TOTAL;
-  $('#ppHelp').textContent=c===TOTAL?'¡18 de 18! Tu jugada está lista 🔥':'Selecciona 3 caballos en cada carrera para habilitar';
-}
-function toggleDraft(btn){
-  const r=+btn.dataset.r,n=+btn.dataset.n,arr=ui.draft[r],i=arr.indexOf(n);
-  if(i>=0){arr.splice(i,1);btn.classList.remove('sel');btn.setAttribute('aria-pressed','false');sfx.unpick();}
-  else{if(arr.length>=PER){const c=$('#rc-'+r);c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');sfx.err();toast('Máximo 3 caballos por válida. Deselecciona uno primero.','warn');return;}
-    arr.push(n);arr.sort((a,b)=>a-b);btn.classList.add('sel');btn.setAttribute('aria-pressed','true');sfx.pick();}
-  const cc=$('#rcc-'+r);cc.textContent=arr.length+'/3';cc.classList.toggle('ok',arr.length===PER);
-  $('#rc-'+r).classList.toggle('full',arr.length===PER);updatePanel();
-}
-function activate(){
-  const name=$('#regName').value.trim();
-  if(name.length<2){sfx.err();toast('Escribe un apodo de al menos 2 caracteres.','warn');return;}
-  const ex=store.players.find(p=>p.name.toLowerCase()===name.toLowerCase());
-  ui.name=ex?ex.name:name;
-  if(ex){ui.editingId=ex.id;ui.draft=clone(ex.picks);toast('Ese apodo ya tiene jugada — la cargamos para editar.','');}
-  else{ui.editingId=null;ui.draft=emptyPicks();}
-  sfx.ok();setStage('selecting');
-}
-function submitPlay(){
-  if(draftCount()!==TOTAL){sfx.err();return;}
-  const ex=(ui.editingId&&byId(ui.editingId))||store.players.find(p=>p.name.toLowerCase()===ui.name.toLowerCase());
-  if(ex){ex.picks=clone(ui.draft);ex.name=ui.name;ui.editingId=ex.id;}
-  else{const p={id:'p'+Date.now(),name:ui.name,picks:clone(ui.draft),paid:false,ts:Date.now()};store.players.push(p);ui.editingId=p.id;}
-  save();sfx.submit();confetti();toast(ex?'Jugada actualizada ✓':'¡Jugada enviada! Estás dentro de la jornada 🏇','ok');
-  setStage('done');refreshAll();
-}
-function ticketRows(p){
-  return Array.from({length:RACES},(_,r)=>{const w=store.results[r];
-    return '<div class="tk-row"><span class="vlab">VÁLIDA '+(r+1)+'</span><div class="tk-nums">'+
-      p.picks[r].map(n=>'<span class="tk-num num'+(w===n?' hit':'')+'">'+pad2(n)+'</span>').join('')+
-      (p.picks[r].length?'':'<span style="font-size:.72rem;color:var(--danger)">sin selecciones</span>')+'</div>'+
-      '<span class="tk-win">'+(w!==null?'Ganó <b class="num">'+pad2(w)+'</b>':'<i style="opacity:.6">pendiente</i>')+'</span></div>';}).join('');
-}
-const statusBadge=st=>st.champ?'<span class="badge champ">👑 CAMPEÓN</span>':st.alive?'<span class="badge alive">🔥 VIVO · '+st.hits+'✓</span>':'<span class="badge out">✕ FUERA EN V'+st.outAt+'</span>';
-function renderTicket(){
-  const p=(ui.editingId&&byId(ui.editingId))||store.players.find(x=>x.name===ui.name);
-  if(!p){setStage('register');return;}
-  $('#ticketCard').innerHTML='<div class="tk-head"><div><small>JUGADA CONFIRMADA</small><h2>'+esc(p.name)+'</h2></div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+statusBadge(status(p))+'<span class="badge '+(p.paid?'paid':'unpaid')+'">'+(p.paid?'✓ PAGADO':'⏳ POR PAGAR')+'</span></div></div>'+
-    ticketRows(p)+'<div class="tk-actions">'+
-    '<button class="btn btn-fuch" data-action="modify-play" data-id="'+p.id+'">✏️ MODIFICAR</button>'+
-    '<button class="btn btn-ghost" data-action="share-player" data-id="'+p.id+'">📲 COMPARTIR</button>'+
-    '<button class="btn btn-ghost" data-action="goto-rank" data-id="'+p.id+'">🏆 VER EN EL RANKING</button>'+
-    '<button class="btn btn-ghost" data-action="new-player">＋ NUEVO JUGADOR</button></div>';
-}
+        async function saveUserToFirebase(user) {
+            try {
+                const docRef = await addDoc(collection(db, "usuarios"), user);
+                return docRef.id;
+            } catch (error) {
+                console.error("❌ Error guardando usuario:", error);
+                return null;
+            }
+        }
 
-/* ============ RANKING ============ */
-function ranked(){const l=store.players.map(p=>({p,st:status(p)}));l.sort((a,b)=>(b.st.alive-a.st.alive)||(b.st.hits-a.st.hits)||((b.st.outAt||99)-(a.st.outAt||99))||a.p.name.localeCompare(b.p.name));return l;}
-function filteredRank(){
-  let l=ranked();const q=ui.rankSearch.trim().toLowerCase();
-  if(q)l=l.filter(x=>x.p.name.toLowerCase().includes(q));
-  const f=ui.rankFilter;
-  if(f==='alive')l=l.filter(x=>x.st.alive);if(f==='out')l=l.filter(x=>!x.st.alive);
-  if(f==='paid')l=l.filter(x=>x.p.paid);if(f==='unpaid')l=l.filter(x=>!x.p.paid);
-  if(ui.rankSort==='name')l.sort((a,b)=>a.p.name.localeCompare(b.p.name));
-  if(ui.rankSort==='pay')l.sort((a,b)=>(a.p.paid-b.p.paid)||a.p.name.localeCompare(b.p.name));
-  return l;
-}
-function renderRanking(){
-  $('#potVal').textContent=fmtBs(pot());
-  $('#potSub').textContent=store.players.length+' jugadas × '+fmtBs(store.config.price)+' + '+fmtBs(accumTotal())+' acumulado';
-  const rk=ranked();
-  $('#stAlive').textContent=rk.filter(x=>x.st.alive).length;$('#stPlays').textContent=store.players.length;$('#stRes').textContent=loadedResults()+'/6';
-  $('#resultsStrip').innerHTML=Array.from({length:RACES},(_,r)=>{const w=store.results[r];return '<div class="res-slot'+(w!==null?' done':'')+'"><small>VÁLIDA '+(r+1)+'</small><b class="num">'+(w!==null?pad2(w):'—')+'</b></div>';}).join('');
-  $$('#rankFilters .fchip').forEach(c=>c.classList.toggle('on',c.dataset.f===ui.rankFilter));
-  $('#savedViews').innerHTML='<button class="fchip" data-action="save-view">＋ Guardar vista</button>'+store.savedViews.map(v=>'<span class="fchip" data-action="saved-view" data-id="'+v.id+'" role="button" tabindex="0">📌 '+esc(v.label)+' <span class="x" data-action="saved-del" data-id="'+v.id+'" title="Eliminar vista">✕</span></span>').join('');
-  const top=rk.filter(x=>x.st.hits>0).slice(0,3),pod=$('#podium');
-  pod.hidden=!top.length;
-  pod.innerHTML=top.map((x,i)=>'<div class="pod g'+(i+1)+'"><span class="medal">'+['🥇','🥈','🥉'][i]+'</span><div><b>'+esc(x.p.name)+'</b><small>'+(x.st.champ?'👑 Campeón de la jornada':x.st.alive?'Vivo · '+x.st.hits+' acierto'+(x.st.hits===1?'':'s'):'Fuera en V'+x.st.outAt+' · '+x.st.hits+' acierto'+(x.st.hits===1?'':'s'))+'</small></div></div>').join('');
-  const list=filteredRank();
-  if(!list.length){$('#rankTable').innerHTML='<div class="empty">🏇 No hay jugadas que coincidan. Registra la primera en ACTIVO.</div>';return;}
-  const head='<div class="rrow head"><span>#</span><span>Participante</span>'+Array.from({length:RACES},(_,r)=>'<span style="text-align:center">V'+(r+1)+'</span>').join('')+'<span style="text-align:center">Aciertos</span><span>Estado</span><span style="text-align:right">Pago</span></div>';
-  $('#rankTable').innerHTML=head+list.map((x,i)=>{
-    const dots=Array.from({length:RACES},(_,r)=>{const w=store.results[r];const cls=w===null?'pend':x.p.picks[r].includes(w)?'hit':'miss';const ch=w===null?'·':x.p.picks[r].includes(w)?'✓':'✕';return '<span class="dot '+cls+'" title="Válida '+(r+1)+'">'+ch+'</span>';}).join('');
-    return '<div class="rrow'+(i<3&&x.st.hits>0?' top':'')+'" data-action="row-drawer" data-id="'+x.p.id+'" tabindex="0" role="button" aria-label="Ver jugada de '+esc(x.p.name)+'">'+
-      '<span class="rpos num">'+(i+1)+'</span><span class="rname">'+esc(x.p.name)+'</span><span class="rdots">'+dots+'</span>'+
-      '<span class="rhits num">'+x.st.hits+'</span><span class="rstatus">'+statusBadge(x.st)+'</span>'+
-      '<span class="rpay num '+(x.p.paid?'p':'u')+'">'+(x.p.paid?'✓ Pagado':'⏳ '+fmtBs(store.config.price))+'</span></div>';
-  }).join('');
-}
+        function loadFromLocalStorage() {
+            const configSaved = localStorage.getItem('tresXSeisActivo_Config');
+            if (configSaved) {
+                const parsed = JSON.parse(configSaved);
+                appState.raceConfig = parsed.raceConfig || appState.raceConfig;
+                appState.scratched = parsed.scratched || appState.scratched;
+                appState.results = parsed.results || appState.results;
+                appState.precioJugada = parsed.precioJugada || 800;
+                appState.historialAcumulados = parsed.historialAcumulados || [];
+            }
+            const usersSaved = localStorage.getItem('tresXSeisActivo_Users');
+            if (usersSaved) {
+                appState.users = JSON.parse(usersSaved);
+            }
+        }
 
-/* ============ ADMIN ============ */
-function refreshBadges(){
-  $('#bdg1').textContent=store.config.horses;
-  $('#bdg2').textContent=store.withdrawn.reduce((s,a)=>s+a.length,0);
-  $('#bdg3').textContent=loadedResults()+'/6';
-  $('#bdg4').textContent=store.players.filter(p=>!p.paid).length;
-  $('#bdg5').textContent=store.players.length;
-}
-function refreshAdmin(){refreshBadges();const t=ui.adminTab;if(t===1)renderTab1();if(t===2)renderTab2();if(t===3)renderTab3();if(t===4)renderTab4();if(t===5)renderEdiList();}
-function renderTab1(){
-  $('#accumTotal').textContent=fmtBs(accumTotal());
-  $('#accumList').innerHTML=store.accum.length?store.accum.map(a=>'<div class="acc-row"><span>'+esc(a.label)+'</span><b class="num">'+fmtBs(a.amount)+'</b><button class="acc-x" data-action="accum-del" data-id="'+a.id+'" title="Eliminar acumulado">✕</button></div>').join(''):'<div class="empty" style="padding:16px">Sin acumulados — el pozo arranca limpio.</div>';
-}
-function renderTab2(){
-  $('#wdGrids').innerHTML=Array.from({length:RACES},(_,r)=>{
-    const wd=store.withdrawn[r];let cells='';
-    for(let n=1;n<=store.config.horses;n++)cells+='<button class="horse'+(wd.includes(n)?' wd':'')+'" style="--silk:'+silk(n)+'" data-action="chip-wd" data-r="'+r+'" data-n="'+n+'" aria-pressed="'+wd.includes(n)+'" aria-label="Retirar ejemplar '+pad2(n)+' válida '+(r+1)+'">'+pad2(n)+'</button>';
-    return '<div class="wd-block"><div class="rc-top"><h3 style="color:'+SILKS[r%6]+'">VÁLIDA '+(r+1)+'</h3><span class="rc-count num'+(wd.length?'':' ok')+'">'+(wd.length?wd.length+' retirado'+(wd.length===1?'':'s'):'todos corren')+'</span></div><div class="horse-grid">'+cells+'</div></div>';
-  }).join('');
-}
-function renderTab3(){
-  const locked=!store.reportGenerated&&loadedResults()===0,lb=$('#lockBanner');
-  lb.className='lock-banner '+(locked?'locked':'open');
-  lb.innerHTML=locked?'<span class="ico">🔒</span><div><b>Reporte obligatorio antes de iniciar</b><p>Genera el reporte completo de todas las jugadas para compartir en el grupo ANTES de cargar el primer resultado.</p></div>':'<span class="ico">✅</span><div><b>Resultados habilitados</b><p>El reporte de jugadas fue generado. Ya puedes cargar los resultados oficiales válida por válida.</p></div>';
-  const prev={};$$('#resultRows select').forEach(s=>prev[s.dataset.r]=s.value);
-  $('#resultRows').innerHTML=Array.from({length:RACES},(_,r)=>{
-    const w=store.results[r],av=available(r),sv=w!==null?store.players.filter(p=>p.picks[r].includes(w)).length:null;
-    return '<div class="res-row"><div class="vlab">VÁLIDA '+(r+1)+'<small>'+(sv!==null?sv+' acertaron':'sin cargar')+'</small></div>'+
-      '<select class="inp" data-r="'+r+'" '+(locked?'disabled':'')+' aria-label="Ganador válida '+(r+1)+'"><option value="">Nº ganador…</option>'+
-      av.map(n=>'<option value="'+n+'"'+(String(w)===String(n)?' selected':'')+'>Nº '+pad2(n)+'</option>').join('')+'</select>'+
-      '<span class="res-winner num">'+(w!==null?'🏆 '+pad2(w):'—')+'</span>'+
-      '<span class="acts" style="display:flex;gap:8px"><button class="btn btn-gold btn-sm" data-action="result-load" data-r="'+r+'" '+(locked?'disabled':'')+'>CARGAR</button>'+
-      (w!==null?'<button class="btn btn-ghost btn-sm" data-action="result-clear" data-r="'+r+'">Quitar</button>':'')+'</span></div>';
-  }).join('');
-  $$('#resultRows select').forEach(s=>{if(prev[s.dataset.r])s.value=prev[s.dataset.r];});
-}
-function renderTab4(){
-  const paid=store.players.filter(p=>p.paid).length;
-  $('#psPaid').textContent=fmtBs(paid*store.config.price);
-  $('#psUnpaid').textContent=fmtBs((store.players.length-paid)*store.config.price);
-  $('#psCount').textContent=store.players.length;
-  $('#bulkBar').hidden=ui.bulk.size===0;
-  $('#bulkCount').textContent=ui.bulk.size+' seleccionado'+(ui.bulk.size===1?'':'s');
-  $('#bulkAll').checked=store.players.length>0&&ui.bulk.size===store.players.length;
-  $('#payList').innerHTML=store.players.length?store.players.map(p=>'<div class="pay-row"><input type="checkbox" class="chk bulk-check" data-id="'+p.id+'"'+(ui.bulk.has(p.id)?' checked':'')+' aria-label="Seleccionar '+esc(p.name)+'"><span class="pay-name" data-action="row-drawer" data-id="'+p.id+'">'+esc(p.name)+'</span><span class="pay-amt num">'+fmtBs(store.config.price)+'</span><button class="pill-toggle '+(p.paid?'p':'u')+'" data-action="paid-toggle" data-id="'+p.id+'">'+(p.paid?'✓ PAGADO':'⏳ PENDIENTE')+'</button></div>').join(''):'<div class="empty">No hay jugadas registradas todavía.</div>';
-}
-function renderEdiList(){
-  const q=($('#ediSearch').value||'').trim().toLowerCase();
-  const rows=store.players.map((p,i)=>({p,i})).filter(x=>!q||x.p.name.toLowerCase().includes(q));
-  $('#ediList').innerHTML=rows.length?rows.map(x=>{const st=status(x.p);
-    return '<div class="edi-row" draggable="true" data-id="'+x.p.id+'"><span class="grip" title="Arrastra para reordenar">⠿</span><span class="edi-pos num">'+(x.i+1)+'</span>'+
-      '<span class="edi-name" data-action="row-drawer" data-id="'+x.p.id+'">'+esc(x.p.name)+'</span><span class="edi-meta num">'+st.hits+'✓ · '+(x.p.paid?'pagado':'pendiente')+'</span>'+
-      '<span class="move-btns"><button class="icon-btn" data-action="move" data-id="'+x.p.id+'" data-d="-1" title="Subir">↑</button><button class="icon-btn" data-action="move" data-id="'+x.p.id+'" data-d="1" title="Bajar">↓</button></span>'+
-      '<button class="icon-btn" data-action="edit-open" data-id="'+x.p.id+'" title="Editar jugada">✏️</button><button class="icon-btn del" data-action="play-del" data-id="'+x.p.id+'" title="Eliminar jugada">🗑️</button></div>';
-  }).join(''):'<div class="empty">Sin resultados para esa búsqueda.</div>';
-  wireDrag();
-}
-let dragId=null;
-function wireDrag(){
-  $$('#ediList .edi-row').forEach(row=>{
-    row.addEventListener('dragstart',e=>{dragId=row.dataset.id;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId);}catch(_){}});
-    row.addEventListener('dragend',()=>{dragId=null;row.classList.remove('dragging');$$('#ediList .edi-row').forEach(r=>r.classList.remove('dragover'));});
-    row.addEventListener('dragover',e=>{e.preventDefault();if(row.dataset.id!==dragId)row.classList.add('dragover');});
-    row.addEventListener('dragleave',()=>row.classList.remove('dragover'));
-    row.addEventListener('drop',e=>{e.preventDefault();row.classList.remove('dragover');
-      if(!dragId||row.dataset.id===dragId)return;
-      const from=store.players.findIndex(p=>p.id===dragId),to=store.players.findIndex(p=>p.id===row.dataset.id);
-      if(from<0||to<0)return;const [m]=store.players.splice(from,1);store.players.splice(to,0,m);
-      save();renderEdiList();sfx.ok();toast('Orden de reportes actualizado ✓','ok');});
-  });
-}
-function movePlayer(id,d){const i=store.players.findIndex(p=>p.id===id),j=i+d;if(i<0||j<0||j>=store.players.length)return;[store.players[i],store.players[j]]=[store.players[j],store.players[i]];save();renderEdiList();sfx.pick();}
+        function saveUsersToLocalStorage() {
+            localStorage.setItem('tresXSeisActivo_Users', JSON.stringify(appState.users));
+        }
 
-/* ============ REPORTES ============ */
-function topPicks(r){const c={};store.players.forEach(p=>p.picks[r].forEach(n=>c[n]=(c[n]||0)+1));const t=store.players.length||1;return Object.entries(c).map(([n,v])=>({n:+n,v,pct:Math.round(v/t*100)})).sort((a,b)=>b.v-a.v||a.n-b.n).slice(0,5);}
-function reportText(kind){
-  const L=[],date=nextSunday(),line='━━━━━━━━━━━━━━';
-  if(kind==='jugadas'){
-    L.push('🏇 *3×6 ACTIVO — REPORTE DE JUGADAS*','📅 '+date,'💰 '+fmtBs(store.config.price)+' por jugada · '+store.players.length+' jugadas',line);
-    store.players.forEach((p,i)=>{L.push((i+1)+'. *'+p.name.toUpperCase()+'* '+(p.paid?'✅':'⏳'));L.push('   '+p.picks.map((a,r)=>'V'+(r+1)+': '+(a.length?a.map(pad2).join('·'):'—')).join(' | '));});
-    const wd=store.withdrawn.map((w,r)=>w.length?'V'+(r+1)+': '+w.map(pad2).join('·'):null).filter(Boolean);
-    if(wd.length)L.push(line,'🚫 *Retirados:* '+wd.join(' | '));
-    L.push(line,'🎯 Pozo: '+fmtBs(pot()));
-  }
-  if(kind==='resultados'){
-    L.push('🏁 *3×6 ACTIVO — RESULTADOS OFICIALES*','📅 '+date,line);let alive=store.players.slice();
-    for(let r=0;r<RACES;r++){const w=store.results[r];if(w===null){L.push('V'+(r+1)+': ⏳ pendiente');continue;}alive=alive.filter(p=>p.picks[r].includes(w));L.push('V'+(r+1)+': 🏆 *Nº '+pad2(w)+'* → '+alive.length+' sobreviven');}
-    L.push(line);
-    if(loadedResults()===RACES){if(alive.length)L.push('👑 *GANADOR'+(alive.length>1?'ES':'')+':* '+alive.map(p=>p.name.toUpperCase()).join(', '),'🎯 Se llevan el pozo: '+fmtBs(pot()));else L.push('💀 *SIN GANADORES* — el pozo se acumula para la próxima jornada.','🎯 Acumulado: '+fmtBs(pot()));}
-    else{L.push('🔥 *Vivos ('+alive.length+'):* '+(alive.map(p=>p.name).join(', ')||'ninguno'));L.push('Faltan '+(RACES-loadedResults())+' válida'+(RACES-loadedResults()===1?'':'s')+' por cargar.');}
-  }
-  if(kind==='cobranza'){
-    const pd=store.players.filter(p=>p.paid),un=store.players.filter(p=>!p.paid);
-    L.push('💰 *3×6 ACTIVO — LOG DE COBRANZA*','📅 '+date,'💵 '+fmtBs(store.config.price)+' por jugada',line);
-    L.push('✅ *PAGADOS ('+pd.length+')*');pd.forEach((p,i)=>L.push('  '+(i+1)+'. '+p.name+' — '+fmtBs(store.config.price)));
-    L.push('⏳ *PENDIENTES ('+un.length+')*');un.forEach((p,i)=>L.push('  '+(i+1)+'. '+p.name+' — '+fmtBs(store.config.price)));
-    L.push(line,'📥 Recaudado: '+fmtBs(pd.length*store.config.price),'📤 Por cobrar: '+fmtBs(un.length*store.config.price));
-  }
-  if(kind==='promedios'){
-    L.push('📊 *3×6 ACTIVO — LOS MÁS ELEGIDOS*','📅 '+date,'Top 5 por válida · '+store.players.length+' jugadas',line);
-    for(let r=0;r<RACES;r++){const t=topPicks(r);L.push('*VÁLIDA '+(r+1)+'*');if(!t.length)L.push('  sin votos');t.forEach((x,i)=>L.push('  '+(i+1)+'. Nº '+pad2(x.n)+' — '+x.v+' voto'+(x.v===1?'':'s')+' ('+x.pct+'%)'));}
-  }
-  return L.join('\n');
-}
-function renderStats(){
-  $('#statsViz').innerHTML=Array.from({length:RACES},(_,r)=>{const t=topPicks(r);
-    return '<div class="stat-race"><h4>Válida '+(r+1)+'</h4>'+(t.length?t.map((x,i)=>'<div class="bar-row"><span class="bn">Nº '+pad2(x.n)+'</span><div class="bar-track"><div class="bar-fill" style="--bc:'+SILKS[i%6]+';width:'+Math.max(x.pct,3)+'%"></div></div><span class="bv num">'+x.v+' · '+x.pct+'%</span></div>').join(''):'<div style="font-size:.78rem;color:var(--muted)">Sin votos aún.</div>')+'</div>';}).join('');
-}
-function genReport(kind){
-  if(!store.players.length&&kind!=='resultados'){sfx.err();toast('No hay jugadas registradas todavía.','warn');return;}
-  $('#prev-'+kind).value=reportText(kind);
-  if(kind==='jugadas'&&!store.reportGenerated){store.reportGenerated=true;save();refreshAdmin();toast('Reporte listo ✓ Resultados desbloqueados 🔓','ok');}
-  else toast('Reporte generado ✓ Listo para copiar.','ok');
-  if(kind==='promedios')renderStats();
-  sfx.ok();
-}
-async function copyText(txt,okMsg){
-  if(!txt){sfx.err();toast('Genera el contenido primero.','warn');return;}
-  try{await navigator.clipboard.writeText(txt);toast(okMsg||'Copiado ✓','ok');sfx.cash();}
-  catch(e){const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');toast(okMsg||'Copiado ✓','ok');sfx.cash();}catch(_){toast('Selecciona el texto y copia manualmente.','warn');}
-    ta.remove();}
-}
-function sharePlayer(id){const p=byId(id);if(!p)return;
-  copyText('🏇 *3×6 ACTIVO*\n👤 '+p.name.toUpperCase()+'\n'+p.picks.map((a,r)=>'V'+(r+1)+': '+(a.length?a.map(pad2).join('·'):'—')).join('\n')+'\n'+(p.paid?'✅ Pagado':'⏳ Pendiente de pago'),'Jugada de '+p.name+' copiada ✓');}
+        async function init() {
+            const configLoaded = await loadConfigFromFirebase();
+            if (!configLoaded) loadFromLocalStorage();
+            const usersLoaded = await loadUsersFromFirebase();
+            if (!usersLoaded) loadFromLocalStorage();
+            renderAdminConfigInputs();
+            renderAdminResults();
+            renderHistorialAcumulados();
+            saveUsersToLocalStorage();
+            saveConfigToFirebase();
+        }
 
-/* ============ DRAWER / MODAL ============ */
-function openDrawer(id){
-  const p=byId(id);if(!p){closeDrawer();return;}
-  ui.drawerId=id;
-  const st=status(p);
-  $('#drawer').innerHTML='<div class="dw-head"><div><small>DETALLE DE JUGADA</small><h2>'+esc(p.name)+'</h2></div><button class="icon-btn" data-action="drawer-close" title="Cerrar">✕</button></div>'+
-    '<div class="dw-badges">'+statusBadge(st)+'<span class="badge '+(p.paid?'paid':'unpaid')+'">'+(p.paid?'✓ PAGADO':'⏳ POR PAGAR · '+fmtBs(store.config.price))+'</span></div>'+
-    ticketRows(p)+'<div class="dw-actions">'+
-    '<button class="btn '+(p.paid?'btn-ghost':'btn-gold')+'" data-action="paid-toggle" data-id="'+p.id+'">'+(p.paid?'Marcar pendiente':'✓ Marcar pagado')+'</button>'+
-    '<button class="btn btn-fuch" data-action="edit-open" data-id="'+p.id+'">✏️ Editar</button>'+
-    '<button class="btn btn-ghost" data-action="share-player" data-id="'+p.id+'">📲 Compartir</button>'+
-    '<button class="btn btn-danger" data-action="play-del" data-id="'+p.id+'">🗑️ Eliminar</button></div>';
-  $('#drawer').classList.add('on');$('#scrim').classList.add('on');
-}
-function closeDrawer(){ui.drawerId=null;$('#drawer').classList.remove('on');$('#scrim').classList.remove('on');}
-function openModal(html){$('#modalBox').innerHTML=html;$('#modalWrap').classList.add('on');const f=$('#modalBox').querySelector('input,button');if(f)setTimeout(()=>f.focus(),60);}
-function closeModal(){$('#modalWrap').classList.remove('on');ui.modalPicks=null;ui.modalId=null;ui.confirmFn=null;}
-function confirmModal(title,body,cta,fn){ui.confirmFn=fn;openModal('<h2>'+title+'</h2><div class="confirm-body">'+body+'</div><div class="m-foot"><button class="btn btn-ghost" data-action="modal-close">CANCELAR</button><button class="btn btn-danger" data-action="confirm-yes">'+cta+'</button></div>');}
-function openEdit(id){
-  const p=byId(id);if(!p)return;closeDrawer();ui.modalId=id;ui.modalPicks=clone(p.picks);
-  openModal('<h2>Editar Jugada</h2><p class="sub">Toca los números para seleccionar/deseleccionar. Máximo 3 por carrera.</p>'+
-    '<div class="field" style="margin-bottom:16px"><label for="editName">Apodo del participante</label><input class="inp" id="editName" maxlength="24" value="'+esc(p.name)+'"></div><div id="modalGrids"></div>'+
-    '<div class="m-foot"><span class="m-count num" id="mCount">18/18</span><button class="btn btn-ghost" data-action="modal-close">CANCELAR</button><button class="btn btn-gold" id="mSave" data-action="edit-save">GUARDAR CAMBIOS</button></div>');
-  renderModalGrids();
-}
-function renderModalGrids(){
-  $('#modalGrids').innerHTML=Array.from({length:RACES},(_,r)=>{const sel=ui.modalPicks[r];
-    return '<div class="mrace"><div class="rc-top"><h3 style="font-size:.76rem;color:'+SILKS[r%6]+'">VÁLIDA '+(r+1)+'</h3><span class="rc-count num'+(sel.length===PER?' ok':'')+'">'+sel.length+'/3</span></div><div class="horse-grid">'+available(r).map(n=>horseBtn(n,r,sel.includes(n),'modal')).join('')+'</div></div>';}).join('');
-  const c=ui.modalPicks.reduce((s,a)=>s+a.length,0);$('#mCount').textContent=c+'/18';$('#mSave').disabled=c!==TOTAL;
-}
-function toggleModalChip(btn){
-  const r=+btn.dataset.r,n=+btn.dataset.n,arr=ui.modalPicks[r],i=arr.indexOf(n);
-  if(i>=0){arr.splice(i,1);sfx.unpick();}else{if(arr.length>=PER){sfx.err();toast('Máximo 3 por carrera.','warn');return;}arr.push(n);arr.sort((a,b)=>a-b);sfx.pick();}
-  renderModalGrids();
-}
-function saveEdit(){
-  const p=byId(ui.modalId);if(!p){closeModal();return;}
-  const name=$('#editName').value.trim();
-  if(name.length<2){sfx.err();toast('El apodo necesita al menos 2 caracteres.','warn');return;}
-  if(store.players.find(x=>x.id!==p.id&&x.name.toLowerCase()===name.toLowerCase())){sfx.err();toast('Ese apodo ya existe. Usa otro.','warn');return;}
-  if(ui.modalPicks.reduce((s,a)=>s+a.length,0)!==TOTAL){sfx.err();return;}
-  p.name=name;p.picks=clone(ui.modalPicks);save();closeModal();refreshAll();sfx.submit();toast('Jugada de '+name+' actualizada ✓','ok');
-}
+        window.goHome = function() {
+            document.getElementById('reg-nickname').value = '';
+            showView('view-register');
+        }
 
-/* ============ MUTACIONES ============ */
-function saveConfig(){
-  let h=Math.min(20,Math.max(8,Math.round(+$('#cfgHorses').value||14))),pr=Math.max(.5,+$('#cfgPrice').value||20);
-  $('#cfgHorses').value=h;$('#cfgPrice').value=pr;
-  let trimmed=0,cleared=0;
-  store.players.forEach(p=>p.picks=p.picks.map(a=>{const b=a.filter(n=>n<=h);trimmed+=a.length-b.length;return b;}));
-  store.withdrawn=store.withdrawn.map(a=>a.filter(n=>n<=h));
-  store.results=store.results.map(w=>{if(w!==null&&w>h){cleared++;return null;}return w;});
-  store.config={horses:h,price:pr};
-  if(ui.stage==='selecting')ui.draft=ui.draft.map((a,r)=>a.filter(n=>n<=h&&!store.withdrawn[r].includes(n)));
-  save();refreshAll();sfx.ok();
-  let m='Configuración guardada ✓ '+h+' ejemplares · '+fmtBs(pr);
-  if(trimmed)m+=' · '+trimmed+' selección(es) depurada(s)';if(cleared)m+=' · '+cleared+' resultado(s) invalidado(s)';
-  toast(m,(trimmed||cleared)?'warn':'ok');
-}
-function toggleWithdraw(r,n){
-  const arr=store.withdrawn[r],i=arr.indexOf(n);
-  if(i>=0){arr.splice(i,1);sfx.unpick();}
-  else{if(arr.length>=store.config.horses-3){sfx.err();toast('Deja al menos 3 ejemplares disponibles por válida.','warn');return;}
-    arr.push(n);arr.sort((a,b)=>a-b);sfx.pick();
-    store.players.forEach(p=>{p.picks[r]=p.picks[r].filter(x=>x!==n);});
-    if(ui.stage==='selecting')ui.draft[r]=ui.draft[r].filter(x=>x!==n);
-    if(store.results[r]===n){store.results[r]=null;toast('El Nº '+pad2(n)+' era ganador de V'+(r+1)+' — resultado invalidado.','warn');}}
-  save();refreshAll();
-}
-function loadResult(r){
-  const v=+$('#resultRows select[data-r="'+r+'"]').value;
-  if(!v){sfx.err();toast('Elige el número ganador de la Válida '+(r+1)+'.','warn');return;}
-  if(store.withdrawn[r].includes(v)){sfx.err();toast('Ese ejemplar está retirado.','warn');return;}
-  const snap=snapshot();store.results[r]=v;store.reportGenerated=true;save();refreshAll();
-  const alive=ranked().filter(x=>x.st.alive).length;sfx.cash();
-  toast('Válida '+(r+1)+': 🏆 Nº '+pad2(v)+' · '+alive+' sobreviven','ok',{label:'Deshacer',fn(){restore(snap);}});
-  if(loadedResults()===RACES){
-    const ch=store.players.filter(p=>status(p).champ);
-    if(ch.length){confetti();sfx.submit();toast('👑 ¡Jornada completa! Ganador'+(ch.length>1?'es':'')+': '+ch.map(p=>p.name).join(', '),'ok',null,9000);}
-    else{sfx.out();toast('💀 Jornada completa sin ganadores — el pozo se acumula.','warn',null,9000);}
-  }
-}
-function clearResult(r){const s=snapshot();store.results[r]=null;save();refreshAll();undoable('Resultado de V'+(r+1)+' retirado.',s);}
-function togglePaid(id){const p=byId(id);if(!p)return;const s=snapshot();p.paid=!p.paid;save();refreshAll();p.paid?sfx.cash():sfx.unpick();toast(p.name+(p.paid?' → PAGADO ✓':' → pendiente ⏳'),'ok',{label:'Deshacer',fn(){restore(s);}});}
-function bulkPay(v){if(!ui.bulk.size)return;const s=snapshot();let n=0;store.players.forEach(p=>{if(ui.bulk.has(p.id)){p.paid=!!v;n++;}});ui.bulk.clear();save();refreshAll();sfx.cash();undoable(n+' jugada'+(n===1?'':'s')+' marcada'+(n===1?'':'s')+(v?' pagadas ✓':' pendientes ⏳'),s);}
-function addAccum(){const label=$('#accLabel').value.trim()||shortSunday(),amount=+$('#accAmount').value;
-  if(!amount||amount<=0){sfx.err();toast('Ingresa un monto válido en Bs.','warn');return;}
-  store.accum.push({id:'a'+Date.now(),label,amount});$('#accLabel').value='';$('#accAmount').value='';save();refreshAll();sfx.cash();toast('Acumulado agregado: '+fmtBs(amount)+' ✓','ok');}
-function delAccum(id){const s=snapshot();store.accum=store.accum.filter(a=>a.id!==id);save();refreshAll();undoable('Acumulado eliminado.',s);}
-function liquidAccum(){if(!store.accum.length){sfx.err();toast('No hay acumulados que liquidar.','warn');return;}
-  confirmModal('💸 Liquidar acumulados','Se liquidarán <b>'+fmtBs(accumTotal())+'</b> de '+store.accum.length+' jornada'+(store.accum.length===1?'':'s')+'. El pozo quedará solo con las jugadas actuales.','LIQUIDAR TODOS',()=>{const s=snapshot();store.accum=[];save();refreshAll();sfx.cash();undoable('Acumulados liquidados 💸',s);});}
-function deletePlay(id){const p=byId(id);if(!p)return;
-  confirmModal('🗑️ Eliminar jugada','Se eliminará la jugada de <b>'+esc(p.name)+'</b> con sus 18 selecciones. Podrás deshacer durante unos segundos.','ELIMINAR',()=>{
-    const s=snapshot();store.players=store.players.filter(x=>x.id!==id);ui.bulk.delete(id);
-    if(ui.drawerId===id)closeDrawer();
-    if(ui.editingId===id){ui.editingId=null;ui.name='';ui.draft=emptyPicks();if(ui.view==='activo')setStage('register');}
-    save();refreshAll();sfx.out();undoable('Jugada de '+p.name+' eliminada.',s);});}
-function newJornada(){
-  confirmModal('🗑️ Iniciar nueva jornada','Se vaciarán <b>'+store.players.length+' jugadas</b>, todos los resultados y los retirados. El acumulado ('+fmtBs(accumTotal())+') y la configuración se conservan. Podrás deshacer por unos segundos.','SÍ, VACIAR TODO',()=>{
-    const s=snapshot();store.players=[];store.results=Array(RACES).fill(null);store.withdrawn=Array.from({length:RACES},()=>[]);store.reportGenerated=false;
-    ui.bulk.clear();ui.editingId=null;ui.name='';ui.draft=emptyPicks();closeDrawer();
-    ['jugadas','resultados','cobranza','promedios'].forEach(k=>{const t=$('#prev-'+k);if(t)t.value='';});
-    $('#statsViz').innerHTML='';save();setStage('register');refreshAll();sfx.out();undoable('Nueva jornada iniciada — base vaciada 🌅',s);});}
-function restoreDemo(){
-  confirmModal('↻ Restaurar demostración','Se reemplazará el estado actual por los datos de demostración (12 jugadas, 1 resultado, acumulados).','RESTAURAR',()=>{
-    store=seed();ui.bulk.clear();ui.editingId=null;ui.name='';ui.draft=emptyPicks();closeDrawer();
-    ['jugadas','resultados','cobranza','promedios'].forEach(k=>{const t=$('#prev-'+k);if(t)t.value='';});
-    $('#statsViz').innerHTML='';$('#cfgHorses').value=store.config.horses;$('#cfgPrice').value=store.config.price;
-    save();setStage('register');syncSound();go('activo');refreshAll();toast('Demostración restaurada ✓','ok');});}
+        window.openAdmin = function() {
+            if (appState.isAdmin) {
+                showView('view-admin');
+                return;
+            }
+            const pass = prompt("🔒 Ingrese clave de administrador:");
+            if (pass === "111180") {
+                appState.isAdmin = true;
+                showView('view-admin');
+            } else if (pass !== null) {
+                alert("❌ Clave incorrecta.");
+            }
+        }
 
-/* ============ REFRESCO ============ */
-function refreshAll(){
-  $('#navPot').textContent=fmtBs(pot());$('#jornadaLabel').textContent=nextSunday();
-  refreshBadges();
-  if(ui.view==='ranking')renderRanking();
-  if(ui.view==='admin')refreshAdmin();
-  if(ui.view==='activo'){if(ui.stage==='selecting'){renderRaceGrid();updatePanel();}if(ui.stage==='done')renderTicket();}
-  if(ui.drawerId){const p=byId(ui.drawerId);if(p){const sc=$('#drawer').scrollTop;openDrawer(ui.drawerId);$('#drawer').scrollTop=sc;}else closeDrawer();}
-}
+        window.showView = function(viewId) {
+            document.getElementById('view-register').classList.add('hidden');
+            document.getElementById('view-play').classList.add('hidden');
+            document.getElementById('view-ranking').classList.add('hidden');
+            document.getElementById('view-admin').classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            if (viewId === 'view-ranking') renderRanking();
+            if (viewId === 'view-admin') {
+                renderAdminScratch();
+                renderAdminResults();
+                renderAdminPayments();
+                renderAdminEditList();
+                renderHistorialAcumulados();
+                const precioInput = document.getElementById('config-precio');
+                if (precioInput) precioInput.value = appState.precioJugada || 800;
+            }
+            window.scrollTo(0, 0);
+        }
 
-/* ============ EVENTOS ============ */
-document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-action]');if(!t)return;
-  const a=t.dataset.action,id=t.dataset.id,r=+t.dataset.r;
-  switch(a){
-    case 'nav':go(t.dataset.view);break;
-    case 'atab':go('admin',+t.dataset.t);break;
-    case 'sound':store.sound=!store.sound;save();syncSound();if(store.sound)sfx.ok();break;
-    case 'chip':t.dataset.scope==='draft'?toggleDraft(t):toggleModalChip(t);break;
-    case 'back-register':setStage('register');break;
-    case 'submit-play':submitPlay();break;
-    case 'modify-play':{const p=byId(id);if(p){ui.name=p.name;ui.editingId=p.id;ui.draft=clone(p.picks);setStage('selecting');window.scrollTo({top:0,behavior:reduced?'auto':'smooth'});}break;}
-    case 'new-player':ui.editingId=null;ui.draft=emptyPicks();ui.name='';setStage('register');break;
-    case 'goto-rank':go('ranking');setTimeout(()=>openDrawer(id),300);break;
-    case 'share-player':sharePlayer(id);break;
-    case 'row-drawer':openDrawer(id);break;
-    case 'drawer-close':closeDrawer();break;
-    case 'rank-filter':ui.rankFilter=t.dataset.f;renderRanking();sfx.tab();break;
-    case 'refresh-ranking':renderRanking();sfx.ok();toast('Vista actualizada ✓','ok');break;
-    case 'save-view':{const fl={all:'Todos',alive:'Vivos',out:'Eliminados',paid:'Pagados',unpaid:'Por cobrar'},so={hits:'Aciertos',name:'Nombre',pay:'Pago'};
-      store.savedViews.push({id:'v'+Date.now(),label:fl[ui.rankFilter]+' · '+so[ui.rankSort],f:ui.rankFilter,s:ui.rankSort,q:ui.rankSearch});save();renderRanking();sfx.ok();toast('Vista guardada 📌','ok');break;}
-    case 'saved-view':{const v=store.savedViews.find(x=>x.id===id);if(v){ui.rankFilter=v.f;ui.rankSort=v.s;ui.rankSearch=v.q||'';$('#rankSearch').value=ui.rankSearch;$('#rankSort').value=ui.rankSort;renderRanking();}break;}
-    case 'saved-del':e.stopPropagation();store.savedViews=store.savedViews.filter(x=>x.id!==id);save();renderRanking();break;
-    case 'horses-step':{const i=$('#cfgHorses');i.value=Math.min(20,Math.max(8,(+i.value||14)+(+t.dataset.d)));sfx.pick();break;}
-    case 'config-save':saveConfig();break;
-    case 'accum-add':addAccum();break;
-    case 'accum-del':delAccum(id);break;
-    case 'accum-liquid':liquidAccum();break;
-    case 'chip-wd':toggleWithdraw(r,+t.dataset.n);break;
-    case 'report-gen':genReport(t.dataset.kind);break;
-    case 'report-copy':copyText($('#prev-'+t.dataset.kind).value,'Copiado ✓ Pégalo en tu grupo de WhatsApp 📲');break;
-    case 'result-load':loadResult(r);break;
-    case 'result-clear':clearResult(r);break;
-    case 'jornada-new':newJornada();break;
-    case 'paid-toggle':togglePaid(id);break;
-    case 'bulk-pay':bulkPay(+t.dataset.v);break;
-    case 'edit-open':openEdit(id);break;
-    case 'edit-save':saveEdit();break;
-    case 'play-del':deletePlay(id);break;
-    case 'move':movePlayer(id,+t.dataset.d);break;
-    case 'modal-close':closeModal();break;
-    case 'confirm-yes':{const fn=ui.confirmFn;closeModal();if(fn)fn();break;}
-    case 'restore-demo':restoreDemo();break;
-  }
-});
-document.addEventListener('change',e=>{
-  const el=e.target;
-  if(el.id==='rankSort'){ui.rankSort=el.value;renderRanking();}
-  if(el.id==='bulkAll'){ui.bulk=el.checked?new Set(store.players.map(p=>p.id)):new Set();renderTab4();}
-  if(el.classList.contains('bulk-check')){const id=el.dataset.id;el.checked?ui.bulk.add(id):ui.bulk.delete(id);
-    $('#bulkBar').hidden=ui.bulk.size===0;$('#bulkCount').textContent=ui.bulk.size+' seleccionado'+(ui.bulk.size===1?'':'s');
-    $('#bulkAll').checked=store.players.length>0&&ui.bulk.size===store.players.length;}
-});
-document.addEventListener('input',e=>{
-  if(e.target.id==='rankSearch'){ui.rankSearch=e.target.value;renderRanking();}
-  if(e.target.id==='ediSearch')renderEdiList();
-});
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){if($('#modalWrap').classList.contains('on'))closeModal();else closeDrawer();return;}
-  const el=e.target;
-  if((e.key==='Enter'||e.key===' ')&&el.getAttribute&&el.getAttribute('role')==='button'&&el.dataset.action){e.preventDefault();el.click();return;}
-  if(el.closest&&el.closest('#adminTabs')&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){
-    e.preventDefault();let t=ui.adminTab+(e.key==='ArrowRight'?1:-1);if(t<1)t=5;if(t>5)t=1;go('admin',t);
-    const b=$('#adminTabs .atab[data-t="'+t+'"]');if(b)b.focus();}
-});
-$('#regForm').addEventListener('submit',e=>{e.preventDefault();activate();});
-$('#modalWrap').addEventListener('click',e=>{if(e.target.id==='modalWrap')closeModal();});
-if(!reduced&&matchMedia('(pointer:fine)').matches){
-  let px=0,py=0,raf=null;
-  document.addEventListener('pointermove',e=>{px=(e.clientX/innerWidth-.5)*14;py=(e.clientY/innerHeight-.5)*14;
-    if(!raf)raf=requestAnimationFrame(()=>{$$('.blob').forEach((b,i)=>{b.style.translate=(px*(i+1)*.6)+'px '+(py*(i+1)*.6)+'px';});raf=null;});});
-}
+        window.registerUser = async function() {
+            const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
+            if (!nick) return alert("⚠️ Ingresa un apodo.");
+            
+            const existingUser = appState.users.find(u => u.name === nick);
+            if (existingUser) {
+                let suggestedName = nick;
+                let counter = 2;
+                while (appState.users.find(u => u.name === suggestedName)) {
+                    suggestedName = `${nick} ${String(counter).padStart(2, '0')}`;
+                    counter++;
+                }
+                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
+                if (useSuggested) {
+                    document.getElementById('reg-nickname').value = suggestedName;
+                    return;
+                }
+                return;
+            }
 
-/* ============ INIT ============ */
-load();
-$('#cfgHorses').value=store.config.horses;$('#cfgPrice').value=store.config.price;
-syncSound();setStage('register');
-if(!location.hash||location.hash.indexOf('agenda')>-1){try{history.replaceState(null,'','#/activo');}catch(e){location.hash='#/activo';}}
-applyRoute();
-</script>
+            const newUser = { 
+                name: nick, 
+                picks: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }, 
+                paid: false, 
+                createdAt: new Date().toISOString() 
+            };
+            
+            const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            appState.currentUser = { id: tempId, ...newUser };
+            
+            document.getElementById('display-nickname').textContent = nick;
+            showView('view-play');
+            renderUserBoard();
+        }
+
+        window.renderUserBoard = function() {
+            const container = document.getElementById('races-container');
+            container.innerHTML = '';
+            let totalPicks = 0;
+            for (let race = 1; race <= 6; race++) {
+                const totalHorses = appState.raceConfig[race];
+                const scratched = appState.scratched[race];
+                const userPicks = appState.currentUser.picks[race];
+                totalPicks += userPicks.length;
+                let horsesHtml = '';
+                for (let i = 1; i <= totalHorses; i++) {
+                    if (scratched.includes(i)) continue;
+                    const isSelected = userPicks.includes(i);
+                    const isDisabled = !isSelected && userPicks.length >= 3;
+                    horsesHtml += `<button onclick="window.togglePick(${race}, ${i})" class="horse-btn w-11 h-11 rounded-xl font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300'} ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}">${i}</button>`;
+                }
+                container.innerHTML += `<div class="glass-panel rounded-xl p-4"><div class="flex justify-between items-center mb-3"><h3 class="font-black text-brand-amber text-lg"><i class="fa-solid fa-flag-checkered mr-2"></i>${race}ª VÁLIDA</h3><span class="text-xs font-bold ${userPicks.length === 3 ? 'text-green-400' : 'text-gray-500'} bg-white/5 px-2 py-1 rounded">${userPicks.length}/3</span></div><div class="flex flex-wrap gap-2">${horsesHtml}</div></div>`;
+            }
+            document.getElementById('picks-count').textContent = totalPicks;
+            const btnSubmit = document.getElementById('btn-submit');
+            const hint = document.getElementById('submit-hint');
+            if (totalPicks === 18) {
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('bg-gray-800', 'text-gray-500', 'border-white/5');
+                btnSubmit.classList.add('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg');
+                hint.textContent = "¡Jugada completa! Puedes enviar.";
+                hint.classList.add('text-green-400');
+            } else {
+                btnSubmit.disabled = true;
+                btnSubmit.classList.add('bg-gray-800', 'text-gray-500', 'border-white/5');
+                btnSubmit.classList.remove('bg-gradient-to-r', 'from-brand-orange', 'to-brand-amber', 'text-white', 'shadow-lg');
+                hint.textContent = `Te faltan ${18 - totalPicks} selecciones.`;
+                hint.classList.remove('text-green-400');
+            }
+        }
+
+        window.togglePick = function(race, horse) {
+            const picks = appState.currentUser.picks[race];
+            const index = picks.indexOf(horse);
+            if (index > -1) picks.splice(index, 1);
+            else if (picks.length < 3) picks.push(horse);
+            renderUserBoard();
+        }
+
+        window.submitBet = async function() {
+            let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
+            for (let r = 1; r <= 6; r++) {
+                const picks = appState.currentUser.picks[r];
+                const picksStr = picks.map(p => `[${p}]`).join(' ');
+                resumen += `${r}ª V.: ${picksStr}\n`;
+            }
+            resumen += '\n¿Confirmas el envío de estas selecciones?';
+            
+            if (confirm(resumen)) {
+                try {
+                    const docRef = await addDoc(collection(db, "usuarios"), {
+                        name: appState.currentUser.name,
+                        picks: appState.currentUser.picks,
+                        paid: false,
+                        createdAt: appState.currentUser.createdAt
+                    });
+                    appState.currentUser.id = docRef.id;
+                    appState.users.push(appState.currentUser);
+                    saveUsersToLocalStorage();
+                    alert("✅ ¡Jugada enviada con éxito!");
+                    showView('view-ranking');
+                } catch (error) {
+                    console.error("❌ Error guardando jugada:", error);
+                    alert("⚠️ Error al guardar.");
+                }
+            }
+        }
+
+        window.renderRanking = function() {
+            const list = document.getElementById('ranking-list');
+            list.innerHTML = '';
+            let currentRace = 0;
+            for (let r = 1; r <= 6; r++) {
+                if (appState.results[r] !== null) currentRace = r;
+                else break;
+            }
+            
+            const usuariosValidos = appState.users.filter(u => {
+                let total = 0;
+                for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
+                return total === 18;
+            });
+            
+            const usersWithStatus = usuariosValidos.map(user => {
+                let status = { alive: true, eliminatedAt: null, details: {} };
+                for (let r = 1; r <= 6; r++) {
+                    const winner = appState.results[r];
+                    if (winner !== null) {
+                        const isHit = user.picks[r].includes(winner);
+                        status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                        if (!isHit && status.alive) { 
+                            status.alive = false; 
+                            status.eliminatedAt = r; 
+                        }
+                    } else {
+                        status.details[r] = { picks: user.picks[r], winner: null, isHit: null };
+                    }
+                }
+                return { ...user, ...status };
+            });
+            
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+            const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
+            
+            if (currentRace > 0) {
+                const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `Ganadores: ${aliveUsers.length}` : `Vivos: ${aliveUsers.length}`;
+                let premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio Semanal: ${formatearBs(premioSemanal)}</p>`;
+                if (acumuladoTotal > 0) {
+                    premioHtml += `<p class="text-xs text-amber-400 font-bold">🏆 Premio Acumulado: ${formatearBs(acumuladoTotal)}</p>`;
+                }
+                premioHtml += `<p class="text-xs text-blue-400 font-bold">🎯 Premio Total: ${formatearBs(premioTotal)}</p>`;
+                
+                list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4">
+                    <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
+                    <p class="text-2xl font-black text-brand-amber">${currentRace}ª Válida</p>
+                    <p class="text-xs text-gray-500 mt-1">${etiquetaEstado} | Eliminados: ${eliminatedUsers.length}</p>
+                    ${premioHtml}
+                </div>`;
+            }
+            
+            if (aliveUsers.length === 0 && currentRace > 0) {
+                list.innerHTML += `
+                    <div class="glass-panel rounded-xl p-6 border-2 border-brand-amber/50 bg-gradient-to-r from-brand-orange/20 to-brand-amber/20 mb-4">
+                        <div class="text-center">
+                            <span class="text-5xl block mb-3">🏆</span>
+                            <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
+                            <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
+                            <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(acumuladoTotal)}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (aliveUsers.length > 0) {
+                const tituloVivos = (currentRace === 6) ? '<i class="fa-solid fa-trophy mr-2"></i>GANADORES' : '<i class="fa-solid fa-heart mr-2"></i>VIVOS';
+                const colorTitulo = (currentRace === 6) ? 'text-amber-400' : 'text-green-400';
+                list.innerHTML += `<div class="text-center mb-3"><h3 class="text-lg font-black ${colorTitulo} uppercase tracking-wider">${tituloVivos}</h3></div>`;
+                
+                const premioIndividual = (currentRace === 6) ? (premioTotal / aliveUsers.length) : 0;
+            
+                aliveUsers.forEach((u, index) => {
+                    const isWinner = currentRace === 6 && u.alive;
+                    list.innerHTML += renderUserCard(u, index + 1, currentRace, isWinner, premioIndividual);
+                });
+            }
+            
+            if (eliminatedUsers.length > 0) {
+                list.innerHTML += `<div class="text-center mt-8 mb-3"><h3 class="text-lg font-black text-red-400 uppercase tracking-wider"><i class="fa-solid fa-skull mr-2"></i>Y ALLÁ RRROOODARON 💀</h3></div>`;
+                eliminatedUsers.forEach(u => { list.innerHTML += renderUserCard(u, null, currentRace, false); });
+            }
+            
+            if (currentRace === 0) {
+                list.innerHTML += `<div class="glass-panel rounded-xl p-6 text-center border border-white/10"><i class="fa-solid fa-hourglass-start text-4xl text-gray-500 mb-3"></i><p class="text-gray-400">Aún no se han cargado resultados</p></div>`;
+            }
+        }
+
+        function renderUserCard(u, position, currentRace, isWinner, premioIndividual = 0) {
+            let racesHtml = '';
+            for (let r = 1; r <= 6; r++) {
+                const d = u.details[r];
+                if (!d) continue;
+                const picksFormatted = d.picks.map(p => d.winner && p === d.winner ? `<span class="text-green-400 font-black text-base drop-shadow-md">[${p}]</span>` : `<span class="text-gray-300 font-bold">${p}</span>`).join(' ');
+                let statusIcon = '';
+                if (d.winner !== null) {
+                    statusIcon = d.isHit ? '<span class="text-green-400 text-lg">✔️</span>' : '<span class="text-red-400 text-lg">❌</span>';
+                } else {
+                    statusIcon = '<span class="text-gray-600 text-lg">-</span>';
+                }
+                racesHtml += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-white/5 last:border-0 px-2 rounded"><span class="text-gray-400 font-bold w-12 text-xs">${r}ª V.</span><div class="flex-1 text-right tracking-widest">${picksFormatted}</div><div class="w-8 text-center">${statusIcon}</div></div>`;
+            }
+            
+            const positionDisplay = isWinner ? '<span class="text-3xl">🏆</span>' : (position ? `<span class="text-2xl font-black text-brand-amber w-8 text-center">#${position}</span>` : '');
+            const cardClass = u.alive ? (isWinner ? 'border-green-500 shadow-lg shadow-green-500/20' : 'border-green-500/30') : 'border-red-500/30 opacity-75';
+            
+            let nombreHtml = `<span class="font-black text-lg text-white block leading-none">${u.name}</span>`;
+            if (premioIndividual > 0) {
+                nombreHtml += `<span class="text-xs text-green-400 font-black">➡️ ${formatearBs(premioIndividual)}</span>`;
+            }
+
+            return `<div class="glass-panel rounded-xl p-4 border ${cardClass} mb-3"><div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10"><div class="flex items-center gap-3">${positionDisplay}<div>${nombreHtml}<span class="text-[10px] text-gray-500 uppercase tracking-wider">${u.alive ? 'Sobreviviendo' : `Eliminado en ${u.eliminatedAt}ª V.`}</span></div></div></div><div class="space-y-1">${racesHtml}</div></div>`;
+        }
+
+        window.switchAdminTab = function(tabId) {
+            document.querySelectorAll('.adm-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll('.adm-tab').forEach(btn => { btn.classList.remove('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5'); btn.classList.add('text-gray-500'); });
+            event.target.classList.remove('text-gray-500');
+            event.target.classList.add('text-brand-orange', 'border-b-2', 'border-brand-orange', 'bg-white/5');
+        }
+
+        window.renderAdminConfigInputs = function() {
+            const container = document.getElementById('admin-race-inputs');
+            container.innerHTML = '';
+            for (let i = 1; i <= 6; i++) container.innerHTML += `<div><label class="block text-[10px] font-black text-gray-400 mb-1 uppercase tracking-wider">${i}ª Válida</label><input type="number" id="cfg-race-${i}" value="${appState.raceConfig[i]}" min="4" max="14" class="w-full glass-input rounded-lg px-3 py-2 text-center font-black text-lg"></div>`;
+        }
+
+        window.saveRaceConfig = async function() {
+            for (let i = 1; i <= 6; i++) {
+                const val = parseInt(document.getElementById(`cfg-race-${i}`).value);
+                appState.raceConfig[i] = val;
+                appState.scratched[i] = appState.scratched[i].filter(s => s <= val);
+            }
+            const precioInput = document.getElementById('config-precio');
+            if (precioInput) {
+                appState.precioJugada = parseInt(precioInput.value) || 800;
+            }
+            await saveConfigToFirebase();
+            alert("✅ Configuración guardada.\n\nMonto por jugada: Bs. " + appState.precioJugada.toLocaleString('es-VE'));
+            renderAdminScratch();
+            renderAdminResults();
+            if (appState.currentUser) renderUserBoard();
+        }
+
+        window.renderAdminScratch = function() {
+            const container = document.getElementById('admin-scratch-container');
+            container.innerHTML = '';
+            for (let r = 1; r <= 6; r++) {
+                let buttons = '';
+                for (let i = 1; i <= appState.raceConfig[r]; i++) {
+                    const isScratched = appState.scratched[r].includes(i);
+                    buttons += `<button onclick="window.toggleScratch(${r}, ${i})" class="w-10 h-10 rounded-lg font-black text-sm border transition-all ${isScratched ? 'bg-red-600 border-red-500 text-white line-through' : 'bg-white/5 border-white/20 text-gray-300 hover:bg-white/10'}">${i}</button>`;
+                }
+                container.innerHTML += `<div class="bg-white/5 p-3 rounded-xl border border-white/5"><p class="text-[10px] font-black text-brand-amber mb-2 uppercase tracking-wider">${r}ª VÁLIDA - Retirados:</p><div class="flex flex-wrap gap-2">${buttons}</div></div>`;
+            }
+        }
+
+        window.toggleScratch = async function(race, horse) {
+            const arr = appState.scratched[race];
+            const idx = arr.indexOf(horse);
+            if (idx > -1) arr.splice(idx, 1); else arr.push(horse);
+            if (appState.currentUser) {
+                const uPicks = appState.currentUser.picks[race];
+                const uIdx = uPicks.indexOf(horse);
+                if (uIdx > -1) uPicks.splice(uIdx, 1);
+            }
+            await saveConfigToFirebase();
+            renderAdminScratch();
+            if (appState.currentUser) renderUserBoard();
+        }
+
+        window.renderAdminResults = function() {
+            const container = document.getElementById('admin-results-container');
+            container.innerHTML = '';
+            for (let r = 1; r <= 6; r++) {
+                const hasResult = appState.results[r] !== null;
+                const isNext = !hasResult && (r === 1 || appState.results[r-1] !== null);
+                container.innerHTML += `<div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5 ${!isNext && !hasResult ? 'opacity-50' : ''}">
+                    <span class="font-black text-brand-amber w-16 text-sm">${r}ª VÁLIDA</span>
+                    <input type="number" id="res-race-${r}" value="${appState.results[r] || ''}" placeholder="#" min="1" max="${appState.raceConfig[r]}" class="flex-1 glass-input rounded-lg px-3 py-2 text-center font-black text-lg" ${!isNext && !hasResult ? 'disabled' : ''}>
+                    <button onclick="window.saveRaceResult(${r})" class="px-4 py-2 rounded-lg font-black text-sm transition-all ${hasResult ? 'bg-green-500/20 text-green-400 border border-green-500/30' : isNext ? 'bg-brand-orange text-white hover:bg-orange-600' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}" ${!isNext && !hasResult ? 'disabled' : ''}>${hasResult ? '✅ Guardado' : 'GUARDAR'}</button>
+                    ${hasResult ? `<button onclick="window.clearRaceResult(${r})" class="px-3 py-2 rounded-lg font-black text-sm bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/40 transition-all" title="Borrar resultado"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </div>`;
+            }
+            const hasAnyResult = Object.values(appState.results).some(r => r !== null);
+            const whatsappSection = document.getElementById('whatsapp-section');
+            if (hasAnyResult) {
+                whatsappSection.classList.remove('hidden');
+            } else {
+                whatsappSection.classList.add('hidden');
+            }
+        }
+
+        window.clearRaceResult = async function(race) {
+            if (!confirm(`⚠️ ¿Estás seguro de BORRAR el resultado de la ${race}ª Válida?\n\nEsto permitirá volver a ingresarlo.`)) return;
+            appState.results[race] = null;
+            await saveConfigToFirebase();
+            renderAdminResults();
+            renderRanking();
+            alert(`✅ Resultado de la ${race}ª Válida borrado correctamente.`);
+        }
+
+        window.saveRaceResult = async function(race) {
+            const input = document.getElementById(`res-race-${race}`);
+            const val = input.value;
+            if (!val) return alert("⚠️ Debes ingresar el número del ganador.");
+            const winner = parseInt(val);
+            if (winner < 1 || winner > appState.raceConfig[race]) return alert(`⚠️ El número debe estar entre 1 y ${appState.raceConfig[race]}`);
+            
+            appState.results[race] = winner;
+            await saveConfigToFirebase();
+            
+            let aciertos = 0, fallos = 0;
+            appState.users.forEach(u => { if (u.picks[race].includes(winner)) aciertos++; else fallos++; });
+            
+            if (race === 6) {
+                const usuariosValidos = appState.users.filter(u => {
+                    let total = 0;
+                    for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
+                    return total === 18;
+                });
+                const aliveUsers = usuariosValidos.filter(u => {
+                    for (let r = 1; r <= 6; r++) {
+                        const w = appState.results[r];
+                        if (w !== null && !u.picks[r].includes(w)) return false;
+                    }
+                    return true;
+                });
+                
+                if (aliveUsers.length === 0) {
+                    const { premioSemanal } = calcularPremio();
+                    const hoy = new Date().toISOString().split('T')[0];
+                    appState.historialAcumulados.push({
+                        monto: premioSemanal,
+                        fecha: hoy,
+                        origen: 'Jornada'
+                    });
+                    await saveConfigToFirebase();
+                    renderHistorialAcumulados();
+                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 No hubo ganadores. El premio semanal de ${formatearBs(premioSemanal)} se ha acumulado automáticamente.`);
+                } else {
+                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 ¡HAY GANADORES!\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}`);
+                }
+            } else {
+                alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
+            }
+            
+            renderAdminResults();
+            renderRanking();
+        }
+
+        window.renderHistorialAcumulados = function() {
+            const container = document.getElementById('lista-historial-acumulados');
+            const totalDisplay = document.getElementById('display-total-acumulado');
+            if (!container || !totalDisplay) return;
+            
+            container.innerHTML = '';
+            const total = appState.historialAcumulados.reduce((sum, item) => sum + item.monto, 0);
+            totalDisplay.textContent = formatearBs(total);
+            
+            if (appState.historialAcumulados.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 text-center py-2">No hay acumulados registrados.</p>';
+                return;
+            }
+            
+            appState.historialAcumulados.forEach((item, index) => {
+                const partes = item.fecha.split('-');
+                const fechaCorta = partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0].slice(-2)}` : item.fecha;
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-2 rounded border border-white/10">
+                        <div>
+                            <p class="text-xs font-bold text-white">${fechaCorta}</p>
+                            <p class="text-[10px] text-gray-400">${item.origen || 'Manual'}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-black text-green-400">${formatearBs(item.monto)}</span>
+                            <button onclick="eliminarAcumulado(${index})" class="text-red-400 hover:text-red-300 p-1 transition-colors">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.agregarAcumuladoManual = async function() {
+            const montoStr = prompt("Ingresa el monto acumulado (solo números, ej: 5000):");
+            if (!montoStr) return;
+            const monto = parseFloat(montoStr.replace(',', '.'));
+            if (isNaN(monto) || monto <= 0) return alert("Monto inválido.");
+            
+            const fecha = prompt("Ingresa la fecha (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+            if (!fecha) return;
+            
+            appState.historialAcumulados.push({
+                monto: monto,
+                fecha: fecha,
+                origen: 'Manual'
+            });
+            
+            await saveConfigToFirebase();
+            renderHistorialAcumulados();
+            alert("✅ Acumulado agregado correctamente.");
+        }
+
+        window.eliminarAcumulado = async function(index) {
+            if (!confirm("¿Eliminar este registro acumulado específico?")) return;
+            appState.historialAcumulados.splice(index, 1);
+            await saveConfigToFirebase();
+            renderHistorialAcumulados();
+        }
+
+        window.liquidarAcumulados = async function() {
+            if (appState.historialAcumulados.length === 0) {
+                return alert("No hay acumulados para liquidar.");
+            }
+            
+            const confirm1 = confirm("⚠️ ¿Estás seguro de LIQUIDAR todos los acumulados?\n\nEsta acción se realiza cuando el premio acumulado ha sido pagado a los ganadores y no se puede deshacer.");
+            if (!confirm1) return;
+            
+            const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'LIQUIDAR' en mayúsculas para confirmar:");
+            if (confirm2 !== 'LIQUIDAR') {
+                return alert("❌ Operación cancelada. El texto no coincide.");
+            }
+            
+            appState.historialAcumulados = [];
+            await saveConfigToFirebase();
+            renderHistorialAcumulados();
+            alert("✅ Todos los acumulados han sido liquidados exitosamente.");
+        }
+
+        window.renderAdminEditList = function() {
+            const container = document.getElementById('admin-edit-list');
+            if (!container) return;
+            container.innerHTML = '';
+            if (appState.users.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">No hay participantes registrados.</p>';
+                return;
+            }
+            const sortedUsers = [...appState.users].sort((a, b) => a.name.localeCompare(b.name));
+            sortedUsers.forEach(u => {
+                let totalPicks = 0;
+                for (let r = 1; r <= 6; r++) totalPicks += (u.picks[r] || []).length;
+                const isComplete = totalPicks === 18;
+                let picksSummary = '';
+                for (let r = 1; r <= 6; r++) {
+                    const picks = u.picks[r] || [];
+                    picksSummary += `<div class="text-xs text-gray-400"><span class="text-brand-amber font-bold">${r}ª:</span> ${picks.length > 0 ? picks.map(p => `[${p}]`).join(' ') : '<span class="text-red-400">vacía</span>'}</div>`;
+                }
+                container.innerHTML += `
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-brand-orange/30 transition-all">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-black text-white text-lg">${u.name}</span>
+                                    ${isComplete ? '<span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded font-bold">COMPLETA</span>' : '<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-bold">INCOMPLETA</span>'}
+                                    <span class="text-[10px] text-gray-500">${totalPicks}/18</span>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-1 mt-2">
+                                    ${picksSummary}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 mt-3 pt-3 border-t border-white/10">
+                            <button onclick="window.openEditBet('${u.id}')" class="flex-1 bg-brand-orange hover:bg-orange-600 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-pen"></i> EDITAR
+                            </button>
+                            <button onclick="window.sendPlayerWhatsApp('${u.id}')" class="bg-green-600 hover:bg-green-500 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1" title="Copiar jugada para WhatsApp">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                            </button>
+                            <button onclick="window.deleteUserBet('${u.id}', '${u.name}')" class="bg-red-600 hover:bg-red-500 text-white text-xs font-black py-2 px-3 rounded-lg transition-all flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-trash"></i> ELIMINAR
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.openEditBet = function(userId) {
+            const user = appState.users.find(u => u.id === userId);
+            if (!user) return;
+            appState.editingUser = user;
+            appState.editingPicks = JSON.parse(JSON.stringify(user.picks));
+            document.getElementById('edit-user-name-input').value = user.name;
+            renderEditRaces();
+            document.getElementById('modal-edit-bet').classList.remove('hidden');
+        }
+
+        window.closeEditModal = function() {
+            document.getElementById('modal-edit-bet').classList.add('hidden');
+            appState.editingUser = null;
+            appState.editingPicks = null;
+        }
+
+        window.renderEditRaces = function() {
+            const container = document.getElementById('edit-races-container');
+            container.innerHTML = '';
+            for (let race = 1; race <= 6; race++) {
+                const totalHorses = appState.raceConfig[race];
+                const scratched = appState.scratched[race];
+                const picks = appState.editingPicks[race];
+                let horsesHtml = '';
+                for (let i = 1; i <= totalHorses; i++) {
+                    if (scratched.includes(i)) continue;
+                    const isSelected = picks.includes(i);
+                    horsesHtml += `<button onclick="window.toggleEditPick(${race}, ${i})" class="horse-btn w-10 h-10 rounded-lg font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300 hover:bg-white/10'}">${i}</button>`;
+                }
+                container.innerHTML += `
+                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-black text-brand-amber text-sm">${race}ª VÁLIDA</h4>
+                            <span class="text-xs font-bold ${picks.length === 3 ? 'text-green-400' : 'text-gray-500'}">${picks.length}/3</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">${horsesHtml}</div>
+                    </div>
+                `;
+            }
+        }
+
+        window.toggleEditPick = function(race, horse) {
+            const picks = appState.editingPicks[race];
+            const index = picks.indexOf(horse);
+            if (index > -1) picks.splice(index, 1);
+            else if (picks.length < 3) picks.push(horse);
+            renderEditRaces();
+        }
+
+        window.saveEditedBet = async function() {
+            if (!appState.editingUser) return;
+            const newName = document.getElementById('edit-user-name-input').value.trim().toUpperCase();
+            if (!newName) return alert("⚠️ El apodo no puede estar vacío.");
+            const existingUser = appState.users.find(u => u.name === newName && u.id !== appState.editingUser.id);
+            if (existingUser) return alert(`⚠️ El apodo "${newName}" ya está en uso por otro participante.`);
+            
+            let totalPicks = 0;
+            for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
+            if (totalPicks !== 18) {
+                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) return;
+            }
+            
+            try {
+                const userDoc = doc(db, "usuarios", appState.editingUser.id);
+                await updateDoc(userDoc, { name: newName, picks: appState.editingPicks });
+                const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
+                if (userIndex > -1) {
+                    appState.users[userIndex].name = newName;
+                    appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
+                }
+                saveUsersToLocalStorage();
+                alert("✅ Jugada y apodo actualizados correctamente.");
+                closeEditModal();
+                renderAdminEditList();
+            } catch (error) {
+                console.error("❌ Error actualizando jugada:", error);
+                alert("⚠️ Error al guardar los cambios.");
+            }
+        }
+
+        window.deleteUserBet = async function(userId, userName) {
+            if (!confirm(`⚠️ ¿Estás seguro de ELIMINAR la jugada de "${userName}"?\n\nEsta acción no se puede deshacer y el apodo quedará disponible.`)) return;
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nSe eliminará permanentemente la jugada de "${userName}".\n\n¿Continuar?`)) return;
+            try {
+                await deleteDoc(doc(db, "usuarios", userId));
+                await loadUsersFromFirebase();
+                saveUsersToLocalStorage();
+                alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible.`);
+                renderAdminEditList();
+            } catch (error) {
+                console.error("❌ Error eliminando jugada:", error);
+                alert("⚠️ Error al eliminar la jugada.");
+            }
+        }
+
+        function contarJugadasCompletas() {
+            return appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += (u.picks[r] || []).length;
+                return total === 18;
+            }).length;
+        }
+
+        function calcularPremio() {
+            const jugadoresActivos = contarJugadasCompletas();
+            const pozoTotal = jugadoresActivos * appState.precioJugada;
+            const premioSemanal = pozoTotal * PORCENTAJE_PREMIO;
+            const acumuladoTotal = appState.historialAcumulados.reduce((sum, item) => sum + item.monto, 0);
+            const premioTotal = premioSemanal + acumuladoTotal;
+            return { jugadoresActivos, pozoTotal, premioSemanal, acumuladoTotal, premioTotal };
+        }
+
+        function formatearBs(monto) {
+            return 'Bs. ' + monto.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        window.generateInitialReport = function() {
+            const completeUsers = appState.users.filter(u => {
+                let totalPicks = 0;
+                for (let r = 1; r <= 6; r++) totalPicks += u.picks[r].length;
+                return totalPicks === 18;
+            });
+            if (completeUsers.length === 0) return alert("⚠️ Aún no hay participantes con jugada completa (18 selecciones).");
+            
+            const incompleteCount = appState.users.length - completeUsers.length;
+            let confirmMsg = `✅ Se incluirán ${completeUsers.length} participante(s) con jugada completa.`;
+            if (incompleteCount > 0) confirmMsg += `\n\n⚠️ ${incompleteCount} participante(s) aún no han completado su jugada y NO aparecerán en este reporte.`;
+            if (!confirm(confirmMsg + '\n\n¿Deseas generar el reporte?')) return;
+            
+            const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
+            let msg = '';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            if (acumuladoTotal > 0) {
+                msg += `🏆 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
+                msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
+            } else {
+                msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n\n`;
+            }
+            
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '📋 *REPORTE COMPLETO DE JUGADAS*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n\n';
+            msg += `👥 *Total de Participantes:* ${completeUsers.length}\n\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            const sortedUsers = [...completeUsers].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            sortedUsers.forEach((u, index) => {
+                msg += `*${index + 1}. ${u.name}*\n`;
+                for (let r = 1; r <= 6; r++) {
+                    const picks = u.picks[r];
+                    const picksStr = picks.map(p => `[${p}]`).join(' ');
+                    msg += `${r}ª V.: ${picksStr}\n`;
+                }
+                msg += '\n';
+            });
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            msg += '⚠️ *¡IMPORTANTE!*\n';
+            msg += '• Revisa tus selecciones cuidadosamente\n';
+            msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
+            msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
+            msg += '🐎 *¡Que comience la emoción!* 🐎';
+            
+            const preview = document.getElementById('initial-report-preview');
+            preview.textContent = msg;
+            document.getElementById('initial-report-preview-container').classList.remove('hidden');
+            window.lastInitialReport = msg;
+            document.getElementById('initial-report-preview-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyInitialReport = async function() {
+            if (!window.lastInitialReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastInitialReport);
+                alert("✅ ¡Reporte de jugadas copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastInitialReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+            }
+        }
+
+        // ✅ CORREGIDO: Se restauró el detalle de las 6 carreras con los 3 caballos para VIVOS y ELIMINADOS
+        window.generateWhatsAppReport = function() {
+            let currentRace = 0;
+            for (let r = 1; r <= 6; r++) {
+                if (appState.results[r] !== null) currentRace = r;
+                else break;
+            }
+            if (currentRace === 0) return alert("⚠️ No hay resultados para reportar.");
+            
+            const usuariosValidos = appState.users.filter(u => {
+                let total = 0;
+                for(let r=1; r<=6; r++) total += (u.picks[r]||[]).length;
+                return total === 18;
+            });
+            
+            const usersWithStatus = usuariosValidos.map(user => {
+                let status = { alive: true, eliminatedAt: null, details: {} };
+                for (let r = 1; r <= currentRace; r++) {
+                    const winner = appState.results[r];
+                    const isHit = winner && user.picks[r].includes(winner);
+                    status.details[r] = { picks: user.picks[r], winner: winner, isHit: isHit };
+                    if (!isHit && status.alive) { status.alive = false; status.eliminatedAt = r; }
+                }
+                for (let r = currentRace + 1; r <= 6; r++) {
+                    status.details[r] = { picks: user.picks[r], winner: null, isHit: null };
+                }
+                return { ...user, ...status };
+            });
+            
+            const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
+            
+            let msg = '';
+            msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            
+            if (acumuladoTotal > 0) {
+                msg += '🏆 *HISTORIAL DE ACUMULADOS*\n';
+                appState.historialAcumulados.forEach(item => {
+                    const partes = item.fecha.split('-');
+                    const fechaCorta = partes.length === 3 ? `${partes[2]}/${partes[1]}` : item.fecha;
+                    msg += `• ${fechaCorta}: ${formatearBs(item.monto)}\n`;
+                });
+                msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
+                msg += `💰 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
+                msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
+            } else {
+                msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioSemanal)}\n\n`;
+            }
+            
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
+            msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
+            msg += '📊 *ESTADO ACTUAL*\n';
+            const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `✅ Ganadores: ${aliveUsers.length}` : `✅ Vivos: ${aliveUsers.length}`;
+            msg += `${etiquetaEstado}\n`;
+            msg += `❌ Eliminados: ${eliminatedUsers.length}\n`;
+            msg += `🎲 Restan: ${6 - currentRace} válidas\n\n`;
+            
+            if (aliveUsers.length === 0) {
+                msg += '🏆 *ACUMULADO* 🏆\n\n';
+                msg += 'No hubo ganadores en esta jornada.\n';
+                msg += `El premio de *${formatearBs(acumuladoTotal)}* queda acumulado para la próxima semana.\n\n`;
+                msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            }
+            
+            // ✅ RESTAURADO: Muestra el detalle de las 6 carreras para los VIVOS
+            if (aliveUsers.length > 0) {
+                msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
+                const medals = ['🥇', '🥈', '🥉'];
+                aliveUsers.forEach((u, i) => {
+                    const medal = i < 3 ? medals[i] : '•';
+                    msg += `${medal} *${u.name}*\n`;
+                    for (let r = 1; r <= 6; r++) {
+                        const d = u.details[r];
+                        const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
+                        let icon = r <= currentRace ? (d.isHit ? ' ✔️' : ' ❌') : '';
+                        msg += `${r}ª: ${picksStr}${icon}\n`;
+                    }
+                    msg += '\n';
+                });
+            }
+            
+            if (eliminatedUsers.length > 0) {
+                msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+                msg += '🔴 *Y ALLÁ RRROOODARON* 💀\n\n';
+                eliminatedUsers.forEach(u => {
+                    msg += `*${u.name}* _(Cayó en ${u.eliminatedAt}ª)_\n`;
+                    for (let r = 1; r <= 6; r++) {
+                        const d = u.details[r];
+                        const picksStr = d.picks.map(p => p === d.winner ? `*[${p}]*` : `[${p}]`).join(' ');
+                        let icon = r <= currentRace ? (d.isHit ? ' ✔️' : ' ❌') : '';
+                        msg += `${r}ª: ${picksStr}${icon}\n`;
+                    }
+                    msg += '\n';
+                });
+            }
+            
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            // ✅ RESTAURADO: Al final de la 6ª válida, muestra el bloque de felicitaciones y premios
+            if (currentRace === 6) {
+                if (aliveUsers.length > 0) {
+                    const premioIndividual = premioTotal / aliveUsers.length;
+                    const tituloGanadores = aliveUsers.length > 1 ? 'A LOS GANADORES' : 'AL GANADOR';
+                    msg += `🏆 *¡FELICIDADES ${tituloGanadores}!* 🏆\n\n`;
+                    aliveUsers.forEach(u => {
+                        msg += `*${u.name}* ➡️ ${formatearBs(premioIndividual)}\n`;
+                    });
+                    msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
+                    msg += '🐎 *¡Gracias por participar!* 🐎\n\n';
+                    msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
+                } else {
+                    msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
+                    msg += `El premio de *${formatearBs(premioTotal)}* queda acumulado para la próxima semana.\n\n`;
+                    msg += '🐎 *¡Gracias por participar!* 🐎\n\n';
+                    msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
+                }
+            } else {
+                msg += `🐎 *¡Suerte en la ${currentRace + 1}ª Válida!* 🐎`;
+            }
+            
+            const preview = document.getElementById('whatsapp-preview');
+            preview.textContent = msg;
+            document.getElementById('whatsapp-preview-container').classList.remove('hidden');
+            window.lastWhatsAppReport = msg;
+            document.getElementById('whatsapp-preview-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyWhatsAppReport = async function() {
+            if (!window.lastWhatsAppReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastWhatsAppReport);
+                alert("✅ ¡Reporte copiado al portapapeles!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastWhatsAppReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
+            }
+        }
+
+        window.renderAdminPayments = async function() {
+            await loadUsersFromFirebase();
+            const container = document.getElementById('admin-payment-list');
+            container.innerHTML = '';
+            appState.users.forEach(u => {
+                container.innerHTML += `<div class="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/5"><span class="font-black text-sm">${u.name}</span><button onclick="window.togglePayment('${u.id}', '${u.name}')" class="px-3 py-1.5 rounded text-[10px] font-black transition-all uppercase tracking-wider ${u.paid ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}">${u.paid ? 'PAGADO ✅' : 'PENDIENTE'}</button></div>`;
+            });
+        }
+
+        window.togglePayment = async function(userId, name) {
+            try {
+                const userDoc = doc(db, "usuarios", userId);
+                const user = appState.users.find(u => u.id === userId);
+                if (user) {
+                    const newStatus = !user.paid;
+                    await updateDoc(userDoc, { paid: newStatus });
+                    user.paid = newStatus;
+                    saveUsersToLocalStorage();
+                }
+                renderAdminPayments();
+            } catch (error) { alert("⚠️ Error actualizando pago."); }
+        }
+
+        window.resetAllData = async function() {
+            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El historial de acumulados\n\n¿Estás seguro de que deseas continuar?");
+            if (!confirm1) return;
+            
+            const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
+            if (confirm2 !== 'BORRAR') {
+                alert("❌ Operación cancelada. El texto no coincide.");
+                return;
+            }
+            
+            try {
+                const usersSnapshot = await getDocs(collection(db, "usuarios"));
+                const deletePromises = usersSnapshot.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+                
+                const configDoc = doc(db, "global_config", "main");
+                await setDoc(configDoc, {
+                    raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 },
+                    scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+                    results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
+                    precioJugada: appState.precioJugada,
+                    historialAcumulados: appState.historialAcumulados,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                appState.raceConfig = { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 };
+                appState.scratched = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+                appState.results = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+                appState.users = [];
+                appState.currentUser = null;
+                
+                localStorage.removeItem('tresXSeisActivo_Config');
+                localStorage.removeItem('tresXSeisActivo_Users');
+                
+                renderAdminConfigInputs();
+                renderAdminResults();
+                renderAdminScratch();
+                renderAdminEditList();
+                renderHistorialAcumulados();
+                
+                alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\nEl historial de acumulados se mantuvo intacto.");
+                goHome();
+            } catch (error) {
+                console.error("❌ Error al vaciar la base de datos:", error);
+                alert("⚠️ Ocurrió un error al vaciar la base de datos. Intenta de nuevo.");
+            }
+        }
+
+        window.generatePaymentReport = function() {
+            if (appState.users.length === 0) return alert("⚠️ No hay participantes registrados.");
+            const sortedUsers = [...appState.users].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            let msg = '';
+            msg += '📋 *LISTA DE PARTICIPANTES*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            sortedUsers.forEach((u, index) => { msg += `${index + 1}. *${u.name}*\n`; });
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            
+            const preview = document.getElementById('payment-report-preview');
+            preview.textContent = msg;
+            document.getElementById('payment-report-container').classList.remove('hidden');
+            window.lastPaymentReport = msg;
+            document.getElementById('payment-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyPaymentReport = async function() {
+            if (!window.lastPaymentReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastPaymentReport);
+                alert("✅ ¡Lista de cobranza copiada!\n\nAhora pégala en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastPaymentReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Lista copiada! Pégala en WhatsApp.");
+            }
+        }
+
+        window.generateAveragesReport = function() {
+            if (appState.users.length === 0) return alert("⚠️ No hay participantes registrados.");
+            const validUsers = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += (u.picks[r] || []).length;
+                return total === 18;
+            });
+            if (validUsers.length === 0) return alert("⚠️ No hay participantes con jugada completa.");
+            
+            let msg = '';
+            msg += '📊 *ANÁLISIS ESTADÍSTICO*\n';
+            msg += '🎯 Top 5 números más elegidos\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '👥 Participantes: ' + validUsers.length + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '*DATOS*\n\n';
+            
+            for (let r = 1; r <= 6; r++) {
+                const frequency = {};
+                validUsers.forEach(u => {
+                    const picks = u.picks[r] || [];
+                    picks.forEach(p => { frequency[p] = (frequency[p] || 0) + 1; });
+                });
+                const sorted = Object.entries(frequency).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                const topNumbers = sorted.map(([num, count]) => `[${num}]`).join('.');
+                msg += `${r}ª V.: ${topNumbers}\n`;
+            }
+            
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += '💡 *Los números aparecen en orden de mayor a menor frecuencia*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━';
+            
+            const preview = document.getElementById('averages-report-preview');
+            preview.textContent = msg;
+            document.getElementById('averages-report-container').classList.remove('hidden');
+            window.lastAveragesReport = msg;
+            document.getElementById('averages-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyAveragesReport = async function() {
+            if (!window.lastAveragesReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastAveragesReport);
+                alert("✅ ¡Promedios copiados!\n\nAhora pégalos en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastAveragesReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Promedios copiados! Pégalos en WhatsApp.");
+            }
+        }
+
+        window.sendPlayerWhatsApp = function(userId) {
+            const user = appState.users.find(u => u.id === userId);
+            if (!user) return;
+            let msg = '';
+            msg += '🎯 *JUGADA DE: ' + user.name + '*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            for (let r = 1; r <= 6; r++) {
+                const picks = user.picks[r] || [];
+                const picksStr = picks.map(p => `[${p}]`).join(' ');
+                msg += `${r}ª V.: ${picksStr}\n`;
+            }
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            
+            navigator.clipboard.writeText(msg).then(() => {
+                alert(`✅ ¡Jugada de "${user.name}" copiada!\n\nAhora pégala en WhatsApp para enviársela.`);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = msg;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(`✅ ¡Jugada de "${user.name}" copiada! Pégala en WhatsApp.`);
+            });
+        }
+
+        init();
+    </script>
 </body>
 </html>
