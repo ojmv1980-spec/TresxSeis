@@ -3,45 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#06102A">
     <title>Tres x Seis Activo - Quiniela Hípica</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: { brand: { orange: '#f97316', amber: '#f59e0b', dark: '#0f172a' } },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    colors: { brand: { orange: '#3B8BFF', amber: '#38E1FF', dark: '#06102A' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Chakra Petch', 'sans-serif'] }
                 }
             }
         }
     </script>
     <style>
-        .bg-hipodromo {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), 
-                              url('https://cdn-images.bloodhorse.com/i/bloodhorse-images/2024/04/d27c631ac73647fe962e797170fb56db.jpg');
-            background-size: cover; background-position: center center; 
+        /* ===== PISTA NOCTURNA AZUL — fondo estático solo con CSS (sin imágenes) ===== */
+        .bg-hipodromo, body {
+            background-color: #050B1F;
+            background-image:
+                radial-gradient(900px 600px at 85% -10%, rgba(59,139,255,.24), transparent 60%),
+                radial-gradient(800px 700px at 0% 100%, rgba(56,225,255,.14), transparent 60%),
+                linear-gradient(180deg, #050B1F 0%, #081634 60%, #0A2150 100%);
             background-attachment: fixed; background-repeat: no-repeat; min-height: 100vh;
         }
-        body { background-color: #0f172a; }
+        @media (prefers-reduced-motion: reduce) { header.glass-panel::after { animation: none !important; } }
+
         .glass-panel {
-            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(249, 115, 22, 0.2); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+            background: rgba(12, 28, 70, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(96, 165, 250, 0.30); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            position: relative;
         }
+        .glass-panel::before {
+            content: ''; position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56, 225, 255, 0.6), transparent);
+            pointer-events: none;
+        }
+        /* única animación del sitio: la línea bicolor que recorre el encabezado de izquierda a derecha */
+        header.glass-panel::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none;
+            background: linear-gradient(90deg, transparent, #38E1FF, #FF3D81, transparent);
+            background-size: 50% 100%; background-repeat: no-repeat;
+            animation: fxThread 3.5s ease-in-out infinite;
+        }
+        @keyframes fxThread { from { background-position: -50% 0; } to { background-position: 150% 0; } }
         .glass-input {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white;
         }
-        .glass-input:focus { border-color: #f97316; outline: none; background: rgba(255, 255, 255, 0.1); }
-        .horse-btn { transition: all 0.2s; }
+        .glass-input:focus { border-color: #38E1FF; outline: none; background: rgba(255, 255, 255, 0.1); }
+        .horse-btn { transition: all 0.2s; border-radius: 50% !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); }
         .horse-btn.selected {
-            background: linear-gradient(135deg, #f97316, #f59e0b);
-            color: white; font-weight: 900; border-color: transparent;
-            box-shadow: 0 0 15px rgba(249, 115, 22, 0.6); transform: scale(1.05);
+            background: #38E1FF;
+            color: #04121F; font-weight: 900; border-color: transparent;
+            box-shadow: 0 0 16px rgba(56, 225, 255, 0.55), inset 0 0 0 2px rgba(255,255,255,0.25); transform: scale(1.08);
         }
         .horse-btn.scratched { display: none !important; }
-        .fade-in { animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* ajustes de contraste y hover para la nueva paleta (sin tocar las clases del HTML/JS) */
+        .hover\:bg-orange-600:hover { background-color: #2563C9 !important; }
+        .bg-brand-orange.text-white { color: #06102A; }
+        .from-brand-orange.to-brand-amber.text-white { color: #06102A; }
+        .bg-brand-amber.hover\:bg-yellow-500:hover { background-color: #7AEBFF !important; }
+        .shadow-orange-500\/40 { --tw-shadow-color: rgba(59,139,255,.4) !important; }
+        .shadow-yellow-500\/20 { --tw-shadow-color: rgba(56,225,255,.25) !important; }
+        .fade-in { animation: none; }
         .whatsapp-preview {
             background: #0b141a; border-radius: 12px; padding: 16px;
             font-family: 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5;
@@ -49,6 +74,7 @@
             max-height: 400px; overflow-y: auto;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-hipodromo text-white font-sans min-h-screen flex flex-col">
 
@@ -57,7 +83,7 @@
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-horse-head text-2xl text-brand-orange"></i>
                 <div>
-                    <h1 class="text-lg font-black tracking-tight text-white leading-none">3 x 6</h1>
+                    <h1 class="text-lg font-black tracking-tight text-white leading-none font-display">3 x 6</h1>
                     <span class="text-[10px] font-black text-brand-amber tracking-[0.2em] uppercase">Activo</span>
                 </div>
             </div>
@@ -80,7 +106,7 @@
 
     <div id="view-register" class="flex-1 flex flex-col items-center justify-center p-6 fade-in">
         <div class="glass-panel rounded-3xl p-6 w-full max-w-md text-center">
-            <h2 class="text-2xl font-black text-white mb-1">Registro de Jugador</h2>
+            <h2 class="text-2xl font-black text-white mb-1 font-display">Registro de Jugador</h2>
             <p class="text-sm text-gray-400 mb-4">Bienvenido a la nueva experiencia hípica</p>
             <div class="text-left bg-brand-orange/10 p-4 rounded-xl text-xs text-gray-300 space-y-2 border border-brand-orange/20 mb-4">
                 <p><i class="fa-solid fa-circle-check text-brand-orange mr-2"></i>Elige <b>3 caballos</b> por cada una de las 6 carreras.</p>
@@ -119,7 +145,7 @@
     <div id="view-ranking" class="hidden flex-1 p-4 fade-in max-w-3xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-amber/40 bg-brand-amber/5">
             <i class="fa-solid fa-trophy text-4xl text-brand-amber mb-2 drop-shadow-lg"></i>
-            <h2 class="text-2xl font-black text-white">Tabla de Posiciones</h2>
+            <h2 class="text-2xl font-black text-white font-display">Tabla de Posiciones</h2>
             <p class="text-xs text-gray-400 mt-1">Sistema de supervivencia progresiva</p>
         </div>
         <div id="ranking-list" class="space-y-4"></div>
@@ -131,7 +157,7 @@
     <div id="view-admin" class="hidden flex-1 p-4 fade-in max-w-4xl mx-auto w-full pb-10">
         <div class="glass-panel rounded-2xl p-6 mb-6 text-center border border-brand-orange/40 bg-brand-orange/5">
             <i class="fa-solid fa-shield-halved text-4xl text-brand-orange mb-2 drop-shadow-lg"></i>
-            <h2 class="text-2xl font-black text-white">Panel de Administración</h2>
+            <h2 class="text-2xl font-black text-white font-display">Panel de Administración</h2>
             <p class="text-xs text-gray-400 mt-1">Gestión completa del sistema</p>
         </div>
         
@@ -141,6 +167,8 @@
             <button onclick="switchAdminTab('adm-resultados')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">3. Resultados</button>
             <button onclick="switchAdminTab('adm-cobranza')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">4. Cobranza</button>
             <button onclick="switchAdminTab('adm-edicion'); renderAdminEditList();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">5. Edición</button>
+            <button onclick="switchAdminTab('adm-inscritos'); renderInscritos();" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">6. Inscritos</button>
+            <button onclick="switchAdminTab('adm-cargarapida')" class="adm-tab flex-1 py-3 text-xs font-black text-gray-500 hover:text-white whitespace-nowrap px-2">7. Carga Rápida</button>
         </div>
 
         <div class="glass-panel rounded-2xl rounded-tl-none p-6 min-h-[400px]">
@@ -183,6 +211,68 @@
                     </div>
                 </div>
                 
+                <div class="mt-4 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-indigo-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-eye mr-2"></i>MODO DE ACCESO PÚBLICO
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Cuando está activo, cualquier visitante que entre a la página cae directo en RANKING. Tú, como admin, siempre puedes llegar a la carga de jugadas con el ícono de casa 🏠 en el header.</p>
+                    <button onclick="toggleModoSoloRanking()" id="btn-modo-ranking" class="w-full font-black py-3 rounded-xl transition-all"></button>
+                </div>
+
+                <div class="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-cyan-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-horse mr-2"></i>NOMBRES DE EJEMPLARES POR VÁLIDA
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-2">Pega el listado completo por bloques. Formato esperado:</p>
+                    <pre class="text-[10px] text-gray-500 bg-black/30 p-2 rounded mb-3 overflow-x-auto">1era V.
+1. Nombre del Caballo
+2. Otro Ejemplar
+3. ...
+
+2da V.
+1. ...</pre>
+                    <textarea id="horse-names-input" rows="8" class="w-full glass-input rounded-lg px-3 py-2 text-xs font-mono" placeholder="Pega aquí el listado completo de las 6 válidas..."></textarea>
+
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mt-3 mb-1">
+                        <i class="fa-solid fa-clock mr-1"></i>Hora de la 1ª Válida, hora de Venezuela (obligatorio)
+                    </label>
+                    <input type="time" id="hora-primera-valida-input" class="w-full glass-input rounded-lg px-3 py-2 text-sm">
+
+                    <button onclick="procesarListadoEjemplares()" class="w-full mt-2 bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>PROCESAR LISTADO
+                    </button>
+                    <div id="horse-names-preview" class="mt-3 hidden"></div>
+                </div>
+
+                <div id="contador-panel" class="mb-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl hidden">
+                    <h4 class="text-sm font-black text-cyan-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-stopwatch mr-2"></i>CONTADOR DE LA 1ª VÁLIDA
+                    </h4>
+                    <p id="contador-primera-valida" class="text-lg font-black text-white text-center py-2">—</p>
+                    <button onclick="activarAvisosSonoros()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl transition-all">
+                        <i class="fa-solid fa-bell mr-2"></i>🔔 ACTIVAR AVISOS SONOROS
+                    </button>
+                    <p class="text-[10px] text-gray-500 mt-2 text-center">Recibirás un aviso con sonido cada 5 min desde los 40 min restantes — solo los domingos (hora de Venezuela) y mientras esta pestaña siga abierta.</p>
+                </div>
+
+                <div class="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-green-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-comment-dots mr-2"></i>MENSAJE DE BIENVENIDA
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Genera el mensaje de bienvenida de la jornada con válidas, ejemplares inscritos, retirados y el acumulado — listo para pegar en WhatsApp.</p>
+                    <button onclick="generateWelcomeMessage()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg shadow-green-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> GENERAR MENSAJE DE BIENVENIDA
+                    </button>
+                    <div id="welcome-report-container" class="hidden mt-3">
+                        <div id="welcome-report-preview" class="whatsapp-preview border border-green-500/30"></div>
+                        <div id="welcome-report-counter"></div>
+                        <div id="welcome-report-split"></div>
+                        <button onclick="copyWelcomeMessage()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR MENSAJE
+                        </button>
+                    </div>
+                </div>
+
                 <button onclick="saveRaceConfig()" class="w-full mt-6 bg-brand-amber text-black font-black py-3 rounded-xl active:scale-95 transition-transform">
                     <i class="fa-solid fa-save mr-2"></i>GUARDAR CONFIGURACIÓN
                 </button>
@@ -190,8 +280,53 @@
             
             <div id="adm-retirados" class="adm-content hidden">
                 <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">Marcar Ejemplares Retirados</h3>
-                <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo.</p>
+                <p class="text-xs text-gray-400 mb-4">Toca un número para retirarlo. Si algún jugador ya tenía ese número elegido, el sistema le asignará automáticamente un sustituto válido.</p>
                 <div id="admin-scratch-container" class="space-y-4"></div>
+
+                <div class="mt-6 p-4 bg-white/5 border border-white/10 rounded-xl">
+                    <h4 class="text-sm font-black text-gray-300 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-clock-rotate-left mr-2"></i>Historial de Reasignaciones (Retiros Tardíos)
+                    </h4>
+                    <div id="reassign-log" class="space-y-1 max-h-52 overflow-y-auto pr-1 text-xs"></div>
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <button onclick="limpiarLogsHuerfanos()" class="bg-yellow-600/80 hover:bg-yellow-500 text-white font-black py-2.5 rounded-xl transition-all text-xs">
+                            <i class="fa-solid fa-broom mr-1"></i>LIMPIAR HUÉRFANOS
+                        </button>
+                        <button onclick="vaciarTodoElHistorial()" class="bg-red-700/80 hover:bg-red-600 text-white font-black py-2.5 rounded-xl transition-all text-xs">
+                            <i class="fa-solid fa-trash mr-1"></i>VACIAR TODO
+                        </button>
+                    </div>
+                    <button onclick="generateReassignReport()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                        <i class="fa-solid fa-file-lines mr-2"></i>GENERAR REPORTE PARA WHATSAPP
+                    </button>
+                    <div id="reassign-report-container" class="hidden mt-3">
+                        <div id="reassign-report-preview" class="whatsapp-preview border border-gray-500/30"></div>
+                        <div id="reassign-report-counter"></div>
+                        <div id="reassign-report-split"></div>
+                        <button onclick="copyReassignReport()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR HISTORIAL
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+                    <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>Log de Retiros Tardíos (por Válida)
+                    </h4>
+                    <p class="text-[11px] text-gray-500 mb-2">Solo retiros marcados en esta sección, separados por válida — no incluye sustituciones de Carga Rápida ni del registro.</p>
+                    <div id="retiros-log-por-valida" class="space-y-3 max-h-64 overflow-y-auto pr-1 text-xs"></div>
+                    <button onclick="generateRetirosTardiosReport()" class="w-full mt-3 bg-gray-700 hover:bg-gray-600 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                        <i class="fa-solid fa-file-lines mr-2"></i>GENERAR REPORTE PARA WHATSAPP
+                    </button>
+                    <div id="retiros-report-container" class="hidden mt-3">
+                        <div id="retiros-report-preview" class="whatsapp-preview border border-red-500/30"></div>
+                        <div id="retiros-report-counter"></div>
+                        <div id="retiros-report-split"></div>
+                        <button onclick="copyRetirosTardiosReport()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR LOG DE RETIROS
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div id="adm-resultados" class="adm-content hidden">
@@ -215,6 +350,8 @@
                             </button>
                         </div>
                         <div id="initial-report-preview" class="whatsapp-preview border border-blue-500/30"></div>
+                        <div id="initial-report-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="initial-report-split" class="hidden mt-2"></div>
                     </div>
                 </div>
                 <div id="admin-results-container" class="space-y-3"></div>
@@ -233,7 +370,28 @@
                             </button>
                         </div>
                         <div id="whatsapp-preview" class="whatsapp-preview border border-green-500/30"></div>
+                        <div id="whatsapp-report-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="whatsapp-report-split" class="hidden mt-2"></div>
                         <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Copia y pega directamente en tu grupo de WhatsApp</p>
+                    </div>
+
+                    <button onclick="generateWinnersReport()" class="w-full bg-brand-amber hover:bg-yellow-500 text-brand-dark font-black py-3 rounded-xl shadow-lg shadow-yellow-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trophy text-xl"></i>
+                        <span>🏆 GENERAR REPORTE DE GANADORES</span>
+                    </button>
+                    <div id="winners-report-container" class="hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-xs font-black text-brand-amber uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h4>
+                            <button onclick="copyWinnersReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="winners-report-preview" class="whatsapp-preview border border-brand-amber/30"></div>
+                        <div id="winners-report-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="winners-report-split" class="hidden mt-2"></div>
+                        <p class="text-[10px] text-gray-500 mt-2 text-center">💡 Tip: Solo disponible cuando hay ganadores en la 6ª Válida</p>
                     </div>
                 </div>
                 
@@ -268,6 +426,28 @@
                             </button>
                         </div>
                         <div id="payment-report-preview" class="whatsapp-preview border border-green-500/30"></div>
+                        <div id="payment-report-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="payment-report-split" class="hidden mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-white/10">
+                    <button onclick="generateJugadasDelDiaReport()" class="w-full bg-brand-amber hover:brightness-110 text-brand-dark font-black py-3 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                        <span>📊 REPORTE DE JUGADAS DEL DÍA</span>
+                    </button>
+                    <div id="jugadas-dia-container" class="hidden mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h5 class="text-xs font-black text-brand-amber uppercase tracking-wider">
+                                <i class="fa-solid fa-eye mr-1"></i> Vista Previa
+                            </h5>
+                            <button onclick="copyJugadasDelDiaReport()" class="bg-brand-orange hover:bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all">
+                                <i class="fa-solid fa-copy mr-1"></i> COPIAR
+                            </button>
+                        </div>
+                        <div id="jugadas-dia-preview" class="whatsapp-preview border border-brand-amber/30"></div>
+                        <div id="jugadas-dia-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="jugadas-dia-split" class="hidden mt-2"></div>
                     </div>
                 </div>
             </div>
@@ -280,6 +460,17 @@
                         <i class="fa-solid fa-triangle-exclamation mr-1"></i>
                         ⚠️ Los cambios se aplican inmediatamente. Usa con precaución.
                     </p>
+                </div>
+
+                <div class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <h4 class="text-sm font-black text-red-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i>VERIFICAR DUPLICADOS
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Busca apodos exactamente iguales (no confundir con sufijos como "02", "03" que son distintos a propósito).</p>
+                    <button onclick="verificarNombresDuplicados()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl shadow-lg shadow-red-500/20 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> VERIFICAR DUPLICADOS
+                    </button>
+                    <div id="duplicados-resultado" class="mt-3 space-y-3"></div>
                 </div>
                 
                 <div class="mb-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
@@ -301,10 +492,90 @@
                             </button>
                         </div>
                         <div id="averages-report-preview" class="whatsapp-preview border border-purple-500/30"></div>
+                        <div id="averages-report-counter" class="text-[10px] mt-1 text-right text-gray-400"></div>
+                        <div id="averages-report-split" class="hidden mt-2"></div>
                     </div>
                 </div>
 
                 <div id="admin-edit-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <div id="adm-cargarapida" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">⚡ Carga Rápida por Bloques</h3>
+                <p class="text-xs text-gray-400 mb-4">Pega uno o varios mensajes de WhatsApp tal cual te llegaron (nombre + 6 líneas de números, separados como sea). El sistema los interpreta automáticamente.</p>
+                <div class="flex gap-2 mb-3">
+                    <input type="file" id="ocr-image-input" accept="image/*" class="hidden" onchange="procesarImagenOCR(event)">
+                    <button onclick="document.getElementById('ocr-image-input').click()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-camera"></i> SUBIR IMAGEN (capturas de WhatsApp)
+                    </button>
+                </div>
+                <div id="ocr-status" class="hidden mb-3 p-2 bg-purple-500/10 border border-purple-500/30 rounded-lg text-xs text-purple-300 text-center"></div>
+                <p class="text-[10px] text-gray-500 mb-3">
+                    <i class="fa-solid fa-circle-info mr-1"></i>El reconocimiento funciona bien con <b>capturas de pantalla de texto de WhatsApp</b>. Para <b>fotos de hojas escritas a mano</b>, no es confiable — revisa y corrige el texto extraído con mucho cuidado antes de procesar.
+                </p>
+                <textarea id="quickload-input" rows="10" placeholder="LUIS F&#10;3/5/8&#10;2/7/8&#10;1/5/7&#10;1/9/10&#10;1/4/6&#10;2/6/8&#10;&#10;GUARO&#10;3,5,8&#10;2,3,7&#10;1,5,6&#10;1,4,9&#10;2,3,6&#10;2,9,12" class="w-full glass-input rounded-xl px-4 py-3 text-sm font-mono mb-3" style="min-height: 220px;"></textarea>
+                <button onclick="procesarCargaRapida()" class="w-full bg-brand-orange hover:bg-brand-amber text-brand-dark font-black py-3 rounded-xl shadow-lg active:scale-95 transition-transform">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>PROCESAR BLOQUES
+                </button>
+
+                <div id="quickload-preview-container" class="hidden mt-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-black text-gray-400 uppercase tracking-wider">Vista Previa — revisa y edita antes de confirmar</h4>
+                        <span id="quickload-count" class="text-xs font-black text-brand-amber"></span>
+                    </div>
+                    <div id="quickload-preview-list" class="space-y-3"></div>
+                    <button onclick="confirmarCargaRapidaLote()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3.5 rounded-xl shadow-lg active:scale-95 transition-transform mt-2">
+                        <i class="fa-solid fa-check-double mr-2"></i>CONFIRMAR LOTE COMPLETO (<span id="quickload-selected-count">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <div id="adm-inscritos" class="adm-content hidden">
+                <h3 class="text-sm font-black text-white mb-2 uppercase tracking-wider">📋 Ejemplares Inscritos</h3>
+                <p class="text-xs text-gray-400 mb-4">Vista completa de los inscritos por válida, con el número real de carrera del programa del hipódromo.</p>
+
+                <div class="mb-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Número de carrera de la 1ª Válida</label>
+                    <input type="number" id="numero-carrera-1v" min="1" class="w-full glass-input rounded-lg px-3 py-2 text-sm mb-3" placeholder="Ej: 8">
+
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-wider mb-1">¿Las 6 válidas son carreras consecutivas?</label>
+                    <div class="flex gap-3 mb-3">
+                        <label class="flex items-center gap-2 text-sm text-gray-300"><input type="radio" name="consecutivas" value="si" checked onchange="toggleCamposCarrerasNoConsecutivas()"> Sí</label>
+                        <label class="flex items-center gap-2 text-sm text-gray-300"><input type="radio" name="consecutivas" value="no" onchange="toggleCamposCarrerasNoConsecutivas()"> No</label>
+                    </div>
+
+                    <div id="campos-carreras-no-consecutivas" class="hidden grid grid-cols-3 gap-2 mb-3">
+                        <div><label class="block text-[10px] text-gray-500 mb-1">2ª V.</label><input type="number" id="numero-carrera-2v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">3ª V.</label><input type="number" id="numero-carrera-3v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">4ª V.</label><input type="number" id="numero-carrera-4v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">5ª V.</label><input type="number" id="numero-carrera-5v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                        <div><label class="block text-[10px] text-gray-500 mb-1">6ª V.</label><input type="number" id="numero-carrera-6v" min="1" class="w-full glass-input rounded-lg px-2 py-2 text-sm"></div>
+                    </div>
+
+                    <button onclick="guardarNumerosCarreraReal()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl transition-all">
+                        <i class="fa-solid fa-save mr-2"></i>GUARDAR NÚMEROS DE CARRERA
+                    </button>
+                </div>
+
+                <div id="inscritos-listado" class="space-y-4"></div>
+
+                <div class="mt-6 p-4 bg-brand-amber/10 border border-brand-amber/30 rounded-xl">
+                    <h4 class="text-sm font-black text-brand-amber uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-list-ol mr-2"></i>RESUMEN DE GANADORES (EN VIVO)
+                    </h4>
+                    <p class="text-xs text-gray-400 mb-3">Se arma solo, directo de los resultados ya cargados — se actualiza hasta la última válida que tenga resultado.</p>
+                    <button onclick="generateResumenGanadoresEnVivo()" class="w-full bg-brand-amber hover:bg-yellow-500 text-brand-dark font-black py-3 rounded-xl active:scale-95 transition-transform">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>GENERAR RESUMEN
+                    </button>
+                    <div id="resumen-ganadores-container" class="hidden mt-3">
+                        <div id="resumen-ganadores-preview" class="whatsapp-preview border border-brand-amber/30"></div>
+                        <div id="resumen-ganadores-counter"></div>
+                        <div id="resumen-ganadores-split"></div>
+                        <button onclick="copyResumenGanadoresEnVivo()" class="w-full mt-2 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all text-sm">
+                            <i class="fa-solid fa-copy mr-2"></i>COPIAR RESUMEN
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -312,7 +583,7 @@
     <div id="modal-edit-bet" class="hidden fixed inset-0 z-[70] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
         <div class="glass-panel rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto fade-in border border-brand-orange/30">
             <div class="p-4 border-b border-white/10 flex justify-between items-center sticky top-0 bg-brand-dark z-10">
-                <h2 class="text-lg font-black text-brand-orange">
+                <h2 class="text-lg font-black text-brand-orange font-display">
                     <i class="fa-solid fa-pen-to-square mr-2"></i>
                     Editar Jugada
                 </h2>
@@ -361,17 +632,23 @@
         const db = getFirestore(app);
 
         const PORCENTAJE_PREMIO = 0.80;
+        const WHATSAPP_LIMIT = 65534;
 
         const appState = {
             currentUser: null,
             raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 }, 
             scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
             results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
+            horseNames: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} },
             users: [],
             editingUser: null,
             editingPicks: null,
             precioJugada: 800,
             historialAcumulados: [],
+            modoSoloRanking: false,
+            reasignaciones: [],
+            horaPrimeraValida: null,
+            numeroCarreraReal: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
             isAdmin: false
         };
 
@@ -382,8 +659,13 @@
                     raceConfig: appState.raceConfig,
                     scratched: appState.scratched,
                     results: appState.results,
+                    horseNames: appState.horseNames,
                     precioJugada: appState.precioJugada,
                     historialAcumulados: appState.historialAcumulados,
+                    modoSoloRanking: appState.modoSoloRanking,
+                    reasignaciones: appState.reasignaciones,
+                    horaPrimeraValida: appState.horaPrimeraValida,
+                    numeroCarreraReal: appState.numeroCarreraReal,
                     updatedAt: new Date().toISOString()
                 });
             } catch (error) {
@@ -393,8 +675,13 @@
                 raceConfig: appState.raceConfig,
                 scratched: appState.scratched,
                 results: appState.results,
+                horseNames: appState.horseNames,
                 precioJugada: appState.precioJugada,
-                historialAcumulados: appState.historialAcumulados
+                historialAcumulados: appState.historialAcumulados,
+                modoSoloRanking: appState.modoSoloRanking,
+                reasignaciones: appState.reasignaciones,
+                horaPrimeraValida: appState.horaPrimeraValida,
+                numeroCarreraReal: appState.numeroCarreraReal
             }));
         }
 
@@ -407,8 +694,20 @@
                     appState.raceConfig = data.raceConfig || appState.raceConfig;
                     appState.scratched = data.scratched || appState.scratched;
                     appState.results = data.results || appState.results;
+                    appState.horseNames = data.horseNames || appState.horseNames;
                     appState.precioJugada = data.precioJugada || 800;
                     appState.historialAcumulados = data.historialAcumulados || [];
+                    appState.modoSoloRanking = data.modoSoloRanking || false;
+                    appState.reasignaciones = data.reasignaciones || [];
+                    appState.horaPrimeraValida = data.horaPrimeraValida || null;
+                    appState.numeroCarreraReal = data.numeroCarreraReal || { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+                    if (appState.horaPrimeraValida) {
+                        const horaInputEl = document.getElementById('hora-primera-valida-input');
+                        const panelEl = document.getElementById('contador-panel');
+                        if (horaInputEl) horaInputEl.value = appState.horaPrimeraValida;
+                        if (panelEl) panelEl.classList.remove('hidden');
+                        if (typeof iniciarContadorCarrera === 'function') iniciarContadorCarrera();
+                    }
                     return true;
                 }
             } catch (error) {
@@ -446,8 +745,11 @@
                 appState.raceConfig = parsed.raceConfig || appState.raceConfig;
                 appState.scratched = parsed.scratched || appState.scratched;
                 appState.results = parsed.results || appState.results;
+                appState.horseNames = parsed.horseNames || appState.horseNames;
                 appState.precioJugada = parsed.precioJugada || 800;
                 appState.historialAcumulados = parsed.historialAcumulados || [];
+                appState.modoSoloRanking = parsed.modoSoloRanking || false;
+                appState.reasignaciones = parsed.reasignaciones || [];
             }
             const usersSaved = localStorage.getItem('tresXSeisActivo_Users');
             if (usersSaved) {
@@ -469,6 +771,9 @@
             renderHistorialAcumulados();
             saveUsersToLocalStorage();
             saveConfigToFirebase();
+            if (appState.modoSoloRanking) {
+                showView('view-ranking');
+            }
         }
 
         window.goHome = function() {
@@ -485,6 +790,7 @@
             if (pass === "111180") {
                 appState.isAdmin = true;
                 showView('view-admin');
+                purgarJugadasIncompletas();
             } else if (pass !== null) {
                 alert("❌ Clave incorrecta.");
             }
@@ -504,16 +810,40 @@
                 renderAdminPayments();
                 renderAdminEditList();
                 renderHistorialAcumulados();
+                renderModoRankingBtn();
+                renderReassignLog();
+                renderRetirosTardiosPorValida();
                 const precioInput = document.getElementById('config-precio');
                 if (precioInput) precioInput.value = appState.precioJugada || 800;
             }
             window.scrollTo(0, 0);
         }
 
+        window.toggleModoSoloRanking = async function() {
+            appState.modoSoloRanking = !appState.modoSoloRanking;
+            await saveConfigToFirebase();
+            renderModoRankingBtn();
+            alert(appState.modoSoloRanking
+                ? "✅ Activado: el público entrará directo al Ranking.\n\nTú sigues teniendo acceso a la carga de jugadas con el ícono de casa 🏠."
+                : "✅ Desactivado: el público volverá a ver la pantalla de registro.");
+        }
+
+        window.renderModoRankingBtn = function() {
+            const btn = document.getElementById('btn-modo-ranking');
+            if (!btn) return;
+            if (appState.modoSoloRanking) {
+                btn.className = 'w-full font-black py-3 rounded-xl transition-all bg-green-600 hover:bg-green-500 text-white';
+                btn.innerHTML = '<i class="fa-solid fa-toggle-on mr-2"></i>ACTIVO — Público ve solo Ranking';
+            } else {
+                btn.className = 'w-full font-black py-3 rounded-xl transition-all bg-gray-700 hover:bg-gray-600 text-gray-300';
+                btn.innerHTML = '<i class="fa-solid fa-toggle-off mr-2"></i>INACTIVO — Público ve Registro';
+            }
+        }
+
         window.registerUser = async function() {
-            const nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
+            let nick = document.getElementById('reg-nickname').value.trim().toUpperCase();
             if (!nick) return alert("⚠️ Ingresa un apodo.");
-            
+
             const existingUser = appState.users.find(u => u.name === nick);
             if (existingUser) {
                 let suggestedName = nick;
@@ -522,12 +852,10 @@
                     suggestedName = `${nick} ${String(counter).padStart(2, '0')}`;
                     counter++;
                 }
-                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar?`);
-                if (useSuggested) {
-                    document.getElementById('reg-nickname').value = suggestedName;
-                    return;
-                }
-                return;
+                const useSuggested = confirm(`⚠️ El apodo "${nick}" ya existe.\n\n¿Deseas usar "${suggestedName}" en su lugar y CONTINUAR?`);
+                if (!useSuggested) return;
+                nick = suggestedName;
+                document.getElementById('reg-nickname').value = nick;
             }
 
             const newUser = { 
@@ -556,7 +884,14 @@
                 totalPicks += userPicks.length;
                 let horsesHtml = '';
                 for (let i = 1; i <= totalHorses; i++) {
-                    if (scratched.includes(i)) continue;
+                    if (scratched.includes(i)) {
+                        const subs = appState.currentUser._scratchSubs || [];
+                        const activo = subs.find(s => s.race === race && s.de === i);
+                        const tieneActivo = !!(activo && userPicks.includes(activo.a));
+                        const isDisabledScratched = !tieneActivo && userPicks.length >= 3;
+                        horsesHtml += `<button onclick="window.togglePick(${race}, ${i})" title="Retirado — al tocarlo se asigna automáticamente el siguiente válido" class="horse-btn w-11 h-11 rounded-xl font-black text-sm border flex items-center justify-center bg-red-500/10 border-red-500/40 text-red-400/80 line-through ${tieneActivo ? 'ring-2 ring-brand-amber' : ''} ${isDisabledScratched ? 'opacity-30 cursor-not-allowed' : ''}">${i}</button>`;
+                        continue;
+                    }
                     const isSelected = userPicks.includes(i);
                     const isDisabled = !isSelected && userPicks.length >= 3;
                     horsesHtml += `<button onclick="window.togglePick(${race}, ${i})" class="horse-btn w-11 h-11 rounded-xl font-black text-sm border border-white/20 flex items-center justify-center ${isSelected ? 'selected' : 'bg-white/5 text-gray-300'} ${isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}">${i}</button>`;
@@ -582,14 +917,40 @@
         }
 
         window.togglePick = function(race, horse) {
+            const scratchedSet = appState.scratched[race];
             const picks = appState.currentUser.picks[race];
+
+            if (scratchedSet.includes(horse)) {
+                if (!appState.currentUser._scratchSubs) appState.currentUser._scratchSubs = [];
+                const subs = appState.currentUser._scratchSubs;
+                const existente = subs.find(s => s.race === race && s.de === horse);
+
+                if (existente && picks.includes(existente.a)) {
+                    picks.splice(picks.indexOf(existente.a), 1);
+                    subs.splice(subs.indexOf(existente), 1);
+                } else if (picks.length < 3) {
+                    const total = appState.raceConfig[race];
+                    const sustituto = buscarSustitutoValido(race, horse, picks, scratchedSet, total);
+                    if (sustituto !== null) {
+                        picks.push(sustituto);
+                        subs.push({ race, de: horse, a: sustituto });
+                    }
+                }
+                renderUserBoard();
+                return;
+            }
+
             const index = picks.indexOf(horse);
             if (index > -1) picks.splice(index, 1);
             else if (picks.length < 3) picks.push(horse);
             renderUserBoard();
         }
 
+        let envioJugadaEnCurso = false;
+
         window.submitBet = async function() {
+            if (envioJugadaEnCurso) return; // ya hay un envío en curso — ignora toques adicionales
+
             let resumen = '📋 RESUMEN DE TU JUGADA\n\n';
             for (let r = 1; r <= 6; r++) {
                 const picks = appState.currentUser.picks[r];
@@ -599,14 +960,50 @@
             resumen += '\n¿Confirmas el envío de estas selecciones?';
             
             if (confirm(resumen)) {
+                envioJugadaEnCurso = true;
+                const btn = document.getElementById('btn-submit');
+                const textoOriginalBtn = btn ? btn.innerHTML : '';
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ENVIANDO...';
+                }
                 try {
+                    // Última verificación, justo antes de guardar: trae la lista más fresca posible
+                    // de Firebase (no la copia local, que puede estar desactualizada si otro celular
+                    // registró el mismo apodo hace unos segundos) y, si ya existe, asigna sufijo.
+                    await loadUsersFromFirebase();
+                    if (appState.users.some(u => u.name === appState.currentUser.name)) {
+                        let contador = 2;
+                        let candidato = `${appState.currentUser.name} ${String(contador).padStart(2, '0')}`;
+                        while (appState.users.some(u => u.name === candidato)) { contador++; candidato = `${appState.currentUser.name} ${String(contador).padStart(2, '0')}`; }
+                        alert(`⚠️ Justo ahora otra persona registró el apodo "${appState.currentUser.name}".\n\nPara evitar duplicados, tu jugada se guardará como "${candidato}".`);
+                        appState.currentUser.name = candidato;
+                        document.getElementById('display-nickname').textContent = candidato;
+                    }
+
+                    const originalPicksSnapshot = JSON.parse(JSON.stringify(appState.currentUser.picks));
                     const docRef = await addDoc(collection(db, "usuarios"), {
                         name: appState.currentUser.name,
                         picks: appState.currentUser.picks,
+                        originalPicks: originalPicksSnapshot,
                         paid: false,
                         createdAt: appState.currentUser.createdAt
                     });
                     appState.currentUser.id = docRef.id;
+                    appState.currentUser.originalPicks = originalPicksSnapshot;
+
+                    const subs = appState.currentUser._scratchSubs;
+                    if (subs && subs.length > 0) {
+                        const fecha = new Date().toISOString();
+                        const nuevasEntradas = subs.map(s => ({
+                            jugador: appState.currentUser.name, userId: docRef.id,
+                            carrera: s.race, de: s.de, a: s.a, fecha, error: false, origen: 'registro'
+                        }));
+                        appState.reasignaciones = [...nuevasEntradas, ...appState.reasignaciones];
+                        await saveConfigToFirebase();
+                    }
+                    delete appState.currentUser._scratchSubs;
+
                     appState.users.push(appState.currentUser);
                     saveUsersToLocalStorage();
                     alert("✅ ¡Jugada enviada con éxito!");
@@ -614,6 +1011,12 @@
                 } catch (error) {
                     console.error("❌ Error guardando jugada:", error);
                     alert("⚠️ Error al guardar.");
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = textoOriginalBtn;
+                    }
+                } finally {
+                    envioJugadaEnCurso = false;
                 }
             }
         }
@@ -655,14 +1058,22 @@
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
-            
+            // ¿Ya se empujó el acumulado de HOY al historial? (ocurre al guardar el resultado
+            // de la 6ª válida sin ganadores). Si ya ocurrió, acumuladoTotal YA incluye el premio
+            // de hoy y no hay que volver a sumarlo. Si aún no ocurrió (ej. quedan 0 vivos desde
+            // antes de la 6ª válida, pero el resultado final no se ha guardado), hay que mostrar
+            // la proyección completa: lo de hoy + lo acumulado previamente.
+            const hoyISO = new Date().toISOString().split('T')[0];
+            const yaAcumuladoHoy = appState.historialAcumulados.some(item => item.fecha === hoyISO);
+            const premioProyectado = yaAcumuladoHoy ? acumuladoTotal : premioTotal;
+
             if (currentRace > 0) {
                 const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `Ganadores: ${aliveUsers.length}` : `Vivos: ${aliveUsers.length}`;
                 let premioHtml = `<p class="text-xs text-green-400 mt-1 font-bold">💰 Premio Semanal: ${formatearBs(premioSemanal)}</p>`;
                 if (acumuladoTotal > 0) {
                     premioHtml += `<p class="text-xs text-amber-400 font-bold">🏆 Premio Acumulado: ${formatearBs(acumuladoTotal)}</p>`;
                 }
-                premioHtml += `<p class="text-xs text-blue-400 font-bold">🎯 Premio Total: ${formatearBs(premioTotal)}</p>`;
+                premioHtml += `<p class="text-xs text-blue-400 font-bold">🎯 Premio Total: ${formatearBs(aliveUsers.length === 0 ? premioProyectado : premioTotal)}</p>`;
                 
                 list.innerHTML += `<div class="glass-panel rounded-xl p-4 text-center border border-brand-amber/30 bg-brand-amber/5 mb-4">
                     <p class="text-xs text-gray-400 uppercase font-bold tracking-widest">Carrera Actual</p>
@@ -679,7 +1090,7 @@
                             <span class="text-5xl block mb-3">🏆</span>
                             <h3 class="text-2xl font-black text-brand-amber uppercase tracking-wider">ACUMULADO</h3>
                             <p class="text-sm text-gray-300 mt-2">No hubo ganadores en esta jornada</p>
-                            <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(acumuladoTotal)}</p>
+                            <p class="text-lg font-black text-green-400 mt-2">Premio para la Próxima Semana: ${formatearBs(premioProyectado)}</p>
                         </div>
                     </div>
                 `;
@@ -778,10 +1189,247 @@
             }
         }
 
+        // Busca el siguiente ejemplar válido: recorre secuencialmente desde el retirado,
+        // da la vuelta al llegar al último, y descarta números ya retirados o ya elegidos por ese mismo jugador.
+        async function reasignarJugadasPorRetiro(race, horseRetirado) {
+            const total = appState.raceConfig[race];
+            const scratchedSet = appState.scratched[race];
+            const afectados = appState.users.filter(u => (u.picks[race] || []).includes(horseRetirado));
+            if (afectados.length === 0) return [];
+
+            const cambios = [];
+            for (const user of afectados) {
+                const picks = user.picks[race];
+                const otrosPicks = picks.filter(p => p !== horseRetirado);
+                let sustituto = null;
+                for (let paso = 1; paso <= total; paso++) {
+                    let candidato = horseRetirado + paso;
+                    if (candidato > total) candidato -= total;
+                    if (scratchedSet.includes(candidato)) continue;
+                    if (otrosPicks.includes(candidato)) continue;
+                    sustituto = candidato;
+                    break;
+                }
+                const fecha = new Date().toISOString();
+                if (sustituto === null) {
+                    cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: null, fecha, error: true, origen: 'retiro' });
+                    continue;
+                }
+                const idx = picks.indexOf(horseRetirado);
+                picks[idx] = sustituto;
+                try {
+                    await updateDoc(doc(db, "usuarios", user.id), { picks: user.picks });
+                } catch (error) {
+                    console.error("❌ Error reasignando jugada:", error);
+                }
+                cambios.push({ jugador: user.name, userId: user.id, carrera: race, de: horseRetirado, a: sustituto, fecha, error: false, revertido: false, origen: 'retiro' });
+            }
+            appState.reasignaciones = [...cambios, ...appState.reasignaciones];
+            saveUsersToLocalStorage();
+            await saveConfigToFirebase();
+            return cambios;
+        }
+
+        // Cuando se desmarca (por error) un retiro que ya había disparado reasignaciones,
+        // intenta devolverle a cada jugador afectado su número original — solo si es seguro hacerlo.
+        async function revertirReasignacionesPorRetiro(race, horseRestaurado) {
+            const scratchedSet = appState.scratched[race];
+            const pendientes = appState.reasignaciones.filter(r =>
+                r.carrera === race && r.de === horseRestaurado && !r.error && !r.revertido && !r.tipo && r.origen === 'retiro'
+            );
+            if (pendientes.length === 0) return [];
+
+            const reversiones = [];
+            for (const entry of pendientes) {
+                const user = entry.userId
+                    ? appState.users.find(u => u.id === entry.userId)
+                    : appState.users.find(u => u.name === entry.jugador);
+                if (!user) { entry.revertido = true; continue; }
+
+                const picks = user.picks[race];
+                const idx = picks.indexOf(entry.a);
+                if (idx === -1) { entry.revertido = true; continue; }
+
+                const otrosPicks = picks.filter((_, i) => i !== idx);
+                const esSeguro = !scratchedSet.includes(entry.de) && !otrosPicks.includes(entry.de);
+
+                const fecha = new Date().toISOString();
+                if (!esSeguro) {
+                    reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: true, tipo: 'reversion', origen: 'retiro' });
+                    continue;
+                }
+                picks[idx] = entry.de;
+                try {
+                    await updateDoc(doc(db, "usuarios", user.id), { picks: user.picks });
+                } catch (error) {
+                    console.error("❌ Error revirtiendo reasignación:", error);
+                }
+                entry.revertido = true;
+                reversiones.push({ jugador: user.name, userId: user.id, carrera: race, de: entry.a, a: entry.de, fecha, error: false, tipo: 'reversion', origen: 'retiro' });
+            }
+            appState.reasignaciones = [...reversiones, ...appState.reasignaciones];
+            saveUsersToLocalStorage();
+            await saveConfigToFirebase();
+            return reversiones;
+        }
+
+        window.renderReassignLog = function() {
+            const container = document.getElementById('reassign-log');
+            if (!container) return;
+            const log = appState.reasignaciones || [];
+            if (log.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-2">Sin reasignaciones registradas.</p>';
+                return;
+            }
+            container.innerHTML = log.slice(0, 40).map(item => {
+                const fecha = new Date(item.fecha).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                if (item.tipo === 'reversion' && item.error) {
+                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — ⚠️ no se pudo revertir N° ${item.de} → N° ${item.a} (choque)</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                }
+                if (item.tipo === 'reversion') {
+                    return `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ ${item.carrera}ª V. — N° ${item.de} → N° ${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                }
+                if (item.error) {
+                    return `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">${item.carrera}ª V. — N° ${item.de} → ⚠️ sin sustituto</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+                }
+                return `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">${item.carrera}ª V. — N° ${item.de} → N° ${item.a}</span><span class="text-gray-600 whitespace-nowrap">${fecha}</span></div>`;
+            }).join('');
+        }
+
+        window.generateReassignReport = function() {
+            const log = appState.reasignaciones || [];
+            if (log.length === 0) return alert("⚠️ No hay reasignaciones registradas todavía.");
+            let msg = '🔄 *HISTORIAL DE REASIGNACIONES*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            [...log].reverse().forEach(item => {
+                if (item.tipo === 'reversion') {
+                    msg += item.error
+                        ? `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: no se pudo revertir N° ${item.de} --> N° ${item.a}\n\n`
+                        : `*${item.jugador}*  — ↩️ ${item.carrera}ª V.: N° ${item.de} --> N° ${item.a}\n\n`;
+                } else if (item.error) {
+                    msg += `*${item.jugador}*  — ⚠️ ${item.carrera}ª V.: N° ${item.de} sin sustituto\n\n`;
+                } else {
+                    msg += `*${item.jugador}*  — ${item.carrera}ª V.: N° ${item.de} --> N° ${item.a}\n\n`;
+                }
+            });
+            msg += '━━━━━━━━━━━━━━━━━━━';
+
+            const preview = document.getElementById('reassign-report-preview');
+            preview.textContent = msg;
+            document.getElementById('reassign-report-container').classList.remove('hidden');
+            window.lastReassignReport = msg;
+            actualizarContadorCaracteres(msg, 'reassign-report-counter', 'reassign-report-split');
+            document.getElementById('reassign-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyReassignReport = async function() {
+            if (!window.lastReassignReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastReassignReport);
+                alert("✅ ¡Historial copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastReassignReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Historial copiado! Pégalo en WhatsApp.");
+            }
+        }
+
+        // ============ LOG INDEPENDIENTE: SOLO RETIROS TARDÍOS, SEPARADO POR VÁLIDA ============
+        window.renderRetirosTardiosPorValida = function() {
+            const container = document.getElementById('retiros-log-por-valida');
+            if (!container) return;
+            const log = (appState.reasignaciones || []).filter(item => item.origen === 'retiro');
+            if (log.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-3">Sin retiros tardíos registrados todavía.</p>';
+                return;
+            }
+            let html = '';
+            for (let r = 1; r <= 6; r++) {
+                const items = log.filter(item => item.carrera === r).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+                if (items.length === 0) continue;
+                html += `<div><p class="font-black text-brand-amber mb-1">${r}ª VÁLIDA</p><div class="space-y-1">`;
+                items.forEach(item => {
+                    if (item.tipo === 'reversion' && item.error) {
+                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">⚠️ no se pudo revertir N° ${item.de} → N° ${item.a}</span></div>`;
+                    } else if (item.tipo === 'reversion') {
+                        html += `<div class="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 p-2 rounded gap-2"><span class="text-yellow-300 font-bold truncate">${item.jugador}</span><span class="text-yellow-400 whitespace-nowrap">↩️ N° ${item.de} → N° ${item.a}</span></div>`;
+                    } else if (item.error) {
+                        html += `<div class="flex justify-between items-center bg-red-500/10 border border-red-500/20 p-2 rounded gap-2"><span class="text-red-400 font-bold truncate">${item.jugador}</span><span class="text-gray-400 whitespace-nowrap">N° ${item.de} → ⚠️ sin sustituto</span></div>`;
+                    } else {
+                        html += `<div class="flex justify-between items-center bg-white/5 p-2 rounded gap-2"><span class="text-white font-bold truncate">${item.jugador}</span><span class="text-cyan-400 whitespace-nowrap">N° ${item.de} → N° ${item.a}</span></div>`;
+                    }
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html || '<p class="text-gray-500 text-center py-3">Sin retiros tardíos registrados todavía.</p>';
+        }
+
+        window.generateRetirosTardiosReport = function() {
+            const log = (appState.reasignaciones || []).filter(item => item.origen === 'retiro');
+            if (log.length === 0) return alert("⚠️ No hay retiros tardíos registrados todavía.");
+            let msg = '🐎 *RETIROS TARDÍOS DEL DÍA*\n';
+            msg += '📅 Fecha: ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            for (let r = 1; r <= 6; r++) {
+                const items = log.filter(item => item.carrera === r).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+                if (items.length === 0) continue;
+                msg += `\n*${r}ª VÁLIDA*\n`;
+                items.forEach(item => {
+                    if (item.tipo === 'reversion' && item.error) {
+                        msg += `*${item.jugador}*  — ⚠️ no se pudo revertir N° ${item.de} --> N° ${item.a}\n`;
+                    } else if (item.tipo === 'reversion') {
+                        msg += `*${item.jugador}*  — ↩️ N° ${item.de} --> N° ${item.a}\n`;
+                    } else if (item.error) {
+                        msg += `*${item.jugador}*  — ⚠️ N° ${item.de} sin sustituto\n`;
+                    } else {
+                        msg += `*${item.jugador}*  — N° ${item.de} --> N° ${item.a}\n`;
+                    }
+                });
+            }
+            msg += '\n━━━━━━━━━━━━━━━━━━━';
+
+            const preview = document.getElementById('retiros-report-preview');
+            preview.textContent = msg;
+            document.getElementById('retiros-report-container').classList.remove('hidden');
+            window.lastRetirosReport = msg;
+            actualizarContadorCaracteres(msg, 'retiros-report-counter', 'retiros-report-split');
+            document.getElementById('retiros-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyRetirosTardiosReport = async function() {
+            if (!window.lastRetirosReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastRetirosReport);
+                alert("✅ ¡Log de retiros copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastRetirosReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Log de retiros copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // ========== FIN LOG INDEPENDIENTE DE RETIROS TARDÍOS ==========
+
         window.toggleScratch = async function(race, horse) {
             const arr = appState.scratched[race];
             const idx = arr.indexOf(horse);
-            if (idx > -1) arr.splice(idx, 1); else arr.push(horse);
+            let cambios = [];
+            let reversiones = [];
+            if (idx > -1) {
+                arr.splice(idx, 1);
+                reversiones = await revertirReasignacionesPorRetiro(race, horse);
+            } else {
+                arr.push(horse);
+                cambios = await reasignarJugadasPorRetiro(race, horse);
+            }
             if (appState.currentUser) {
                 const uPicks = appState.currentUser.picks[race];
                 const uIdx = uPicks.indexOf(horse);
@@ -789,7 +1437,40 @@
             }
             await saveConfigToFirebase();
             renderAdminScratch();
+            renderAdminEditList();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
             if (appState.currentUser) renderUserBoard();
+
+            if (cambios.length > 0) {
+                const exitosas = cambios.filter(c => !c.error);
+                const fallidas = cambios.filter(c => c.error);
+                let msg = `🔄 Retiro tardío procesado: N° ${horse} en la ${race}ª Válida.\n\n`;
+                if (exitosas.length > 0) {
+                    msg += `✅ Reasignaciones automáticas:\n`;
+                    exitosas.forEach(c => msg += `• ${c.jugador}: N° ${c.de} → N° ${c.a}\n`);
+                }
+                if (fallidas.length > 0) {
+                    msg += `\n⚠️ No se encontró sustituto válido para (requiere revisión manual):\n`;
+                    fallidas.forEach(c => msg += `• ${c.jugador}\n`);
+                }
+                alert(msg);
+            }
+
+            if (reversiones.length > 0) {
+                const exitosas = reversiones.filter(r => !r.error);
+                const fallidas = reversiones.filter(r => r.error);
+                let msg = `↩️ Retiro desmarcado: N° ${horse} en la ${race}ª Válida.\n\n`;
+                if (exitosas.length > 0) {
+                    msg += `✅ Jugadas restauradas a su selección original:\n`;
+                    exitosas.forEach(r => msg += `• ${r.jugador}: N° ${r.de} → N° ${r.a}\n`);
+                }
+                if (fallidas.length > 0) {
+                    msg += `\n⚠️ No se pudo restaurar automáticamente (choca con otra selección o retiro vigente) — revisa manualmente:\n`;
+                    fallidas.forEach(r => msg += `• ${r.jugador}\n`);
+                }
+                alert(msg);
+            }
         }
 
         window.renderAdminResults = function() {
@@ -862,10 +1543,10 @@
                     renderHistorialAcumulados();
                     alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 No hubo ganadores. El premio semanal de ${formatearBs(premioSemanal)} se ha acumulado automáticamente.`);
                 } else {
-                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 ¡HAY GANADORES!\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}`);
+                    alert(`✅ Resultado de la 6ª Válida guardado!\n\n🏆 ¡HAY GANADORES!\nGanador: ${nombreCaballo(race, winner)}\n✔️ Aciertos: ${aciertos}`);
                 }
             } else {
-                alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: Caballo #${winner}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
+                alert(`✅ Resultado de la ${race}ª Válida guardado!\n\nGanador: ${nombreCaballo(race, winner)}\n✔️ Aciertos: ${aciertos}\n❌ Eliminados: ${fallos}`);
             }
             
             renderAdminResults();
@@ -1058,19 +1739,53 @@
             
             let totalPicks = 0;
             for (let r = 1; r <= 6; r++) totalPicks += appState.editingPicks[r].length;
-            if (totalPicks !== 18) {
-                if (!confirm(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\n¿Deseas guardar de todos modos?`)) return;
+            if (totalPicks !== 18 || [1, 2, 3, 4, 5, 6].some(r => appState.editingPicks[r].length !== 3)) {
+                return alert(`⚠️ Esta jugada tiene ${totalPicks}/18 selecciones.\n\nNo se puede guardar incompleta: cada válida necesita exactamente 3 selecciones.`);
             }
             
             try {
-                const userDoc = doc(db, "usuarios", appState.editingUser.id);
+                const userId = appState.editingUser.id;
+                const oldName = appState.editingUser.name;
+                const userDoc = doc(db, "usuarios", userId);
                 await updateDoc(userDoc, { name: newName, picks: appState.editingPicks });
-                const userIndex = appState.users.findIndex(u => u.id === appState.editingUser.id);
+                const userIndex = appState.users.findIndex(u => u.id === userId);
                 if (userIndex > -1) {
                     appState.users[userIndex].name = newName;
                     appState.users[userIndex].picks = JSON.parse(JSON.stringify(appState.editingPicks));
                 }
                 saveUsersToLocalStorage();
+
+                // Punto 4: si cambió el apodo, sincronizar el nombre también en el historial de incidencias.
+                if (newName !== oldName) {
+                    let huboRenombre = false;
+                    appState.reasignaciones.forEach(r => {
+                        const esDeEsteUsuario = r.userId ? r.userId === userId : r.jugador === oldName;
+                        if (esDeEsteUsuario) { r.jugador = newName; huboRenombre = true; }
+                    });
+                    if (huboRenombre) {
+                        await saveConfigToFirebase();
+                        renderReassignLog();
+                        renderRetirosTardiosPorValida();
+                    }
+                }
+
+                // Punto 5: si este participante tiene incidencias registradas, preguntar si se eliminan
+                // ahora que sus selecciones se acaban de corregir manualmente.
+                const tieneIncidencias = appState.reasignaciones.some(r =>
+                    r.userId ? r.userId === userId : r.jugador === newName
+                );
+                if (tieneIncidencias) {
+                    const eliminar = confirm(`ℹ️ "${newName}" tiene incidencia(s) registradas en el Historial de Reasignaciones.\n\nComo acabas de corregir su jugada manualmente, ¿deseas eliminar esas incidencias del historial?`);
+                    if (eliminar) {
+                        appState.reasignaciones = appState.reasignaciones.filter(r =>
+                            r.userId ? r.userId !== userId : r.jugador !== newName
+                        );
+                        await saveConfigToFirebase();
+                        renderReassignLog();
+                        renderRetirosTardiosPorValida();
+                    }
+                }
+
                 alert("✅ Jugada y apodo actualizados correctamente.");
                 closeEditModal();
                 renderAdminEditList();
@@ -1087,6 +1802,17 @@
                 await deleteDoc(doc(db, "usuarios", userId));
                 await loadUsersFromFirebase();
                 saveUsersToLocalStorage();
+
+                const antes = appState.reasignaciones.length;
+                appState.reasignaciones = appState.reasignaciones.filter(r =>
+                    r.userId ? r.userId !== userId : r.jugador !== userName
+                );
+                if (appState.reasignaciones.length !== antes) {
+                    await saveConfigToFirebase();
+                    renderReassignLog();
+                    renderRetirosTardiosPorValida();
+                }
+
                 alert(`✅ Jugada de "${userName}" eliminada.\n\nEl apodo "${userName}" ya está disponible.`);
                 renderAdminEditList();
             } catch (error) {
@@ -1094,6 +1820,146 @@
                 alert("⚠️ Error al eliminar la jugada.");
             }
         }
+
+        // Elimina automáticamente las entradas del log cuyo jugador ya no existe
+        // (fue borrado antes de que el borrado limpiara también el log, o de pruebas viejas).
+        window.limpiarLogsHuerfanos = async function() {
+            const huerfanas = appState.reasignaciones.filter(r => {
+                const existe = r.userId
+                    ? appState.users.some(u => u.id === r.userId)
+                    : appState.users.some(u => u.name === r.jugador);
+                return !existe;
+            });
+
+            if (huerfanas.length === 0) {
+                alert("✅ No hay entradas huérfanas — el log está limpio.");
+                return;
+            }
+
+            const nombresUnicos = [...new Set(huerfanas.map(h => h.jugador))];
+            const confirmar = confirm(
+                `🧹 Se encontraron ${huerfanas.length} entrada(s) huérfana(s) de jugador(es) que ya no existen:\n\n` +
+                nombresUnicos.map(n => `• ${n}`).join('\n') +
+                `\n\n¿Eliminarlas del log?`
+            );
+            if (!confirmar) return;
+
+            appState.reasignaciones = appState.reasignaciones.filter(r => {
+                const existe = r.userId
+                    ? appState.users.some(u => u.id === r.userId)
+                    : appState.users.some(u => u.name === r.jugador);
+                return existe;
+            });
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+            alert(`✅ Se eliminaron ${huerfanas.length} entrada(s) huérfana(s) del log.`);
+        }
+
+        // Vacía por completo el historial de reasignaciones (ambos logs, ya que comparten los mismos datos).
+        window.vaciarTodoElHistorial = async function() {
+            if (appState.reasignaciones.length === 0) {
+                alert("✅ El historial ya está vacío.");
+                return;
+            }
+            if (!confirm(`⚠️ Esto eliminará PERMANENTEMENTE las ${appState.reasignaciones.length} entrada(s) de AMBOS logs (Historial general y Retiros Tardíos por Válida).\n\n¿Continuar?`)) return;
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nEsta acción no se puede deshacer.\n\n¿Vaciar todo el historial de reasignaciones?`)) return;
+
+            appState.reasignaciones = [];
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+            alert("✅ Historial vaciado por completo.");
+        }
+
+        // ================= VERIFICAR NOMBRES DUPLICADOS =================
+        function picksIguales(a, b) {
+            for (let r = 1; r <= 6; r++) {
+                const pa = [...(a.picks[r] || [])].sort((x, y) => x - y);
+                const pb = [...(b.picks[r] || [])].sort((x, y) => x - y);
+                if (JSON.stringify(pa) !== JSON.stringify(pb)) return false;
+            }
+            return true;
+        }
+
+        window.verificarNombresDuplicados = function() {
+            const grupos = {};
+            appState.users.forEach(u => {
+                if (!grupos[u.name]) grupos[u.name] = [];
+                grupos[u.name].push(u);
+            });
+            const duplicados = Object.entries(grupos).filter(([, arr]) => arr.length > 1);
+            const container = document.getElementById('duplicados-resultado');
+
+            if (duplicados.length === 0) {
+                container.innerHTML = '<p class="text-green-400 text-sm text-center py-3"><i class="fa-solid fa-circle-check mr-1"></i>No se encontraron apodos duplicados. Todo limpio.</p>';
+                return;
+            }
+
+            let html = `<p class="text-xs text-gray-400 mb-1">Se encontraron ${duplicados.length} apodo(s) con copias exactas. La copia más antigua queda premarcada para conservar — revisa antes de confirmar.</p>`;
+
+            duplicados.forEach(([name, arr]) => {
+                const ordenados = [...arr].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                const todasIguales = ordenados.every((u, i) => i === 0 || picksIguales(u, ordenados[0]));
+                html += `<div class="p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <p class="font-black text-white mb-2 text-sm">${name} ${todasIguales
+                        ? '<span class="text-red-400 text-[10px] font-black ml-1 block mt-1">⚠️ JUGADAS IDÉNTICAS EN LAS 6 VÁLIDAS — probable doble-toque</span>'
+                        : '<span class="text-yellow-400 text-[10px] font-black ml-1 block mt-1">⚠️ jugadas DISTINTAS — revisa cuál conservar antes de borrar</span>'}</p>
+                    <div class="space-y-1">`;
+                ordenados.forEach((u, i) => {
+                    const fecha = new Date(u.createdAt).toLocaleString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    html += `<label class="flex items-center gap-2 text-xs bg-black/20 p-2 rounded cursor-pointer">
+                        <input type="checkbox" class="dup-check w-4 h-4 accent-red-500 flex-shrink-0" data-userid="${u.id}" data-username="${u.name}" ${i === 0 ? '' : 'checked'}>
+                        <span class="${i === 0 ? 'text-green-400 font-bold' : 'text-gray-300'}">${i === 0 ? '✅ CONSERVAR — creado' : '🗑️ Eliminar — creado'} ${fecha}</span>
+                    </label>`;
+                });
+                html += `</div></div>`;
+            });
+
+            html += `<button onclick="eliminarDuplicadosSeleccionados()" class="w-full mt-2 bg-red-700 hover:bg-red-600 text-white font-black py-3 rounded-xl transition-all">
+                <i class="fa-solid fa-trash mr-2"></i>ELIMINAR SELECCIONADOS
+            </button>`;
+
+            container.innerHTML = html;
+        }
+
+        window.eliminarDuplicadosSeleccionados = async function() {
+            const checks = Array.from(document.querySelectorAll('.dup-check:checked'));
+            if (checks.length === 0) return alert('⚠️ No seleccionaste ninguna copia para eliminar.');
+
+            const nombres = checks.map(c => c.dataset.username);
+            if (!confirm(`⚠️ Se eliminarán ${checks.length} jugada(s) duplicada(s):\n\n${nombres.map(n => '• ' + n).join('\n')}\n\n¿Continuar?`)) return;
+            if (!confirm(`⚠️ CONFIRMACIÓN FINAL:\n\nEsta acción no se puede deshacer.\n\n¿Eliminar las ${checks.length} jugada(s) seleccionada(s)?`)) return;
+
+            let eliminadas = 0;
+            const idsEliminados = new Set();
+            const nombresEliminados = new Set();
+            for (const chk of checks) {
+                const userId = chk.dataset.userid;
+                try {
+                    await deleteDoc(doc(db, "usuarios", userId));
+                    idsEliminados.add(userId);
+                    nombresEliminados.add(chk.dataset.username);
+                    eliminadas++;
+                } catch (error) {
+                    console.error('❌ Error eliminando duplicado:', error);
+                }
+            }
+            await loadUsersFromFirebase();
+            saveUsersToLocalStorage();
+
+            appState.reasignaciones = appState.reasignaciones.filter(r =>
+                r.userId ? !idsEliminados.has(r.userId) : !nombresEliminados.has(r.jugador)
+            );
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+
+            alert(`✅ Se eliminaron ${eliminadas} jugada(s) duplicada(s).`);
+            renderAdminEditList();
+            verificarNombresDuplicados();
+        }
+        // =============== FIN VERIFICAR NOMBRES DUPLICADOS ================
 
         function contarJugadasCompletas() {
             return appState.users.filter(u => {
@@ -1112,9 +1978,672 @@
             return { jugadoresActivos, pozoTotal, premioSemanal, acumuladoTotal, premioTotal };
         }
 
+        function dividirReporte(msg) {
+            const bloques = msg.split('\n\n');
+            const partes = [];
+            let actual = '';
+            bloques.forEach(bloque => {
+                const candidato = actual ? actual + '\n\n' + bloque : bloque;
+                if (candidato.length > WHATSAPP_LIMIT - 60 && actual) {
+                    partes.push(actual);
+                    actual = bloque;
+                } else {
+                    actual = candidato;
+                }
+            });
+            if (actual) partes.push(actual);
+            return partes.map((p, i) => `*(Parte ${i + 1} de ${partes.length})*\n\n${p}`);
+        }
+
+        function actualizarContadorCaracteres(msg, counterId, splitContainerId) {
+            const counterEl = document.getElementById(counterId);
+            const len = msg.length;
+            const pct = len / WHATSAPP_LIMIT;
+            let colorClass = 'text-gray-400';
+            if (pct >= 1) colorClass = 'text-red-400 font-black';
+            else if (pct >= 0.9) colorClass = 'text-yellow-400 font-bold';
+            if (counterEl) {
+                counterEl.className = `text-[10px] mt-1 text-right ${colorClass}`;
+                counterEl.textContent = `${len.toLocaleString('es-VE')} / ${WHATSAPP_LIMIT.toLocaleString('es-VE')} caracteres`;
+            }
+            const splitContainer = document.getElementById(splitContainerId);
+            if (!splitContainer) return;
+            splitContainer.innerHTML = '';
+            if (len > WHATSAPP_LIMIT) {
+                const partes = dividirReporte(msg);
+                window[`__parts_${splitContainerId}`] = partes;
+                splitContainer.innerHTML = `<p class="text-[10px] text-red-400 font-bold mb-2 mt-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Este reporte supera el límite de WhatsApp. Se dividió en ${partes.length} partes — copia y envía cada una por separado:</p>`;
+                partes.forEach((parte, i) => {
+                    splitContainer.innerHTML += `<button onclick="copyReportPart('${splitContainerId}', ${i})" class="w-full mb-2 bg-brand-orange/80 hover:bg-brand-orange text-white text-xs font-black py-2 rounded-lg transition-all">
+                        <i class="fa-solid fa-copy mr-1"></i> COPIAR PARTE ${i + 1} DE ${partes.length} (${parte.length.toLocaleString('es-VE')} car.)
+                    </button>`;
+                });
+                splitContainer.classList.remove('hidden');
+            } else {
+                splitContainer.classList.add('hidden');
+            }
+        }
+
+        window.copyReportPart = async function(splitContainerId, i) {
+            const partes = window[`__parts_${splitContainerId}`];
+            if (!partes || !partes[i]) return;
+            const text = partes[i];
+            try {
+                await navigator.clipboard.writeText(text);
+                alert(`✅ Parte ${i + 1} de ${partes.length} copiada.\n\nPégala en WhatsApp.`);
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(`✅ Parte ${i + 1} de ${partes.length} copiada. Pégala en WhatsApp.`);
+            }
+        }
+
         function formatearBs(monto) {
             return 'Bs. ' + monto.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
+
+        function nombreCaballo(race, num) {
+            const nombre = appState.horseNames[race] && appState.horseNames[race][num];
+            return nombre ? `N° ${num} ${nombre}` : `N° ${num}`;
+        }
+
+        function parsearListadoEjemplares(texto) {
+            const resultado = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
+            const lineas = texto.split('\n');
+            let carreraActual = null;
+            lineas.forEach(linea => {
+                const l = linea.trim();
+                if (!l) return;
+                const matchBloque = l.match(/^([1-6])\s*(?:era|da|ra|ta)?\.?\s*v[áa]?l?i?d?a?\.?$/i);
+                if (matchBloque) {
+                    carreraActual = parseInt(matchBloque[1]);
+                    return;
+                }
+                const matchNumNombre = l.match(/^(\d{1,2})[\.\)\-:]?\s+(.+)$/);
+                if (matchNumNombre && carreraActual) {
+                    const num = parseInt(matchNumNombre[1]);
+                    const nombre = matchNumNombre[2].trim();
+                    if (num >= 1 && num <= 20 && nombre) resultado[carreraActual][num] = nombre;
+                }
+            });
+            return resultado;
+        }
+
+        window.procesarListadoEjemplares = function() {
+            const texto = document.getElementById('horse-names-input').value;
+            if (!texto.trim()) return alert("⚠️ Pega el listado antes de procesar.");
+            const horaInput = document.getElementById('hora-primera-valida-input').value;
+            if (!horaInput) return alert("⚠️ Ingresa la hora de la 1ª Válida antes de procesar — es necesaria para activar el contador de avisos.");
+            const parsed = parsearListadoEjemplares(texto);
+            const totalDetectados = Object.values(parsed).reduce((sum, r) => sum + Object.keys(r).length, 0);
+            if (totalDetectados === 0) return alert("⚠️ No se detectó ningún ejemplar. Revisa que el formato coincida con el ejemplo mostrado.");
+
+            let preview = '<div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">';
+            for (let r = 1; r <= 6; r++) {
+                const nombres = parsed[r];
+                const count = Object.keys(nombres).length;
+                if (count === 0) continue;
+                preview += `<div class="bg-white/5 p-2 rounded border border-white/10"><p class="font-black text-brand-amber mb-1">${r}ª V. (${count} ejemplares inscritos)</p>`;
+                Object.entries(nombres).sort((a, b) => a[0] - b[0]).forEach(([num, nombre]) => {
+                    preview += `<p class="text-gray-300">N° ${num} ${nombre}</p>`;
+                });
+                preview += `</div>`;
+            }
+            preview += '</div>';
+            preview += `<p class="text-[11px] text-cyan-400 mt-3"><i class="fa-solid fa-circle-info mr-1"></i>La cantidad de ejemplares por válida se aplicará automáticamente a la configuración de carreras.</p>`;
+            preview += `<button onclick="confirmarListadoEjemplares()" class="w-full mt-3 bg-green-600 hover:bg-green-500 text-white font-black py-2.5 rounded-xl transition-all">✅ CONFIRMAR Y GUARDAR (${totalDetectados} ejemplares)</button>`;
+
+            document.getElementById('horse-names-preview').innerHTML = preview;
+            document.getElementById('horse-names-preview').classList.remove('hidden');
+            window.__pendingHorseNames = parsed;
+        }
+
+        window.confirmarListadoEjemplares = async function() {
+            if (!window.__pendingHorseNames) return;
+            appState.horseNames = window.__pendingHorseNames;
+            for (let r = 1; r <= 6; r++) {
+                const count = Object.keys(appState.horseNames[r] || {}).length;
+                if (count > 0) appState.raceConfig[r] = count;
+            }
+
+            const horaInput = document.getElementById('hora-primera-valida-input').value;
+            appState.horaPrimeraValida = horaInput || null;
+            appState.avisosDisparados = new Set(); // nueva jornada — reinicia los hitos ya avisados
+
+            await saveConfigToFirebase();
+            renderAdminConfigInputs();
+            renderAdminScratch();
+            if (appState.horaPrimeraValida) {
+                document.getElementById('contador-panel').classList.remove('hidden');
+                iniciarContadorCarrera();
+            }
+            alert("✅ Listado de ejemplares guardado, y la cantidad de inscritos por válida se actualizó automáticamente.\n\nLos reportes ahora mostrarán los nombres reales junto al número ganador.");
+            document.getElementById('horse-names-preview').classList.add('hidden');
+            document.getElementById('horse-names-input').value = '';
+        }
+
+        // ===================== CONTADOR DE LA 1ª VÁLIDA CON AVISOS =====================
+        function reproducirBeep() {
+            try {
+                if (!window.__audioCtx) window.__audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const ctx = window.__audioCtx;
+                if (ctx.state === 'suspended') ctx.resume();
+                [0, 350, 700].forEach(delay => {
+                    setTimeout(() => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = 880;
+                        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+                        osc.connect(gain).connect(ctx.destination);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.32);
+                    }, delay);
+                });
+            } catch (e) { console.warn("⚠️ No se pudo reproducir el sonido del aviso:", e); }
+        }
+
+        function mostrarBannerAviso(texto) {
+            const banner = document.createElement('div');
+            banner.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-brand-amber text-brand-dark font-black px-5 py-3 rounded-xl shadow-2xl text-sm text-center max-w-[90vw]';
+            banner.textContent = `⏰ ${texto}`;
+            document.body.appendChild(banner);
+            setTimeout(() => banner.remove(), 8000);
+        }
+
+        function mostrarAvisoCarrera(minutosRestantes) {
+            reproducirBeep();
+            const texto = minutosRestantes > 0
+                ? `Faltan ${minutosRestantes} minutos para la 1ª Válida`
+                : `¡La 1ª Válida está por comenzar!`;
+            if (window.Notification && Notification.permission === 'granted') {
+                try { new Notification('🐎 3 x 6 Activo', { body: texto }); } catch (e) {}
+            }
+            mostrarBannerAviso(texto);
+        }
+
+        // Hora y día actuales en Venezuela (America/Caracas, UTC-4 todo el año), sin importar la zona del teléfono
+        function ahoraCaracas() {
+            const partes = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Caracas', weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+            const get = t => partes.find(p => p.type === t).value;
+            return { dia: get('weekday'), h: parseInt(get('hour'), 10), m: parseInt(get('minute'), 10), s: parseInt(get('second'), 10) };
+        }
+
+        let intervaloContadorCarrera = null;
+
+        window.iniciarContadorCarrera = function() {
+            if (intervaloContadorCarrera) clearInterval(intervaloContadorCarrera);
+            if (!appState.horaPrimeraValida) return;
+            if (!appState.avisosDisparados) appState.avisosDisparados = new Set();
+            const hitos = [40, 35, 30, 25, 20, 15, 10, 5, 0];
+
+            function tick() {
+                const display = document.getElementById('contador-primera-valida');
+                if (!appState.horaPrimeraValida) return;
+                const ahora = ahoraCaracas();
+                const [h, m] = appState.horaPrimeraValida.split(':').map(Number);
+                const segundosAhora = ahora.h * 3600 + ahora.m * 60 + ahora.s;
+                const minutosRestantes = Math.round((h * 3600 + m * 60 - segundosAhora) / 60);
+                const esDomingo = ahora.dia === 'Sun';
+
+                if (display) {
+                    if (!esDomingo) display.textContent = `⏸ Los avisos solo se activan los domingos (hora de Venezuela). 1ª Válida guardada: ${appState.horaPrimeraValida}`;
+                    else if (minutosRestantes > 0) display.textContent = `⏳ Faltan ${minutosRestantes} min para la 1ª Válida (${appState.horaPrimeraValida})`;
+                    else if (minutosRestantes === 0) display.textContent = `🏇 ¡La 1ª Válida comienza ahora!`;
+                    else display.textContent = `✅ La 1ª Válida ya inició (${appState.horaPrimeraValida})`;
+                }
+
+                if (esDomingo && hitos.includes(minutosRestantes) && !appState.avisosDisparados.has(minutosRestantes)) {
+                    appState.avisosDisparados.add(minutosRestantes);
+                    mostrarAvisoCarrera(minutosRestantes);
+                }
+            }
+            tick();
+            intervaloContadorCarrera = setInterval(tick, 15000);
+        }
+
+        window.activarAvisosSonoros = function() {
+            try {
+                if (!window.__audioCtx) window.__audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (window.__audioCtx.state === 'suspended') window.__audioCtx.resume();
+            } catch (e) {}
+            if (window.Notification && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
+            reproducirBeep();
+            alert("🔔 ¡Avisos sonoros activados!\n\nMientras esta pestaña siga abierta, recibirás un aviso con sonido cada 5 minutos desde los 40 restantes para la 1ª Válida. Solo los domingos, hora de Venezuela.");
+        }
+        // =================== FIN CONTADOR DE LA 1ª VÁLIDA CON AVISOS ===================
+
+        // ===================== MENSAJE DE BIENVENIDA DE LA JORNADA =====================
+        function proximoDomingoDesde(fecha) {
+            const d = new Date(fecha);
+            const dia = d.getDay(); // 0 = domingo
+            const diasHastaProximoDomingo = dia === 0 ? 7 : (7 - dia);
+            d.setDate(d.getDate() + diasHastaProximoDomingo);
+            return d;
+        }
+
+        window.generateWelcomeMessage = function() {
+            const hoy = new Date();
+            const fechaHoyStr = hoy.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const proximoDomingo = proximoDomingoDesde(hoy);
+            const fechaProximoStr = proximoDomingo.toLocaleDateString('es-VE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+            let msg = '🐎 *3 x 6 ACTIVO* 🐎\n';
+            msg += `📅 ${fechaHoyStr.charAt(0).toUpperCase() + fechaHoyStr.slice(1)}\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '¡Buenos días, comunidad hípica! Hoy es día de jornada 🏇\n\n';
+
+            msg += '📋 *CARRERAS VÁLIDAS DE HOY*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            for (let r = 1; r <= 6; r++) {
+                const total = appState.raceConfig[r] || 0;
+                msg += `${r}ª V. — ${total} ejemplar(es) inscrito(s)\n`;
+            }
+
+            const hayRetirados = [1, 2, 3, 4, 5, 6].some(r => (appState.scratched[r] || []).length > 0);
+            msg += '\n⚠️ *EJEMPLARES RETIRADOS*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            if (hayRetirados) {
+                for (let r = 1; r <= 6; r++) {
+                    const retirados = appState.scratched[r] || [];
+                    if (retirados.length === 0) continue;
+                    const lista = retirados.slice().sort((a, b) => a - b).map(n => nombreCaballo(r, n)).join(', ');
+                    msg += `${r}ª V.: ${lista}\n`;
+                }
+            } else {
+                msg += 'Sin retiros informados hasta el momento.\n';
+            }
+
+            const historial = appState.historialAcumulados || [];
+            const acumuladoTotal = historial.reduce((sum, item) => sum + item.monto, 0);
+            msg += '\n🏆 *PREMIO ACUMULADO*\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            if (historial.length > 0) {
+                historial.forEach(item => {
+                    const partes = item.fecha.split('-');
+                    const fechaCorta = partes.length === 3 ? `${partes[2]}/${partes[1]}` : item.fecha;
+                    msg += `• ${fechaCorta}: ${formatearBs(item.monto)}\n`;
+                });
+                msg += `💰 *TOTAL ACUMULADO: ${formatearBs(acumuladoTotal)}*\n`;
+            } else {
+                msg += 'Sin acumulado pendiente — arrancamos de cero esta jornada.\n';
+            }
+
+            msg += '\n¡Mucho éxito a todos los participantes en la jornada de hoy! 🍀🐎\n';
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += `📅 Nos vemos el próximo domingo ${fechaProximoStr} para una nueva jornada.\n`;
+            msg += '¡Los esperamos a todos! 🎉';
+
+            const preview = document.getElementById('welcome-report-preview');
+            preview.textContent = msg;
+            document.getElementById('welcome-report-container').classList.remove('hidden');
+            window.lastWelcomeMessage = msg;
+            actualizarContadorCaracteres(msg, 'welcome-report-counter', 'welcome-report-split');
+            document.getElementById('welcome-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyWelcomeMessage = async function() {
+            if (!window.lastWelcomeMessage) return alert("⚠️ Primero genera el mensaje.");
+            try {
+                await navigator.clipboard.writeText(window.lastWelcomeMessage);
+                alert("✅ ¡Mensaje de bienvenida copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastWelcomeMessage;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Mensaje de bienvenida copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // ================= FIN MENSAJE DE BIENVENIDA DE LA JORNADA =================
+
+        // ===================== CARGA RÁPIDA POR BLOQUES =====================
+        function limpiarLineaANumeros(linea) {
+            const matches = (linea || '').match(/\d+/g);
+            return matches ? matches.map(Number) : [];
+        }
+
+        // Intenta partir una cadena de dígitos pegados (ej. "369", "3109") en exactamente
+        // 3 números válidos (entre 1 y totalInscritos). Si hay más de una forma válida de
+        // partirla (ambigüedad real), devuelve null en vez de adivinar — nunca a ciegas.
+        function desambiguarPegados(cadena, totalInscritos) {
+            const n = cadena.length;
+            if (n < 3) return null;
+            const candidatos = new Set();
+            for (let i = 1; i < n - 1; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const sa = cadena.slice(0, i), sb = cadena.slice(i, j), sc = cadena.slice(j);
+                    if ((sa.length > 1 && sa[0] === '0') || (sb.length > 1 && sb[0] === '0') || (sc.length > 1 && sc[0] === '0')) continue;
+                    const a = parseInt(sa, 10), b = parseInt(sb, 10), c = parseInt(sc, 10);
+                    if (a >= 1 && a <= totalInscritos && b >= 1 && b <= totalInscritos && c >= 1 && c <= totalInscritos) {
+                        candidatos.add(JSON.stringify([a, b, c]));
+                    }
+                }
+            }
+            if (candidatos.size === 1) return JSON.parse([...candidatos][0]);
+            return null;
+        }
+
+        // PASADA 1 (clasificación): ¿esta línea TIENE PINTA de ser una línea de 3 selecciones
+        // (con o sin identificador de válida al inicio, con o sin separadores)? No requiere
+        // saber todavía a qué válida pertenece ni cuántos inscritos tiene esa carrera.
+        function pareceLineaDeNumeros(linea) {
+            const grupos = (linea || '').match(/\d+/g) || [];
+            if (grupos.length === 3) return true;
+            if (grupos.length === 4) return true; // prefijo + 3 ya separados, ej. "1 3-5-4"
+            if (grupos.length === 2 && grupos[1].length >= 2 && grupos[1].length <= 6) return true; // prefijo + pegados, ej. "1V 369"
+            if (grupos.length === 1 && grupos[0].length >= 3 && grupos[0].length <= 7) return true; // todo pegado, ej. "1369"
+            return false;
+        }
+
+        // PASADA 2 (extracción real): ya sabiendo a qué válida pertenece la línea (y por lo
+        // tanto cuántos inscritos tiene esa carrera), extrae las 3 selecciones reales,
+        // descartando cualquier identificador de válida al inicio ("1V", "1", etc.).
+        function extraerNumerosDeLinea(linea, totalInscritos) {
+            const grupos = (linea || '').match(/\d+/g) || [];
+            if (grupos.length === 3) return grupos.map(Number);
+            if (grupos.length === 4) return grupos.slice(1).map(Number);
+            if (grupos.length === 2) {
+                const candidato = desambiguarPegados(grupos[1], totalInscritos);
+                if (candidato) return candidato;
+            }
+            if (grupos.length === 1) {
+                const candidato1 = desambiguarPegados(grupos[0].slice(1), totalInscritos);
+                if (candidato1) return candidato1;
+                if (grupos[0].length >= 5) {
+                    const candidato2 = desambiguarPegados(grupos[0].slice(2), totalInscritos);
+                    if (candidato2) return candidato2;
+                }
+            }
+            return null; // no se pudo interpretar con confianza
+        }
+
+        function resolverNombreUnico(nombreBase, nombresUsadosLote) {
+            const yaExiste = (n) => appState.users.some(u => u.name === n) || nombresUsadosLote.has(n);
+            if (!yaExiste(nombreBase)) { nombresUsadosLote.add(nombreBase); return nombreBase; }
+            let contador = 2;
+            let candidato = `${nombreBase} ${String(contador).padStart(2, '0')}`;
+            while (yaExiste(candidato)) { contador++; candidato = `${nombreBase} ${String(contador).padStart(2, '0')}`; }
+            nombresUsadosLote.add(candidato);
+            return candidato;
+        }
+
+        function buscarSustitutoValido(race, numeroBase, otrosPicks, scratchedSet, total) {
+            for (let paso = 1; paso <= total; paso++) {
+                let candidato = numeroBase + paso;
+                if (candidato > total) candidato -= total;
+                if (candidato < 1) candidato += total;
+                if (scratchedSet.includes(candidato)) continue;
+                if (otrosPicks.includes(candidato)) continue;
+                return candidato;
+            }
+            return null;
+        }
+
+        function parseQuickLoadText(text) {
+            const lineas = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const bloques = [];
+            for (let i = 0; i < lineas.length; i += 7) bloques.push(lineas.slice(i, i + 7));
+
+            return bloques.map(bloque => {
+                if (bloque.length < 7) {
+                    return { incompleto: true, nombre: bloque[0] || '', racesRaw: [] };
+                }
+                const candidatasNombre = bloque.filter(l => !pareceLineaDeNumeros(l));
+                if (candidatasNombre.length !== 1) {
+                    return { incompleto: true, nombre: bloque[0] || '', racesRaw: bloque.slice(1) };
+                }
+                const nombreLinea = candidatasNombre[0];
+                const racesRaw = bloque.filter(l => l !== nombreLinea); // las 6 líneas de números, en orden
+                return { incompleto: false, nombre: nombreLinea, racesRaw };
+            });
+        }
+
+        // ===================== OCR DE IMÁGENES (CAPTURAS DE WHATSAPP) =====================
+        window.procesarImagenOCR = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('ocr-status');
+            statusEl.classList.remove('hidden');
+            statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Leyendo imagen, puede tardar unos segundos...';
+
+            try {
+                if (typeof Tesseract === 'undefined') {
+                    statusEl.innerHTML = '⚠️ No se pudo cargar el motor de reconocimiento (sin conexión a internet). Escribe el texto manualmente.';
+                    event.target.value = '';
+                    return;
+                }
+                const resultado = await Tesseract.recognize(file, 'spa', {
+                    logger: info => {
+                        if (info.status === 'recognizing text') {
+                            statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Leyendo imagen... ${Math.round(info.progress * 100)}%`;
+                        }
+                    }
+                });
+                const textoExtraido = (resultado.data.text || '').trim();
+                if (!textoExtraido) {
+                    statusEl.innerHTML = '⚠️ No se pudo extraer texto de esa imagen. Intenta con otra foto más nítida, o escribe el texto manualmente.';
+                    event.target.value = '';
+                    return;
+                }
+                const textarea = document.getElementById('quickload-input');
+                textarea.value = (textarea.value ? textarea.value + '\n\n' : '') + textoExtraido;
+                statusEl.innerHTML = '✅ Texto extraído y agregado a la caja de abajo. <b>Revísalo con cuidado</b> antes de darle a "Procesar Bloques" — el reconocimiento automático puede tener errores, especialmente en letra manuscrita.';
+            } catch (error) {
+                console.error("❌ Error en OCR:", error);
+                statusEl.innerHTML = '⚠️ Ocurrió un error leyendo la imagen. Intenta de nuevo o escribe el texto manualmente.';
+            } finally {
+                event.target.value = ''; // permite volver a subir la misma imagen si hace falta reintentar
+            }
+        }
+        // =================== FIN OCR DE IMÁGENES (CAPTURAS DE WHATSAPP) ===================
+
+        window.procesarCargaRapida = function() {
+            const text = document.getElementById('quickload-input').value;
+            if (!text.trim()) return alert("⚠️ Pega al menos un bloque de jugada.");
+            const bloques = parseQuickLoadText(text);
+            const nombresUsadosLote = new Set();
+
+            const resultado = bloques.map(bloque => {
+                const avisos = [];
+                const sustituciones = [];
+                if (bloque.incompleto) avisos.push('No se pudo interpretar este bloque con confianza (¿faltan o sobran líneas?). Revisa nombre y números manualmente.');
+                const nombreFinal = resolverNombreUnico((bloque.nombre || 'SIN NOMBRE').toUpperCase().trim() || 'SIN NOMBRE', nombresUsadosLote);
+
+                const racesFinal = [];
+                for (let r = 1; r <= 6; r++) {
+                    const total = appState.raceConfig[r];
+                    const scratchedSet = appState.scratched[r];
+                    const lineaCruda = bloque.racesRaw[r - 1] || '';
+                    const extraidos = extraerNumerosDeLinea(lineaCruda, total);
+                    if (extraidos === null && lineaCruda) {
+                        avisos.push(`${r}ª V.: no se pudo interpretar la línea "${lineaCruda}" con confianza — revisar manualmente`);
+                    }
+                    let picks = (extraidos || []).slice(0, 3);
+                    while (picks.length < 3) picks.push(null);
+                    const finalesRace = [];
+                    for (const valor of picks) {
+                        const invalido = valor === null || valor < 1 || valor > total || scratchedSet.includes(valor) || finalesRace.includes(valor);
+                        if (invalido) {
+                            const base = valor === null ? 0 : valor;
+                            const sustituto = buscarSustitutoValido(r, base, finalesRace, scratchedSet, total);
+                            if (sustituto !== null) {
+                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : 'N° ' + valor + ' inválido/retirado'} → se asignó N° ${sustituto} automáticamente`);
+                                sustituciones.push({ carrera: r, de: valor === null ? 0 : valor, a: sustituto });
+                                finalesRace.push(sustituto);
+                            } else {
+                                avisos.push(`${r}ª V.: ${valor === null ? 'número faltante' : 'N° ' + valor} sin sustituto disponible — revisar manualmente`);
+                                finalesRace.push(valor || 0);
+                            }
+                        } else {
+                            finalesRace.push(valor);
+                        }
+                    }
+                    racesFinal.push(finalesRace);
+                }
+                return { nombre: nombreFinal, races: racesFinal, avisos, sustituciones, incompleto: bloque.incompleto };
+            });
+
+            window.__quickloadData = resultado;
+            renderQuickloadPreview(resultado);
+            document.getElementById('quickload-input').value = '';
+        }
+
+        function renderQuickloadPreview(data) {
+            const container = document.getElementById('quickload-preview-list');
+            document.getElementById('quickload-preview-container').classList.remove('hidden');
+            document.getElementById('quickload-count').textContent = `${data.length} jugador(es) detectado(s)`;
+            container.innerHTML = data.map((item, idx) => {
+                const avisosHtml = item.avisos.length > 0
+                    ? `<div class="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-[11px] text-yellow-400 space-y-0.5">${item.avisos.map(a => `<p>⚠️ ${a}</p>`).join('')}</div>`
+                    : '';
+                const racesInputs = item.races.map((r, i) => `
+                    <div>
+                        <label class="block text-[9px] font-black text-gray-500 mb-0.5 uppercase">${i + 1}ª V.</label>
+                        <input type="text" id="ql-race-${idx}-${i + 1}" value="${r.join(',')}" class="w-full glass-input rounded-lg px-2 py-1.5 text-center font-black text-xs">
+                    </div>`).join('');
+                return `
+                <div class="p-3 rounded-xl border ${item.incompleto ? 'border-red-500/40 bg-red-500/5' : 'border-white/10 bg-white/5'}" id="ql-block-${idx}" data-cargado="0">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="ql-check-${idx}" ${item.incompleto ? '' : 'checked'} onchange="actualizarQuickloadSelectedCount()" class="w-4 h-4 accent-brand-orange flex-shrink-0">
+                        <input type="text" id="ql-name-${idx}" value="${item.nombre}" class="flex-1 glass-input rounded-lg px-3 py-2 text-sm font-black uppercase">
+                        <button onclick="cargarBloqueIndividual(${idx})" class="bg-brand-orange/20 hover:bg-brand-orange/40 text-brand-orange text-[10px] font-black px-2 py-2 rounded-lg whitespace-nowrap flex-shrink-0">Cargar solo éste</button>
+                    </div>
+                    ${item.incompleto ? '<p class="text-[11px] text-red-400 mb-2">⚠️ Bloque no interpretado con confianza — revisa nombre y números antes de incluirlo.</p>' : ''}
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-2">${racesInputs}</div>
+                    ${avisosHtml}
+                </div>`;
+            }).join('');
+            actualizarQuickloadSelectedCount();
+        }
+
+        window.actualizarQuickloadSelectedCount = function() {
+            const total = window.__quickloadData ? window.__quickloadData.length : 0;
+            let count = 0;
+            for (let i = 0; i < total; i++) {
+                const chk = document.getElementById(`ql-check-${i}`);
+                if (chk && chk.checked) count++;
+            }
+            document.getElementById('quickload-selected-count').textContent = count;
+        }
+
+        async function guardarJugadaCargaRapida(idx) {
+            const nameInput = document.getElementById(`ql-name-${idx}`);
+            if (!nameInput) return null;
+            let nombre = nameInput.value.trim().toUpperCase();
+            if (!nombre) { alert('⚠️ El bloque no tiene nombre, no se puede cargar.'); return null; }
+
+            // Última verificación, justo antes de guardar: trae la lista más fresca de Firebase
+            // (por si un jugador se autoregistró con este mismo apodo mientras cargabas el lote).
+            await loadUsersFromFirebase();
+
+            if (appState.users.some(u => u.name === nombre)) {
+                let contador = 2;
+                let candidato = `${nombre} ${String(contador).padStart(2, '0')}`;
+                while (appState.users.some(u => u.name === candidato)) { contador++; candidato = `${nombre} ${String(contador).padStart(2, '0')}`; }
+                const usar = confirm(`⚠️ El apodo "${nombre}" ya existe.\n\n¿Usar "${candidato}" en su lugar?`);
+                if (!usar) return null;
+                nombre = candidato;
+            }
+
+            const picks = {};
+            for (let r = 1; r <= 6; r++) {
+                const input = document.getElementById(`ql-race-${idx}-${r}`);
+                const numeros = limpiarLineaANumeros(input.value);
+                if (numeros.length !== 3) { alert(`⚠️ La ${r}ª Válida de "${nombre}" no tiene exactamente 3 números. Corrígela antes de cargar.`); return null; }
+                picks[r] = numeros;
+            }
+
+            const originalPicksSnapshot = JSON.parse(JSON.stringify(picks));
+            try {
+                const docRef = await addDoc(collection(db, "usuarios"), {
+                    name: nombre, picks, originalPicks: originalPicksSnapshot, paid: false, createdAt: new Date().toISOString()
+                });
+                appState.users.push({ id: docRef.id, name: nombre, picks, originalPicks: originalPicksSnapshot, paid: false });
+                saveUsersToLocalStorage();
+
+                const item = window.__quickloadData ? window.__quickloadData[idx] : null;
+                if (item && item.sustituciones && item.sustituciones.length > 0) {
+                    const fecha = new Date().toISOString();
+                    const nuevasEntradas = item.sustituciones.map(s => ({
+                        jugador: nombre, userId: docRef.id, carrera: s.carrera, de: s.de, a: s.a, fecha, error: false, origen: 'carga-rapida'
+                    }));
+                    appState.reasignaciones = [...nuevasEntradas, ...appState.reasignaciones];
+                    await saveConfigToFirebase();
+                    renderReassignLog();
+                    renderRetirosTardiosPorValida();
+                }
+                return nombre;
+            } catch (error) {
+                console.error("❌ Error cargando jugada rápida:", error);
+                alert(`⚠️ Error al guardar la jugada de "${nombre}".`);
+                return null;
+            }
+        }
+
+        window.cargarBloqueIndividual = async function(idx) {
+            const block = document.getElementById(`ql-block-${idx}`);
+            if (block && block.dataset.cargado === '1') return; // ya cargado o en curso — ignora toques adicionales
+            if (block) block.dataset.cargado = '1';
+            const btn = block ? block.querySelector('button') : null;
+            if (btn) { btn.disabled = true; btn.textContent = 'Cargando...'; }
+
+            const nombre = await guardarJugadaCargaRapida(idx);
+            if (!nombre) {
+                if (block) block.dataset.cargado = '0'; // no se pudo guardar — permite reintentar
+                if (btn) { btn.disabled = false; btn.textContent = 'Cargar solo éste'; }
+                return;
+            }
+            block.style.opacity = '0.4';
+            block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
+            renderAdminEditList();
+            alert(`✅ Jugada de "${nombre}" cargada con éxito.`);
+        }
+
+        let cargaRapidaLoteEnCurso = false;
+
+        window.confirmarCargaRapidaLote = async function() {
+            if (cargaRapidaLoteEnCurso) return; // ya hay un lote en proceso — ignora toques adicionales
+            const total = window.__quickloadData ? window.__quickloadData.length : 0;
+            if (total === 0) return alert("⚠️ Primero procesa un lote de bloques.");
+            cargaRapidaLoteEnCurso = true;
+            try {
+                const cargados = [];
+                const saltados = [];
+                for (let i = 0; i < total; i++) {
+                    const chk = document.getElementById(`ql-check-${i}`);
+                    const block = document.getElementById(`ql-block-${i}`);
+                    if (!chk || !chk.checked || !block || block.dataset.cargado === '1') continue;
+                    block.dataset.cargado = '1'; // marcar de una vez, antes del await, para que no se reprocese
+                    const nombre = await guardarJugadaCargaRapida(i);
+                    if (nombre) {
+                        cargados.push(nombre);
+                        block.style.opacity = '0.4';
+                        block.innerHTML = `<p class="text-center text-green-400 font-black text-sm py-2">✅ ${nombre} — cargado</p>`;
+                    } else {
+                        block.dataset.cargado = '0'; // no se pudo guardar — permite reintentar
+                        saltados.push(i);
+                    }
+                }
+                renderAdminEditList();
+                let msg = `✅ Lote procesado.\n\nCargados (${cargados.length}):\n${cargados.map(n => '• ' + n).join('\n')}`;
+                if (saltados.length > 0) msg += `\n\n⚠️ ${saltados.length} bloque(s) quedaron sin cargar (corrígelos o usa "Cargar solo éste" de nuevo).`;
+                alert(msg);
+            } finally {
+                cargaRapidaLoteEnCurso = false;
+            }
+        }
+        // =================== FIN CARGA RÁPIDA POR BLOQUES ===================
 
         window.generateInitialReport = function() {
             const completeUsers = appState.users.filter(u => {
@@ -1161,13 +2690,13 @@
             msg += '⚠️ *¡IMPORTANTE!*\n';
             msg += '• Revisa tus selecciones cuidadosamente\n';
             msg += '• Una vez iniciada la primera carrera, no se aceptarán cambios\n';
-            msg += '• Los caballos "Retirados" no aparecerán en tu pantalla\n\n';
             msg += '🐎 *¡Que comience la emoción!* 🐎';
             
             const preview = document.getElementById('initial-report-preview');
             preview.textContent = msg;
             document.getElementById('initial-report-preview-container').classList.remove('hidden');
             window.lastInitialReport = msg;
+            actualizarContadorCaracteres(msg, 'initial-report-counter', 'initial-report-split');
             document.getElementById('initial-report-preview-container').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1219,7 +2748,12 @@
             const aliveUsers = usersWithStatus.filter(u => u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const eliminatedUsers = usersWithStatus.filter(u => !u.alive).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             const { premioSemanal, acumuladoTotal, premioTotal } = calcularPremio();
-            
+            // ¿Ya se empujó el acumulado de HOY al historial? Si no, hay que proyectar
+            // el total completo (premio de hoy + lo acumulado previamente).
+            const hoyISO = new Date().toISOString().split('T')[0];
+            const yaAcumuladoHoy = appState.historialAcumulados.some(item => item.fecha === hoyISO);
+            const premioTotalMostrado = (aliveUsers.length === 0) ? (yaAcumuladoHoy ? acumuladoTotal : premioTotal) : premioTotal;
+
             let msg = '';
             msg += '🏇 *3 x 6 ACTIVO* 🏇\n';
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
@@ -1234,7 +2768,7 @@
                 msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
                 msg += `💰 *TOTAL ACUMULADO:* ${formatearBs(acumuladoTotal)}\n`;
                 msg += `💵 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
-                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotal)}\n\n`;
+                msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioTotalMostrado)}\n\n`;
             } else {
                 msg += `💰 *PREMIO SEMANAL:* ${formatearBs(premioSemanal)}\n`;
                 msg += `🎯 *PREMIO TOTAL:* ${formatearBs(premioSemanal)}\n\n`;
@@ -1242,7 +2776,7 @@
             
             msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             msg += `🎯 *RESULTADO ${currentRace}ª VÁLIDA*\n`;
-            msg += `🏆 Ganador: Caballo *#${appState.results[currentRace]}*\n\n`;
+            msg += `🏆 Ganador: *${nombreCaballo(currentRace, appState.results[currentRace])}*\n\n`;
             msg += '📊 *ESTADO ACTUAL*\n';
             const etiquetaEstado = (currentRace === 6 && aliveUsers.length > 0) ? `✅ Ganadores: ${aliveUsers.length}` : `✅ Vivos: ${aliveUsers.length}`;
             msg += `${etiquetaEstado}\n`;
@@ -1256,8 +2790,9 @@
                 msg += '━━━━━━━━━━━━━━━━━━━\n\n';
             }
             
-            // ✅ RESTAURADO: Muestra el detalle de las 6 carreras para los VIVOS
-            if (aliveUsers.length > 0) {
+            // Desglose detallado de VIVOS: aplica en todas las válidas EXCEPTO la 6ª con ganadores
+            // (ahí ya no "siguen en carrera", ganaron — ese detalle se muda al reporte de ganadores).
+            if (aliveUsers.length > 0 && !(currentRace === 6)) {
                 msg += '🟢 *VIVOS* (Siguen en carrera)\n\n';
                 const medals = ['🥇', '🥈', '🥉'];
                 aliveUsers.forEach((u, i) => {
@@ -1289,21 +2824,18 @@
             }
             
             msg += '━━━━━━━━━━━━━━━━━━━\n';
-            // ✅ RESTAURADO: Al final de la 6ª válida, muestra el bloque de felicitaciones y premios
+            // Cierre de la 6ª válida: solo informa SI hubo ganadores y CUÁNTOS — el detalle de
+            // nombres, jugadas y montos individuales vive en el reporte separado de ganadores.
             if (currentRace === 6) {
                 if (aliveUsers.length > 0) {
-                    const premioIndividual = premioTotal / aliveUsers.length;
-                    const tituloGanadores = aliveUsers.length > 1 ? 'A LOS GANADORES' : 'AL GANADOR';
-                    msg += `🏆 *¡FELICIDADES ${tituloGanadores}!* 🏆\n\n`;
-                    aliveUsers.forEach(u => {
-                        msg += `*${u.name}* ➡️ ${formatearBs(premioIndividual)}\n`;
-                    });
-                    msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
+                    const tituloGanadores = aliveUsers.length > 1 ? '¡HUBO GANADORES!' : '¡HUBO UN GANADOR!';
+                    msg += `🏆 *${tituloGanadores}* 🏆\n\n`;
+                    msg += `Cantidad de ganadores: *${aliveUsers.length}*\n\n`;
                     msg += '🐎 *¡Gracias por participar!* 🐎\n\n';
                     msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
                 } else {
                     msg += '🏆 *NO HUBO GANADORES* 🏆\n\n';
-                    msg += `El premio de *${formatearBs(premioTotal)}* queda acumulado para la próxima semana.\n\n`;
+                    msg += `El premio de *${formatearBs(premioTotalMostrado)}* queda acumulado para la próxima semana.\n\n`;
                     msg += '🐎 *¡Gracias por participar!* 🐎\n\n';
                     msg += 'NOS VEMOS EL PRÓXIMO DOMINGO.';
                 }
@@ -1315,6 +2847,7 @@
             preview.textContent = msg;
             document.getElementById('whatsapp-preview-container').classList.remove('hidden');
             window.lastWhatsAppReport = msg;
+            actualizarContadorCaracteres(msg, 'whatsapp-report-counter', 'whatsapp-report-split');
             document.getElementById('whatsapp-preview-container').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1333,6 +2866,216 @@
                 alert("✅ ¡Reporte copiado! Pégalo en WhatsApp.");
             }
         }
+
+        // ================= REPORTE SEPARADO: GANADORES DE LA JORNADA =================
+        window.generateWinnersReport = function() {
+            if (appState.results[6] === null || appState.results[6] === undefined) {
+                return alert("⚠️ Este reporte solo está disponible una vez cargado el resultado de la 6ª Válida.");
+            }
+
+            const usuariosValidos = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += (u.picks[r] || []).length;
+                return total === 18;
+            });
+
+            const aliveUsers = usuariosValidos.filter(user => {
+                for (let r = 1; r <= 6; r++) {
+                    const winner = appState.results[r];
+                    if (!winner || !user.picks[r].includes(winner)) return false;
+                }
+                return true;
+            }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+            if (aliveUsers.length === 0) {
+                return alert("⚠️ No hubo ganadores en esta jornada — no hay reporte de ganadores que generar.");
+            }
+
+            const { premioTotal } = calcularPremio();
+            const premioIndividual = premioTotal / aliveUsers.length;
+            const tituloGanadores = aliveUsers.length > 1 ? 'A LOS GANADORES' : 'AL GANADOR';
+
+            let msg = '🏆 *GANADORES DE LA JORNADA* 🏆\n';
+            msg += '📅 ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+
+            msg += '🐎 *EJEMPLARES GANADORES*\n';
+            for (let r = 1; r <= 6; r++) {
+                msg += `${r}ª V.: *${nombreCaballo(r, appState.results[r])}*\n`;
+            }
+
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += `🎉 *¡FELICIDADES ${tituloGanadores}!* 🎉\n\n`;
+            aliveUsers.forEach(u => {
+                msg += `*${u.name}* ➡️ ${formatearBs(premioIndividual)}\n`;
+            });
+            msg += '➖➖➖➖➖➖➖➖➖➖➖\n';
+            msg += '🐎 *¡Gracias por participar!* 🐎';
+
+            const preview = document.getElementById('winners-report-preview');
+            preview.textContent = msg;
+            document.getElementById('winners-report-container').classList.remove('hidden');
+            window.lastWinnersReport = msg;
+            actualizarContadorCaracteres(msg, 'winners-report-counter', 'winners-report-split');
+            document.getElementById('winners-report-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyWinnersReport = async function() {
+            if (!window.lastWinnersReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastWinnersReport);
+                alert("✅ ¡Reporte de ganadores copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastWinnersReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte de ganadores copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // =============== FIN REPORTE SEPARADO: GANADORES DE LA JORNADA ===============
+
+        // ===================== PESTAÑA INSCRITOS =====================
+        const ORDINALES_CARRERA = {
+            1: '1era', 2: '2da', 3: '3era', 4: '4ta', 5: '5ta', 6: '6ta', 7: '7ma', 8: '8va', 9: '9na', 10: '10ma',
+            11: '11va', 12: '12va', 13: '13ra', 14: '14ta', 15: '15ta', 16: '16ta', 17: '17ma', 18: '18va', 19: '19na', 20: '20ma'
+        };
+        function ordinalCarrera(n) {
+            if (!n) return '?';
+            return ORDINALES_CARRERA[n] || `${n}ta`;
+        }
+
+        window.toggleCamposCarrerasNoConsecutivas = function() {
+            const esConsecutivas = document.querySelector('input[name="consecutivas"]:checked').value === 'si';
+            document.getElementById('campos-carreras-no-consecutivas').classList.toggle('hidden', esConsecutivas);
+        }
+
+        window.guardarNumerosCarreraReal = async function() {
+            const primeraCarrera = parseInt(document.getElementById('numero-carrera-1v').value);
+            if (!primeraCarrera || primeraCarrera < 1) return alert("⚠️ Ingresa el número de carrera de la 1ª Válida.");
+
+            const esConsecutivas = document.querySelector('input[name="consecutivas"]:checked').value === 'si';
+            const nuevo = { 1: primeraCarrera };
+
+            if (esConsecutivas) {
+                for (let r = 2; r <= 6; r++) nuevo[r] = primeraCarrera + (r - 1);
+            } else {
+                for (let r = 2; r <= 6; r++) {
+                    const val = parseInt(document.getElementById(`numero-carrera-${r}v`).value);
+                    if (!val || val < 1) return alert(`⚠️ Ingresa el número de carrera real de la ${r}ª Válida.`);
+                    nuevo[r] = val;
+                }
+            }
+
+            appState.numeroCarreraReal = nuevo;
+            await saveConfigToFirebase();
+            alert("✅ Números de carrera guardados.");
+            renderInscritos();
+        }
+
+        window.renderInscritos = function() {
+            // Rellenar los campos con lo ya guardado, si existe
+            if (appState.numeroCarreraReal && appState.numeroCarreraReal[1]) {
+                const input1v = document.getElementById('numero-carrera-1v');
+                if (input1v && !input1v.value) input1v.value = appState.numeroCarreraReal[1];
+            }
+
+            const container = document.getElementById('inscritos-listado');
+            if (!container) return;
+
+            let hayDatos = false;
+            let html = '';
+            for (let r = 1; r <= 6; r++) {
+                const nombres = appState.horseNames[r] || {};
+                const entradas = Object.entries(nombres).sort((a, b) => a[0] - b[0]);
+                if (entradas.length === 0) continue;
+                hayDatos = true;
+                const numeroReal = appState.numeroCarreraReal ? appState.numeroCarreraReal[r] : null;
+                const titulo = numeroReal ? `${ordinalCarrera(numeroReal)}. — ${r}ª V.` : `${r}ª V. (número de carrera sin asignar)`;
+
+                html += `<div class="p-3 bg-white/5 border border-white/10 rounded-xl">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="font-black text-brand-amber text-sm">${titulo}</p>
+                        <button onclick="copiarInscritosValida(${r})" class="bg-brand-orange/20 hover:bg-brand-orange/40 text-brand-orange text-[10px] font-black px-2 py-1.5 rounded-lg whitespace-nowrap">
+                            <i class="fa-solid fa-copy mr-1"></i>Copiar
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-300 space-y-0.5">
+                        ${entradas.map(([num, nombre]) => `<p>N° ${num} ${nombre}</p>`).join('')}
+                    </div>
+                </div>`;
+            }
+            container.innerHTML = hayDatos ? html : '<p class="text-gray-500 text-sm text-center py-4">Aún no hay listado de ejemplares cargado — pégalo en la pestaña "1. Carreras".</p>';
+        }
+
+        window.copiarInscritosValida = async function(race) {
+            const nombres = appState.horseNames[race] || {};
+            const entradas = Object.entries(nombres).sort((a, b) => a[0] - b[0]);
+            if (entradas.length === 0) return alert("⚠️ No hay ejemplares cargados para esta válida.");
+
+            const numeroReal = appState.numeroCarreraReal ? appState.numeroCarreraReal[race] : null;
+            const titulo = numeroReal ? `${ordinalCarrera(numeroReal)}. — ${race}ª V.` : `${race}ª V.`;
+
+            let msg = `🐎 *${titulo}*\n━━━━━━━━━━━━━━━━━━━\n`;
+            entradas.forEach(([num, nombre]) => { msg += `N° ${num} ${nombre}\n`; });
+
+            try {
+                await navigator.clipboard.writeText(msg);
+                alert(`✅ ¡Ejemplares de la ${race}ª Válida copiados!`);
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = msg;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(`✅ ¡Ejemplares de la ${race}ª Válida copiados!`);
+            }
+        }
+
+        window.generateResumenGanadoresEnVivo = function() {
+            let hayResultados = false;
+            let msg = '📋 *RESUMEN DE GANADORES — EN VIVO*\n';
+            msg += '📅 ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+
+            for (let r = 1; r <= 6; r++) {
+                const ganador = appState.results[r];
+                if (ganador === null || ganador === undefined) break; // se detiene en la última válida con resultado
+                hayResultados = true;
+                msg += `${r}ª V.: ganó el *${nombreCaballo(r, ganador)}*\n`;
+            }
+
+            if (!hayResultados) return alert("⚠️ Todavía no hay ningún resultado cargado.");
+
+            msg += '\n━━━━━━━━━━━━━━━━━━━';
+
+            const preview = document.getElementById('resumen-ganadores-preview');
+            preview.textContent = msg;
+            document.getElementById('resumen-ganadores-container').classList.remove('hidden');
+            window.lastResumenGanadores = msg;
+            actualizarContadorCaracteres(msg, 'resumen-ganadores-counter', 'resumen-ganadores-split');
+            document.getElementById('resumen-ganadores-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyResumenGanadoresEnVivo = async function() {
+            if (!window.lastResumenGanadores) return alert("⚠️ Primero genera el resumen.");
+            try {
+                await navigator.clipboard.writeText(window.lastResumenGanadores);
+                alert("✅ ¡Resumen copiado!\n\nAhora pégalo en tu grupo de WhatsApp.");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastResumenGanadores;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Resumen copiado! Pégalo en WhatsApp.");
+            }
+        }
+        // =================== FIN PESTAÑA INSCRITOS ===================
 
         window.renderAdminPayments = async function() {
             await loadUsersFromFirebase();
@@ -1357,8 +3100,54 @@
             } catch (error) { alert("⚠️ Error actualizando pago."); }
         }
 
+        // Elimina por completo (base de datos, listas y logs) cualquier jugada que no tenga sus 18 selecciones.
+        async function purgarJugadasIncompletas() {
+            await loadUsersFromFirebase();
+            const incompletas = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += ((u.picks && u.picks[r]) || []).length;
+                return total !== 18;
+            });
+            if (incompletas.length === 0) return 0;
+            const nombres = incompletas.map(u => u.name).join(', ');
+            if (!confirm(`🧹 Se encontraron ${incompletas.length} jugada(s) incompleta(s): ${nombres}.\n\nSe eliminarán por completo, sin dejar rastro. ¿Continuar?`)) return 0;
+            for (const u of incompletas) {
+                try { await deleteDoc(doc(db, "usuarios", u.id)); } catch (e) { console.error("❌ Error eliminando jugada incompleta:", e); }
+            }
+            const ids = new Set(incompletas.map(u => u.id));
+            const nombresSet = new Set(incompletas.map(u => u.name));
+            appState.users = appState.users.filter(u => !ids.has(u.id));
+            appState.reasignaciones = appState.reasignaciones.filter(r => r.userId ? !ids.has(r.userId) : !nombresSet.has(r.jugador));
+            saveUsersToLocalStorage();
+            await saveConfigToFirebase();
+            renderReassignLog();
+            renderRetirosTardiosPorValida();
+            renderAdminEditList();
+            return incompletas.length;
+        }
+
+        // Cantidad de ganadores finales (acertaron las 6 válidas). 0 si aún no hay resultado de la 6ª.
+        function contarGanadoresFinales() {
+            if (appState.results[6] === null || appState.results[6] === undefined) return 0;
+            return appState.users.filter(user => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += ((user.picks && user.picks[r]) || []).length;
+                if (total !== 18) return false;
+                for (let r = 1; r <= 6; r++) {
+                    const w = appState.results[r];
+                    if (!w || !user.picks[r].includes(w)) return false;
+                }
+                return true;
+            }).length;
+        }
+
         window.resetAllData = async function() {
-            const confirm1 = confirm("⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n\n⚠️ NO se borrará:\n• El monto por jugada\n• El historial de acumulados\n\n¿Estás seguro de que deseas continuar?");
+            const ganadoresFinales = contarGanadoresFinales();
+            const acumuladoPrevio = appState.historialAcumulados.reduce((s, i) => s + i.monto, 0);
+            const liquidarAcumulado = ganadoresFinales > 0 && acumuladoPrevio > 0;
+            const lineaAcum = liquidarAcumulado ? `• El acumulado de ${formatearBs(acumuladoPrevio)} (hubo ${ganadoresFinales} ganador(es): ya se pagó dentro del premio total)\n` : '';
+            const noSeBorra = liquidarAcumulado ? '• El monto por jugada' : '• El monto por jugada\n• El historial de acumulados';
+            const confirm1 = confirm(`⚠️ ATENCIÓN: Esta acción ELIMINARÁ PERMANENTEMENTE:\n\n• Todos los participantes registrados\n• Todas las jugadas enviadas\n• Todos los resultados cargados\n• La configuración de carreras\n• Los caballos retirados\n• El listado de nombres de ejemplares\n• El historial de reasignaciones (retiros tardíos)\n${lineaAcum}\n⚠️ NO se borrará:\n${noSeBorra}\n\n¿Estás seguro de que deseas continuar?`);
             if (!confirm1) return;
             
             const confirm2 = prompt("⚠️ CONFIRMACIÓN FINAL:\n\nEscribe 'BORRAR' en mayúsculas para confirmar:");
@@ -1377,16 +3166,32 @@
                     raceConfig: { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 },
                     scratched: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
                     results: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
+                    horseNames: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} },
                     precioJugada: appState.precioJugada,
-                    historialAcumulados: appState.historialAcumulados,
+                    historialAcumulados: liquidarAcumulado ? [] : appState.historialAcumulados,
+                    modoSoloRanking: appState.modoSoloRanking,
+                    reasignaciones: [],
+                    horaPrimeraValida: null,
+                    numeroCarreraReal: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null },
                     updatedAt: new Date().toISOString()
                 });
                 
                 appState.raceConfig = { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9 };
                 appState.scratched = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
                 appState.results = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+                appState.horseNames = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {} };
+                appState.reasignaciones = [];
                 appState.users = [];
                 appState.currentUser = null;
+                if (liquidarAcumulado) appState.historialAcumulados = [];
+                // nueva jornada: la hora de la 1ª válida y los números de carrera se vuelven a pedir
+                appState.horaPrimeraValida = null;
+                appState.numeroCarreraReal = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+                if (intervaloContadorCarrera) { clearInterval(intervaloContadorCarrera); intervaloContadorCarrera = null; }
+                const panelContador = document.getElementById('contador-panel');
+                if (panelContador) panelContador.classList.add('hidden');
+                const horaInputReset = document.getElementById('hora-primera-valida-input');
+                if (horaInputReset) horaInputReset.value = '';
                 
                 localStorage.removeItem('tresXSeisActivo_Config');
                 localStorage.removeItem('tresXSeisActivo_Users');
@@ -1396,12 +3201,96 @@
                 renderAdminScratch();
                 renderAdminEditList();
                 renderHistorialAcumulados();
+                renderReassignLog();
+                renderRetirosTardiosPorValida();
                 
-                alert("✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\nEl historial de acumulados se mantuvo intacto.");
+                alert(`✅ ¡Base de datos vaciada exitosamente!\n\nEl sistema está listo para una nueva jornada dominical. 🏇\n\n${liquidarAcumulado ? 'El acumulado se liquidó porque hubo ganadores. El monto por jugada se mantuvo intacto.' : 'El historial de acumulados y el monto por jugada se mantuvieron intactos.'} El listado de ejemplares y el historial de reasignaciones se reiniciaron para la nueva jornada.`);
                 goHome();
             } catch (error) {
                 console.error("❌ Error al vaciar la base de datos:", error);
                 alert("⚠️ Ocurrió un error al vaciar la base de datos. Intenta de nuevo.");
+            }
+        }
+
+        // Agrupa las jugadas por persona: GABRIEL, GABRIEL 02, GABRIEL 03 son un mismo participante.
+        // "GABRIEL D" y "GABRIEL H" son personas distintas. Un apodo con número propio va pegado (PICHO22 03).
+        function agruparJugadasPorParticipante(nombres) {
+            const patron = /^(.*\S) (\d{2})$/;
+            const setNombres = new Set(nombres);
+            const usosBase = {};
+            nombres.forEach(n => { const m = n.match(patron); const k = m ? m[1] : n; usosBase[k] = (usosBase[k] || 0) + 1; });
+            const grupos = {};
+            nombres.forEach(n => {
+                const m = n.match(patron);
+                let clave = n;
+                if (m && (setNombres.has(m[1]) || usosBase[m[1]] >= 2)) clave = m[1];
+                grupos[clave] = (grupos[clave] || 0) + 1;
+            });
+            return Object.entries(grupos).sort((a, b) => a[0].localeCompare(b[0], 'es'));
+        }
+
+        window.generateJugadasDelDiaReport = async function() {
+            await loadUsersFromFirebase();
+            await purgarJugadasIncompletas();
+            const completas = appState.users.filter(u => {
+                let total = 0;
+                for (let r = 1; r <= 6; r++) total += ((u.picks && u.picks[r]) || []).length;
+                return total === 18;
+            });
+            if (completas.length === 0) return alert("⚠️ Aún no hay jugadas registradas.");
+
+            const totalJugadas = completas.length;
+            const precio = appState.precioJugada;
+            const montoGeneral = totalJugadas * precio;
+            const porcCasa = Math.round((1 - PORCENTAJE_PREMIO) * 100) / 100;
+            const casa = Math.round(montoGeneral * porcCasa * 100) / 100;
+            const administrador = Math.round(casa * 0.6 * 100) / 100;
+            const sistema = Math.round((casa - administrador) * 100) / 100;
+            const lista = agruparJugadasPorParticipante(completas.map(u => u.name));
+            const sumaListada = lista.reduce((s, [, n]) => s + n, 0);
+            const cuadra = sumaListada === totalJugadas;
+            const pct = x => Math.round(x * 100);
+
+            let msg = '📊 *REPORTE DE JUGADAS DEL DÍA*\n';
+            msg += '📅 ' + new Date().toLocaleDateString('es-VE') + '\n';
+            msg += '━━━━━━━━━━━━━━━━━━━\n\n';
+            msg += '💰 *VENTAS DEL DÍA*\n';
+            msg += `Total de jugadas: *${totalJugadas}*\n`;
+            msg += `Monto por jugada: *${formatearBs(precio)}*\n`;
+            msg += `Monto general (total): *${formatearBs(montoGeneral)}*\n\n`;
+            msg += `🏠 *PORCENTAJE DE LA CASA (${pct(porcCasa)}%)*\n`;
+            msg += `Monto: *${formatearBs(casa)}*\n`;
+            msg += `• Administrador (60%): *${formatearBs(administrador)}*\n`;
+            msg += `• Sistema (40%): *${formatearBs(sistema)}*\n\n`;
+            msg += '━━━━━━━━━━━━━━━━━━━\n';
+            msg += `👥 *PARTICIPANTES Y JUGADAS* (${lista.length})\n\n`;
+            lista.forEach(([nombre, n], i) => { msg += `${i + 1}. *${nombre}* — ${n} jugada${n === 1 ? '' : 's'}\n`; });
+            msg += '\n━━━━━━━━━━━━━━━━━━━\n';
+            msg += cuadra
+                ? `✅ *CONTROL:* ${sumaListada} jugadas listadas = ${totalJugadas} jugadas del día. Todo cuadra.`
+                : `⚠️ *CONTROL: NO CUADRA* — listadas ${sumaListada}, jugadas del día ${totalJugadas}. Revisa antes de usar este reporte.`;
+
+            document.getElementById('jugadas-dia-preview').textContent = msg;
+            document.getElementById('jugadas-dia-container').classList.remove('hidden');
+            window.lastJugadasDiaReport = msg;
+            actualizarContadorCaracteres(msg, 'jugadas-dia-counter', 'jugadas-dia-split');
+            document.getElementById('jugadas-dia-container').scrollIntoView({ behavior: 'smooth' });
+            if (!cuadra) alert("⚠️ El control no cuadra: " + sumaListada + " listadas vs " + totalJugadas + " jugadas del día.");
+        }
+
+        window.copyJugadasDelDiaReport = async function() {
+            if (!window.lastJugadasDiaReport) return alert("⚠️ Primero genera el reporte.");
+            try {
+                await navigator.clipboard.writeText(window.lastJugadasDiaReport);
+                alert("✅ ¡Reporte copiado!");
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = window.lastJugadasDiaReport;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("✅ ¡Reporte copiado!");
             }
         }
 
@@ -1419,6 +3308,7 @@
             preview.textContent = msg;
             document.getElementById('payment-report-container').classList.remove('hidden');
             window.lastPaymentReport = msg;
+            actualizarContadorCaracteres(msg, 'payment-report-counter', 'payment-report-split');
             document.getElementById('payment-report-container').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1474,6 +3364,7 @@
             preview.textContent = msg;
             document.getElementById('averages-report-container').classList.remove('hidden');
             window.lastAveragesReport = msg;
+            actualizarContadorCaracteres(msg, 'averages-report-counter', 'averages-report-split');
             document.getElementById('averages-report-container').scrollIntoView({ behavior: 'smooth' });
         }
 
